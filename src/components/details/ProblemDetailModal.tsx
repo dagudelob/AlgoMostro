@@ -8,7 +8,9 @@ import {
   XCircle, 
   Lightbulb, 
   Code,
-  Sparkles
+  Sparkles,
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 
 // Visualizers
@@ -44,7 +46,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
 
   if (!result) return null;
 
-  const currentProblem = result.classicProblems[0];
+  const currentProblem = result.classicProblems?.[0];
 
   const renderVisualizer = () => {
     switch (result.visualizerType) {
@@ -64,27 +66,22 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
       case 'binary_search': return <BinarySearchVisualizer />;
       case 'greedy': return <GreedyVisualizer />;
       case 'prefix_sum': return <PrefixSumVisualizer />;
-      default: return <BFSVisualizer />;
+      default: return <div>No simulator mapped.</div>;
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={result.name} maxWidth="900px">
+    <Modal isOpen={isOpen} onClose={onClose} title={result.name} maxWidth="1050px">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {/* Header Tags & Complexities */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+        {/* Header Badges and Meta */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-              {result.dataStructures.map(ds => (
-                <span key={ds} className="cyber-badge badge-cyan">{ds}</span>
-              ))}
-              {result.algorithms.map(algo => (
-                <span key={algo} className="cyber-badge badge-magenta">{algo}</span>
-              ))}
-            </div>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <span className="cyber-badge badge-magenta" style={{ marginRight: '8px' }}>
+              {result.category.toUpperCase()}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               {result.tagline}
-            </p>
+            </span>
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -94,7 +91,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(0, 245, 255, 0.15)', paddingBottom: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(0, 245, 255, 0.15)', paddingBottom: '10px' }}>
           <button
             onClick={() => setActiveTab('overview')}
             className={`cyber-tab ${activeTab === 'overview' ? 'active' : ''}`}
@@ -112,7 +109,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
               color: activeTab === 'overview' ? 'var(--neon-cyan)' : 'var(--text-muted)'
             }}
           >
-            <Lightbulb size={15} /> Overview & Theory
+            <BookOpen size={15} /> Overview & Theory
           </button>
 
           <button
@@ -168,6 +165,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
               </p>
             </div>
 
+            {/* When to Use & When to Avoid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
               <div style={{ backgroundColor: 'rgba(57, 255, 20, 0.05)', border: '1px solid rgba(57, 255, 20, 0.2)', padding: '14px', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
@@ -193,6 +191,101 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
                 </ul>
               </div>
             </div>
+
+            {/* Curated LeetCode Practice Problems: Easy (Green), Medium (Yellow), Hard (Red) */}
+            {result.practiceProblems && result.practiceProblems.length > 0 && (
+              <div style={{ backgroundColor: '#090f20', border: '1px solid rgba(0, 245, 255, 0.25)', padding: '16px', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ExternalLink size={16} color="var(--neon-cyan)" />
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+                      CURATED LEETCODE PRACTICE PROBLEMS (EASY / MEDIUM / HARD)
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                    Direct LeetCode Links
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
+                  {result.practiceProblems.map((prob) => {
+                    let diffColor = '#39ff14'; // Easy = Green
+                    let diffBg = 'rgba(57, 255, 20, 0.1)';
+                    let borderGlow = 'rgba(57, 255, 20, 0.35)';
+
+                    if (prob.difficulty === 'Medium') {
+                      diffColor = '#ffd60a'; // Medium = Yellow
+                      diffBg = 'rgba(255, 214, 10, 0.1)';
+                      borderGlow = 'rgba(255, 214, 10, 0.35)';
+                    } else if (prob.difficulty === 'Hard') {
+                      diffColor = '#ff3366'; // Hard = Red
+                      diffBg = 'rgba(255, 51, 102, 0.12)';
+                      borderGlow = 'rgba(255, 51, 102, 0.4)';
+                    }
+
+                    return (
+                      <a
+                        key={prob.id}
+                        href={prob.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          padding: '12px 14px',
+                          borderRadius: 'var(--radius-sm)',
+                          backgroundColor: diffBg,
+                          border: `1.5px solid ${borderGlow}`,
+                          textDecoration: 'none',
+                          transition: 'all 0.2s',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = `0 4px 15px ${borderGlow}`;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                            #{prob.problemNumber}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.68rem',
+                              fontWeight: 800,
+                              color: diffColor,
+                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              padding: '2px 8px',
+                              borderRadius: '3px',
+                              border: `1px solid ${diffColor}`,
+                              letterSpacing: '0.5px'
+                            }}
+                          >
+                            {prob.difficulty.toUpperCase()}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                          <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>
+                            {prob.title}
+                          </span>
+                          <ExternalLink size={13} color="var(--text-muted)" />
+                        </div>
+
+                        <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                          {prob.summary}
+                        </p>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -220,17 +313,17 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
                 {currentProblem.summary}
               </p>
 
-              <div style={{ backgroundColor: '#070a14', padding: '10px', borderRadius: '4px', fontSize: '0.8rem', color: '#a0c4ff', fontFamily: 'var(--font-mono)' }}>
-                <span style={{ color: 'var(--neon-cyan)', fontWeight: 700 }}>KEY INSIGHT: </span>
-                {currentProblem.keyInsight}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--neon-yellow)', fontSize: '0.8rem', backgroundColor: 'rgba(255, 214, 10, 0.08)', padding: '8px 12px', borderRadius: '4px' }}>
+                <Lightbulb size={16} />
+                <span><strong>Key Insight:</strong> {currentProblem.keyInsight}</span>
               </div>
             </div>
 
-            {/* Native IDE Syntax Highlighting Code Box */}
+            {/* Pylance / IDE Code Viewer */}
             <SyntaxHighlighter
               pythonCode={currentProblem.pythonCode}
               tsCode={currentProblem.tsCode}
-              title={`Solution for ${currentProblem.title}`}
+              title={`LeetCode #${currentProblem.problemNumber || ''} Solution`}
             />
           </div>
         )}

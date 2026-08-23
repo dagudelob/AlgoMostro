@@ -2,11 +2,11 @@ export type Category =
   | 'graph' 
   | 'tree' 
   | 'array_string' 
-  | 'linked_list'
+  | 'linked_list' 
   | 'dp' 
-  | 'binary_search'
-  | 'heap'
-  | 'greedy'
+  | 'binary_search' 
+  | 'heap' 
+  | 'greedy' 
   | 'math' 
   | 'design' 
   | 'general';
@@ -19,7 +19,7 @@ export type VisualizerType =
   | 'heap' 
   | 'trie' 
   | 'stack' 
-  | 'queue'
+  | 'queue' 
   | 'sliding_window' 
   | 'two_pointers' 
   | 'bfs' 
@@ -31,7 +31,7 @@ export type VisualizerType =
 
 export interface FlowchartOption {
   id: string;
-  label: string; // 'Yes' | 'No' | 'Depends' | custom text
+  label: string;
   description?: string;
   nextNodeId?: string;
   algorithmResultId?: string;
@@ -65,6 +65,15 @@ export interface ClassicProblem {
   sampleOutput: string;
 }
 
+export interface PracticeProblem {
+  id: string;
+  title: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  problemNumber: number;
+  url: string;
+  summary: string;
+}
+
 export interface AlgorithmResult {
   id: string;
   name: string;
@@ -78,6 +87,7 @@ export interface AlgorithmResult {
   algorithms: string[];
   visualizerType?: VisualizerType;
   classicProblems: ClassicProblem[];
+  practiceProblems?: PracticeProblem[];
   whenToUse: string[];
   whenToAvoid: string[];
 }
