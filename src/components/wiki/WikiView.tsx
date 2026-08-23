@@ -12,7 +12,8 @@ import {
   Search, 
   Clock, 
   CheckCircle2, 
-  Workflow
+  Workflow,
+  PlayCircle
 } from 'lucide-react';
 
 interface WikiViewProps {
@@ -21,7 +22,7 @@ interface WikiViewProps {
 
 type WikiTab = 'curriculum' | 'decision_matrix' | 'complexity' | 'glossary';
 
-export const WikiView: React.FC<WikiViewProps> = () => {
+export const WikiView: React.FC<WikiViewProps> = ({ onOpenVisualizer }) => {
   const [activeTab, setActiveTab] = useState<WikiTab>('curriculum');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedModuleId, setSelectedModuleId] = useState<string>('module-ds');
@@ -177,7 +178,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
         </button>
       </div>
 
-      {/* TAB 1: Progressive Curriculum */}
+      {/* TAB 1: Progressive Curriculum with Direct Visualizer Links */}
       {activeTab === 'curriculum' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(0, 2.5fr)', gap: '24px', alignItems: 'start' }}>
           {/* Sidebar Roadmap Tracker */}
@@ -213,7 +214,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
             })}
           </div>
 
-          {/* Module Deep Dive Articles */}
+          {/* Module Deep Dive Articles with Simulator Launchers */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {WIKI_MODULES.find(m => m.id === selectedModuleId)?.articles.map((art) => (
               <div
@@ -225,21 +226,41 @@ export const WikiView: React.FC<WikiViewProps> = () => {
                   padding: '22px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px'
+                  gap: '14px'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>
-                    {art.title}
-                  </h3>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {art.timeComplexity && (
-                      <span className="cyber-badge badge-cyan">{art.timeComplexity}</span>
-                    )}
-                    {art.spaceComplexity && (
-                      <span className="cyber-badge badge-magenta">{art.spaceComplexity}</span>
-                    )}
+                  <div>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', color: '#fff' }}>
+                      {art.title}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {art.timeComplexity && (
+                        <span className="cyber-badge badge-cyan" style={{ fontSize: '0.7rem' }}>{art.timeComplexity}</span>
+                      )}
+                      {art.spaceComplexity && (
+                        <span className="cyber-badge badge-magenta" style={{ fontSize: '0.7rem' }}>{art.spaceComplexity}</span>
+                      )}
+                    </div>
                   </div>
+
+                  {art.visualizerType && onOpenVisualizer && (
+                    <button
+                      onClick={() => onOpenVisualizer(art.visualizerType!)}
+                      className="cyber-btn"
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: '0.78rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <PlayCircle size={14} />
+                      <span>Launch Live Simulator</span>
+                    </button>
+                  )}
                 </div>
 
                 <p style={{ margin: 0, color: '#c9e6ff', fontSize: '0.88rem', lineHeight: 1.6 }}>
@@ -257,7 +278,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
         </div>
       )}
 
-      {/* TAB 2: Decision Guide (When to Use What) */}
+      {/* TAB 2: Decision Guide with Direct Simulator Links */}
       {activeTab === 'decision_matrix' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ backgroundColor: 'rgba(13, 21, 39, 0.6)', padding: '14px 18px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--neon-magenta)' }}>
@@ -265,7 +286,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
               HOW TO USE THIS ALGORITHMIC DECISION MATRIX:
             </h4>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Scan the problem description for input characteristics (sorted, graph, subarray, constraints). Match the signal below to instantly determine the optimal time-efficient algorithm.
+              Scan the problem description for input characteristics (sorted, graph, subarray, constraints). Match the signal below to determine the optimal pattern and launch its interactive simulator.
             </p>
           </div>
 
@@ -293,13 +314,26 @@ export const WikiView: React.FC<WikiViewProps> = () => {
                   "{rule.signal}"
                 </p>
 
-                <div style={{ backgroundColor: 'rgba(255, 0, 127, 0.1)', padding: '8px 12px', borderRadius: '4px', border: '1px solid rgba(255, 0, 127, 0.3)' }}>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--neon-magenta)', fontWeight: 700, fontFamily: 'var(--font-mono)', display: 'block' }}>
-                    RECOMMENDED PATTERN:
-                  </span>
-                  <span style={{ fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
-                    {rule.recommendation}
-                  </span>
+                <div style={{ backgroundColor: 'rgba(255, 0, 127, 0.1)', padding: '8px 12px', borderRadius: '4px', border: '1px solid rgba(255, 0, 127, 0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--neon-magenta)', fontWeight: 700, fontFamily: 'var(--font-mono)', display: 'block' }}>
+                      RECOMMENDED PATTERN:
+                    </span>
+                    <span style={{ fontSize: '0.92rem', color: '#fff', fontWeight: 700 }}>
+                      {rule.recommendation}
+                    </span>
+                  </div>
+
+                  {rule.visualizerType && onOpenVisualizer && (
+                    <button
+                      onClick={() => onOpenVisualizer(rule.visualizerType!)}
+                      className="cyber-btn"
+                      style={{ padding: '5px 10px', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <PlayCircle size={13} />
+                      <span>Simulator</span>
+                    </button>
+                  )}
                 </div>
 
                 <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
@@ -315,7 +349,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
         </div>
       )}
 
-      {/* TAB 3: Computational Complexity Cheat Sheet */}
+      {/* TAB 3: Computational Complexity Cheat Sheet with Simulator Links */}
       {activeTab === 'complexity' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ backgroundColor: 'rgba(13, 21, 39, 0.6)', padding: '16px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--neon-green)' }}>
@@ -335,11 +369,12 @@ export const WikiView: React.FC<WikiViewProps> = () => {
               overflow: 'hidden'
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1.2fr 3fr', padding: '12px 18px', backgroundColor: '#0d1527', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', fontSize: '0.78rem', color: 'var(--neon-cyan)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1.2fr 3fr 1.2fr', padding: '12px 18px', backgroundColor: '#0d1527', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', fontSize: '0.78rem', color: 'var(--neon-cyan)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
               <span>NOTATION</span>
               <span>NAME</span>
               <span>MAX FEASIBLE N</span>
-              <span>TYPICAL ALGORITHMS & OPERATIONS</span>
+              <span>TYPICAL ALGORITHMS</span>
+              <span>SIMULATOR</span>
             </div>
 
             {BIG_O_CHEATSHEET.map((item, idx) => (
@@ -347,7 +382,7 @@ export const WikiView: React.FC<WikiViewProps> = () => {
                 key={idx}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1.2fr 1.5fr 1.2fr 3fr',
+                  gridTemplateColumns: '1.2fr 1.5fr 1.2fr 3fr 1.2fr',
                   padding: '14px 18px',
                   alignItems: 'center',
                   borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
@@ -371,13 +406,25 @@ export const WikiView: React.FC<WikiViewProps> = () => {
                     </span>
                   ))}
                 </div>
+                <div>
+                  {item.visualizerType && onOpenVisualizer && (
+                    <button
+                      onClick={() => onOpenVisualizer(item.visualizerType!)}
+                      className="cyber-btn-secondary"
+                      style={{ padding: '4px 8px', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <PlayCircle size={12} />
+                      <span>Live Test</span>
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* TAB 4: Technical Glossary */}
+      {/* TAB 4: Technical Glossary with Simulator Links */}
       {activeTab === 'glossary' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px' }}>
           {filteredGlossary.map((item, idx) => (
@@ -397,9 +444,20 @@ export const WikiView: React.FC<WikiViewProps> = () => {
                 <h4 style={{ margin: 0, fontSize: '1rem', color: '#fff', fontWeight: 700 }}>
                   {item.term}
                 </h4>
-                <span className="cyber-badge badge-yellow" style={{ fontSize: '0.65rem' }}>
-                  {item.category}
-                </span>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <span className="cyber-badge badge-yellow" style={{ fontSize: '0.65rem' }}>
+                    {item.category}
+                  </span>
+                  {item.visualizerType && onOpenVisualizer && (
+                    <button
+                      onClick={() => onOpenVisualizer(item.visualizerType!)}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--neon-cyan)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '2px' }}
+                      title="Launch Simulator"
+                    >
+                      <PlayCircle size={15} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>

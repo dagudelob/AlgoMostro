@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { FLOWCHART_NODES, FLOWCHART_ROOT_ID } from '../../data/flowchartData';
+import { 
+  FLOWCHART_NODES, 
+  FLOWCHART_ROOT_ID,
+  FLOWCHART_ALGO_SHOWDOWN_NODES,
+  FLOWCHART_ALGO_SHOWDOWN_ROOT_ID
+} from '../../data/flowchartData';
 import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
 import { 
   Sparkles, 
@@ -7,7 +12,9 @@ import {
   RotateCcw, 
   HelpCircle, 
   ChevronDown,
-  Filter
+  Filter,
+  Scale,
+  GitFork
 } from 'lucide-react';
 
 interface FlowchartCanvasProps {
@@ -16,14 +23,20 @@ interface FlowchartCanvasProps {
   onLeaveItem?: () => void;
 }
 
+type FlowchartMode = 'structure' | 'showdown';
+
 export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   onSelectResult,
   onHoverItem,
   onLeaveItem
 }) => {
-  // Path of active decision node IDs
+  const [treeMode, setTreeMode] = useState<FlowchartMode>('structure');
+  
+  // Active path for Tree 1 (Structure) and Tree 2 (Showdown)
   const [activePath, setActivePath] = useState<string[]>([FLOWCHART_ROOT_ID]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const currentNodesMap = treeMode === 'structure' ? FLOWCHART_NODES : FLOWCHART_ALGO_SHOWDOWN_NODES;
 
   const categories = [
     { id: 'all', label: 'All Patterns' },
@@ -35,14 +48,19 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
     { id: 'greedy', label: 'Greedy & Intervals' }
   ];
 
+  const handleSwitchMode = (mode: FlowchartMode) => {
+    setTreeMode(mode);
+    setActivePath([mode === 'structure' ? FLOWCHART_ROOT_ID : FLOWCHART_ALGO_SHOWDOWN_ROOT_ID]);
+    setSelectedCategory('all');
+  };
+
   const handleSelectBranch = (stepIndex: number, nextNodeId?: string, algorithmResultId?: string) => {
     if (algorithmResultId) {
       onSelectResult(algorithmResultId);
       return;
     }
 
-    if (nextNodeId && FLOWCHART_NODES[nextNodeId]) {
-      // Truncate path up to current step, then append nextNodeId
+    if (nextNodeId && currentNodesMap[nextNodeId]) {
       const newPath = activePath.slice(0, stepIndex + 1);
       newPath.push(nextNodeId);
       setActivePath(newPath);
@@ -50,12 +68,59 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
   };
 
   const handleReset = () => {
-    setActivePath([FLOWCHART_ROOT_ID]);
+    setActivePath([treeMode === 'structure' ? FLOWCHART_ROOT_ID : FLOWCHART_ALGO_SHOWDOWN_ROOT_ID]);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '10px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Top Controls: Filter & Reset */}
+      {/* Top Mode Toggle: Structure vs Algorithm Showdown */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+        <button
+          onClick={() => handleSwitchMode('structure')}
+          className={`cyber-tab ${treeMode === 'structure' ? 'active' : ''}`}
+          style={{
+            padding: '10px 22px',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: treeMode === 'structure' ? 'rgba(0, 245, 255, 0.2)' : 'rgba(13, 21, 39, 0.6)',
+            color: treeMode === 'structure' ? 'var(--neon-cyan)' : 'var(--text-muted)',
+            boxShadow: treeMode === 'structure' ? '0 0 15px rgba(0, 245, 255, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <GitFork size={16} /> 1. Problem Structure Flowchart
+        </button>
+
+        <button
+          onClick={() => handleSwitchMode('showdown')}
+          className={`cyber-tab ${treeMode === 'showdown' ? 'active' : ''}`}
+          style={{
+            padding: '10px 22px',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: treeMode === 'showdown' ? 'rgba(255, 0, 127, 0.2)' : 'rgba(13, 21, 39, 0.6)',
+            color: treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--text-muted)',
+            boxShadow: treeMode === 'showdown' ? '0 0 15px rgba(255, 0, 127, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <Scale size={16} /> 2. Algorithm Showdown & Tradeoffs Flowchart
+        </button>
+      </div>
+
+      {/* Controls Bar: Filter & Reset */}
       <div
         style={{
           display: 'flex',
@@ -69,38 +134,45 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
           border: '1px solid rgba(0, 245, 255, 0.2)'
         }}
       >
-        {/* Category Filters */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--neon-cyan)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
-            <Filter size={14} />
-            <span>FILTER:</span>
-          </div>
+        {/* Category Filters (only on structure mode) */}
+        {treeMode === 'structure' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--neon-cyan)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
+              <Filter size={14} />
+              <span>FILTER:</span>
+            </div>
 
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {categories.map((c) => {
-              const isActive = selectedCategory === c.id;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCategory(c.id)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: '4px',
-                    backgroundColor: isActive ? 'rgba(0, 245, 255, 0.25)' : 'rgba(13, 21, 39, 0.7)',
-                    border: `1px solid ${isActive ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.08)'}`,
-                    color: isActive ? '#fff' : 'var(--text-muted)',
-                    fontSize: '0.75rem',
-                    fontWeight: isActive ? 700 : 500,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {categories.map((c) => {
+                const isActive = selectedCategory === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCategory(c.id)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      backgroundColor: isActive ? 'rgba(0, 245, 255, 0.25)' : 'rgba(13, 21, 39, 0.7)',
+                      border: `1px solid ${isActive ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.08)'}`,
+                      color: isActive ? '#fff' : 'var(--text-muted)',
+                      fontSize: '0.75rem',
+                      fontWeight: isActive ? 700 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--neon-magenta)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+            <Scale size={15} />
+            <span>ALGORITHM VS ALGORITHM TRADEOFF ENGINE</span>
+          </div>
+        )}
 
         {/* Reset & Stats */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -129,14 +201,14 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
         }}
       >
         {activePath.map((nodeId, stepIdx) => {
-          const node = FLOWCHART_NODES[nodeId];
+          const node = currentNodesMap[nodeId];
           if (!node) return null;
 
           const isLastStep = stepIdx === activePath.length - 1;
           const nextSelectedNodeId = activePath[stepIdx + 1];
 
           // Filter options if category filter is active on root
-          const visibleOptions = (stepIdx === 0 && selectedCategory !== 'all')
+          const visibleOptions = (stepIdx === 0 && selectedCategory !== 'all' && treeMode === 'structure')
             ? node.options.filter(o => {
                 if (selectedCategory === 'graph') return o.id.includes('graph');
                 if (selectedCategory === 'binary_search') return o.id.includes('sorted');
@@ -156,11 +228,17 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                   width: '100%',
                   maxWidth: '920px',
                   backgroundColor: '#090f20',
-                  border: `2px solid ${isLastStep ? 'var(--neon-cyan)' : 'rgba(0, 245, 255, 0.3)'}`,
+                  border: `2px solid ${
+                    isLastStep
+                      ? treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--neon-cyan)'
+                      : 'rgba(0, 245, 255, 0.3)'
+                  }`,
                   borderRadius: 'var(--radius-lg)',
                   padding: '22px 26px',
                   boxShadow: isLastStep
-                    ? '0 0 25px rgba(0, 245, 255, 0.2), 0 10px 30px rgba(0, 0, 0, 0.6)'
+                    ? treeMode === 'showdown'
+                      ? '0 0 25px rgba(255, 0, 127, 0.2), 0 10px 30px rgba(0, 0, 0, 0.6)'
+                      : '0 0 25px rgba(0, 245, 255, 0.2), 0 10px 30px rgba(0, 0, 0, 0.6)'
                     : '0 4px 15px rgba(0, 0, 0, 0.4)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -172,7 +250,10 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                 {/* Step Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="cyber-badge badge-cyan" style={{ fontSize: '0.72rem', fontWeight: 700 }}>
+                    <span
+                      className={`cyber-badge ${treeMode === 'showdown' ? 'badge-magenta' : 'badge-cyan'}`}
+                      style={{ fontSize: '0.72rem', fontWeight: 700 }}
+                    >
                       STEP {stepIdx + 1}
                     </span>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
@@ -228,13 +309,13 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                           padding: '12px 14px',
                           borderRadius: 'var(--radius-md)',
                           backgroundColor: isBranchActive
-                            ? 'rgba(0, 245, 255, 0.25)'
+                            ? treeMode === 'showdown' ? 'rgba(255, 0, 127, 0.25)' : 'rgba(0, 245, 255, 0.25)'
                             : isTerminal
                             ? 'rgba(255, 0, 127, 0.1)'
                             : 'rgba(16, 28, 54, 0.7)',
                           border: `1.5px solid ${
                             isBranchActive
-                              ? 'var(--neon-cyan)'
+                              ? treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--neon-cyan)'
                               : isTerminal
                               ? 'rgba(255, 0, 127, 0.4)'
                               : 'rgba(0, 245, 255, 0.2)'
@@ -292,8 +373,8 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                     style={{
                       width: '3px',
                       height: '28px',
-                      backgroundColor: 'var(--neon-cyan)',
-                      boxShadow: '0 0 10px var(--neon-cyan)'
+                      backgroundColor: treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--neon-cyan)',
+                      boxShadow: treeMode === 'showdown' ? '0 0 10px var(--neon-magenta)' : '0 0 10px var(--neon-cyan)'
                     }}
                   />
                   <div
@@ -302,15 +383,15 @@ export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
                       height: '24px',
                       borderRadius: '50%',
                       backgroundColor: '#090f20',
-                      border: '2px solid var(--neon-cyan)',
+                      border: `2px solid ${treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--neon-cyan)'}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 0 12px var(--neon-cyan)',
+                      boxShadow: treeMode === 'showdown' ? '0 0 12px var(--neon-magenta)' : '0 0 12px var(--neon-cyan)',
                       marginTop: '-6px'
                     }}
                   >
-                    <ArrowDown size={14} color="var(--neon-cyan)" />
+                    <ArrowDown size={14} color={treeMode === 'showdown' ? 'var(--neon-magenta)' : 'var(--neon-cyan)'} />
                   </div>
                 </div>
               )}
