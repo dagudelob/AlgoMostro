@@ -1,104 +1,142 @@
-import React, { useState } from 'react';
-import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PlaybackController, type SimulationSpeed } from '../../common/PlaybackController';
+import { VariableWatcher, type WatcherVariable } from '../../common/VariableWatcher';
+
+interface WindowState {
+  left: number;
+  right: number;
+  currentSum: number;
+  maxSum: number;
+  bestWindow: [number, number];
+  message: string;
+}
 
 export const SlidingWindowVisualizer: React.FC = () => {
   const array = [2, 1, 5, 2, 8, 1, 4, 3];
   const windowK = 3;
 
-  const [left, setLeft] = useState<number>(0);
-  const [right, setRight] = useState<number>(2);
-  const [currentSum, setCurrentSum] = useState<number>(8); // 2 + 1 + 5
-  const [maxSum, setMaxSum] = useState<number>(8);
-  const [bestWindow, setBestWindow] = useState<[number, number]>([0, 2]);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [message, setMessage] = useState('Sliding Window of fixed size K=3. Calculate maximum subarray sum in O(N).');
+  const initialSum = array.slice(0, windowK).reduce((a, b) => a + b, 0);
 
-  const stepForward = (curL: number, curR: number, curSum: number, curMax: number, curBest: [number, number]) => {
-    if (curR >= array.length - 1) {
+  const initialState: WindowState = {
+    left: 0,
+    right: windowK - 1,
+    currentSum: initialSum,
+    maxSum: initialSum,
+    bestWindow: [0, windowK - 1],
+    message: `Sliding Window of fixed size K=${windowK}. Calculating maximum subarray sum in O(N).`
+  };
+
+  const [history, setHistory] = useState<WindowState[]>([initialState]);
+  const [historyIdx, setHistoryIdx] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<SimulationSpeed>(1);
+
+  const currentState = history[historyIdx] || initialState;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stepForward = () => {
+    if (currentState.right >= array.length - 1) {
       setIsPlaying(false);
-      setMessage(`Window reached the end! Global maximum sum = ${curMax} on window [${curBest[0]}..${curBest[1]}].`);
       return;
     }
 
-    const nextL = curL + 1;
-    const nextR = curR + 1;
-    // Window shift formula: NextSum = CurSum - array[prevL] + array[nextR]
-    const nextSum = curSum - array[curL] + array[nextR];
-    const isNewMax = nextSum > curMax;
-    const nextMax = isNewMax ? nextSum : curMax;
-    const nextBest: [number, number] = isNewMax ? [nextL, nextR] : curBest;
+    const nextL = currentState.left + 1;
+    const nextR = currentState.right + 1;
+    const nextSum = currentState.currentSum - array[currentState.left] + array[nextR];
+    const isNewMax = nextSum > currentState.maxSum;
+    const nextMax = isNewMax ? nextSum : currentState.maxSum;
+    const nextBest: [number, number] = isNewMax ? [nextL, nextR] : currentState.bestWindow;
 
-    setLeft(nextL);
-    setRight(nextR);
-    setCurrentSum(nextSum);
-    setMaxSum(nextMax);
-    setBestWindow(nextBest);
-
-    setMessage(
-      `Slide window: subtract array[${curL}] (${array[curL]}), add array[${nextR}] (${array[nextR]}) -> Current Sum = ${nextSum}. ${
-        isNewMax ? `New Maximum Record (${nextSum})!` : ''
+    const nextState: WindowState = {
+      left: nextL,
+      right: nextR,
+      currentSum: nextSum,
+      maxSum: nextMax,
+      bestWindow: nextBest,
+      message: `Slide: -arr[${currentState.left}] (${array[currentState.left]}), +arr[${nextR}] (${array[nextR]}) -> Current Sum = ${nextSum}. ${
+        isNewMax ? `New Max Record (${nextSum})!` : ''
       }`
-    );
+    };
+
+    const newHistory = history.slice(0, historyIdx + 1);
+    newHistory.push(nextState);
+    setHistory(newHistory);
+    setHistoryIdx(newHistory.length - 1);
   };
 
-  const handlePlayToggle = () => {
-    if (isPlaying) {
+  const stepBackward = () => {
+    if (historyIdx > 0) {
       setIsPlaying(false);
-    } else {
-      if (right >= array.length - 1) {
-        handleReset();
-      }
-      setIsPlaying(true);
-      runLoop(left, right, currentSum, maxSum, bestWindow);
+      setHistoryIdx(historyIdx - 1);
     }
   };
 
-  const runLoop = async (initL: number, initR: number, initSum: number, initMax: number, initBest: [number, number]) => {
-    let l = initL;
-    let r = initR;
-    let sum = initSum;
-    let mx = initMax;
-    let best = initBest;
+  const handleFastForward = () => {
+    let cur = { ...currentState };
+    const fullHistory = [...history.slice(0, historyIdx + 1)];
 
-    while (r < array.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      const nextL = l + 1;
-      const nextR = r + 1;
-      const nextSum = sum - array[l] + array[nextR];
-      const isNewMax = nextSum > mx;
-      mx = isNewMax ? nextSum : mx;
-      best = isNewMax ? [nextL, nextR] : best;
-      l = nextL;
-      r = nextR;
-      sum = nextSum;
+    while (cur.right < array.length - 1) {
+      const nextL = cur.left + 1;
+      const nextR = cur.right + 1;
+      const nextSum = cur.currentSum - array[cur.left] + array[nextR];
+      const isNewMax = nextSum > cur.maxSum;
+      const nextMax = isNewMax ? nextSum : cur.maxSum;
+      const nextBest: [number, number] = isNewMax ? [nextL, nextR] : cur.bestWindow;
 
-      setLeft(l);
-      setRight(r);
-      setCurrentSum(sum);
-      setMaxSum(mx);
-      setBestWindow(best);
-      setMessage(
-        `Sliding: -${array[l - 1]} +${array[r]} -> Sum = ${sum} (Max = ${mx})`
-      );
+      cur = {
+        left: nextL,
+        right: nextR,
+        currentSum: nextSum,
+        maxSum: nextMax,
+        bestWindow: nextBest,
+        message: `Fast-Forward -> Final max sum ${nextMax} on window [${nextBest[0]}..${nextBest[1]}].`
+      };
+      fullHistory.push(cur);
     }
+
+    setHistory(fullHistory);
+    setHistoryIdx(fullHistory.length - 1);
     setIsPlaying(false);
-    setMessage(`Complete! Maximum sum = ${mx} on range [${best[0]}..${best[1]}].`);
   };
 
   const handleReset = () => {
-    setLeft(0);
-    setRight(windowK - 1);
-    const initialSum = array.slice(0, windowK).reduce((a, b) => a + b, 0);
-    setCurrentSum(initialSum);
-    setMaxSum(initialSum);
-    setBestWindow([0, windowK - 1]);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setHistory([initialState]);
+    setHistoryIdx(0);
     setIsPlaying(false);
-    setMessage('Sliding Window reset.');
   };
+
+  // Play loop driven by speed
+  useEffect(() => {
+    if (isPlaying) {
+      if (currentState.right >= array.length - 1) {
+        setIsPlaying(false);
+        return;
+      }
+      const delay = Math.round(900 / speed);
+      timerRef.current = setTimeout(() => {
+        stepForward();
+      }, delay);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isPlaying, historyIdx, speed]);
+
+  // Variables for Debugger Watcher
+  const watcherVars: WatcherVariable[] = [
+    { name: 'L (Left Pointer)', value: currentState.left, type: 'pointer', scope: 'Window', isModified: true },
+    { name: 'R (Right Pointer)', value: currentState.right, type: 'pointer', scope: 'Window', isModified: true },
+    { name: 'windowK', value: windowK, type: 'number', scope: 'Constant' },
+    { name: 'currentSum', value: currentState.currentSum, type: 'number', scope: 'Accumulator', isModified: true },
+    { name: 'maxSum (Global)', value: currentState.maxSum, type: 'number', scope: 'State' },
+    { name: 'bestWindow [L, R]', value: `[${currentState.bestWindow[0]}, ${currentState.bestWindow[1]}]`, type: 'array', scope: 'Result' },
+    { name: 'activeElements', value: array.slice(currentState.left, currentState.right + 1), type: 'array', scope: 'Window' }
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Visual Canvas */}
+      {/* Canvas */}
       <div
         style={{
           background: '#070c18',
@@ -111,20 +149,20 @@ export const SlidingWindowVisualizer: React.FC = () => {
           gap: '20px'
         }}
       >
-        {/* Stats Indicators */}
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span className="cyber-badge badge-cyan">Window Size K: {windowK}</span>
-          <span className="cyber-badge badge-yellow">Current Sum: {currentSum}</span>
-          <span className="cyber-badge badge-green">Max Sum Record: {maxSum}</span>
-          <span className="cyber-badge badge-magenta">Active Pointers: [L={left}, R={right}]</span>
+        {/* Status Indicators */}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <span className="cyber-badge badge-cyan">Window Size K = {windowK}</span>
+          <span className="cyber-badge badge-yellow">Current Sum = {currentState.currentSum}</span>
+          <span className="cyber-badge badge-green">Max Sum Record = {currentState.maxSum}</span>
+          <span className="cyber-badge badge-magenta">Active Pointers: [L={currentState.left}, R={currentState.right}]</span>
         </div>
 
         {/* Array Grid with Sliding Frame */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', position: 'relative' }}>
           {array.map((val, idx) => {
-            const inWindow = idx >= left && idx <= right;
-            const isL = idx === left;
-            const isR = idx === right;
+            const inWindow = idx >= currentState.left && idx <= currentState.right;
+            const isL = idx === currentState.left;
+            const isR = idx === currentState.right;
 
             return (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -162,7 +200,7 @@ export const SlidingWindowVisualizer: React.FC = () => {
                     fontFamily: 'var(--font-mono)',
                     color: inWindow ? '#fff' : 'var(--text-dim)',
                     transform: inWindow ? 'scale(1.05)' : 'scale(1)',
-                    transition: 'all 0.25s'
+                    transition: 'all 0.2s'
                   }}
                 >
                   {val}
@@ -172,7 +210,7 @@ export const SlidingWindowVisualizer: React.FC = () => {
           })}
         </div>
 
-        {/* Status Message */}
+        {/* Message Banner */}
         <div
           style={{
             width: '100%',
@@ -185,47 +223,33 @@ export const SlidingWindowVisualizer: React.FC = () => {
             color: '#c9e6ff'
           }}
         >
-          &gt; {message}
+          &gt; {currentState.message}
         </div>
       </div>
 
-      {/* Control Player */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          background: 'rgba(13, 21, 39, 0.6)',
-          padding: '14px',
-          borderRadius: 'var(--radius-md)',
-          alignItems: 'center'
+      {/* Playback Controls with 5-Speed Gear Lever */}
+      <PlaybackController
+        isPlaying={isPlaying}
+        onPlayToggle={() => {
+          if (currentState.right >= array.length - 1) handleReset();
+          setIsPlaying(!isPlaying);
         }}
-      >
-        <button
-          onClick={handlePlayToggle}
-          className="cyber-btn"
-          style={{ padding: '7px 16px', fontSize: '0.8rem' }}
-        >
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pause' : 'Play Slide'}</span>
-        </button>
+        onStepForward={stepForward}
+        onStepBackward={stepBackward}
+        onFastForward={handleFastForward}
+        onReset={handleReset}
+        canStepBackward={historyIdx > 0}
+        canStepForward={currentState.right < array.length - 1}
+        speed={speed}
+        onSpeedChange={setSpeed}
+      />
 
-        <button
-          onClick={() => stepForward(left, right, currentSum, maxSum, bestWindow)}
-          disabled={isPlaying || right >= array.length - 1}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem' }}
-        >
-          <SkipForward size={14} /> Next Step
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem', marginLeft: 'auto' }}
-        >
-          <RotateCcw size={14} /> Reset
-        </button>
-      </div>
+      {/* Debugger Variable Inspector */}
+      <VariableWatcher
+        variables={watcherVars}
+        stepIndex={historyIdx + 1}
+        totalSteps={array.length - windowK + 1}
+      />
     </div>
   );
 };

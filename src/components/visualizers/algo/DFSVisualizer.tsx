@@ -1,94 +1,151 @@
-import React, { useState } from 'react';
-import { Play, RotateCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PlaybackController, type SimulationSpeed } from '../../common/PlaybackController';
+import { VariableWatcher, type WatcherVariable } from '../../common/VariableWatcher';
+
+interface DFSState {
+  visited: string[];
+  path: string[];
+  callStack: string[];
+  activeCell: string | null;
+  isFound: boolean;
+  message: string;
+}
 
 export const DFSVisualizer: React.FC = () => {
-  // Simple 4x4 maze for DFS pathfinding
   const rows = 4;
   const cols = 4;
   const target = '3,3';
   const obstacles = ['1,1', '2,1', '0,3'];
 
-  const [callStack, setCallStack] = useState<string[]>([]);
-  const [visited, setVisited] = useState<string[]>([]);
-  const [path, setPath] = useState<string[]>([]);
-  const [activeCell, setActiveCell] = useState<string | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [message, setMessage] = useState('DFS (Depth-First Search & Backtracking). Explores deeply until reaching dead-end or target, backtracking using recursion stack.');
+  // Precompute full DFS path steps for interactive step-back / step-forward
+  const precomputeDFSSteps = (): DFSState[] => {
+    const steps: DFSState[] = [{
+      visited: ['0,0'],
+      path: ['0,0'],
+      callStack: ['dfs(0,0)'],
+      activeCell: '0,0',
+      isFound: false,
+      message: 'DFS start at (0,0)...'
+    }];
 
-  const runDFS = async () => {
-    setIsRunning(true);
-    setVisited([]);
-    setPath([]);
-    setCallStack([]);
-    setMessage('Starting recursive DFS from (0,0)...');
+    const vis = new Set<string>(['0,0']);
+    const curPath: string[] = ['0,0'];
+    const curStack: string[] = ['dfs(0,0)'];
 
-    const vis = new Set<string>();
-    const currentPath: string[] = [];
-    const stack: string[] = [];
-
-    const dfs = async (r: number, c: number): Promise<boolean> => {
+    const dfs = (r: number, c: number): boolean => {
       const key = `${r},${c}`;
-      if (
-        r < 0 ||
-        r >= rows ||
-        c < 0 ||
-        c >= cols ||
-        obstacles.includes(key) ||
-        vis.has(key)
-      ) {
-        return false;
-      }
-
-      vis.add(key);
-      currentPath.push(key);
-      stack.push(`dfs(${r},${c})`);
-      setActiveCell(key);
-      setVisited(Array.from(vis));
-      setPath([...currentPath]);
-      setCallStack([...stack]);
-      setMessage(`Advancing to (${r}, ${c}). Call Stack Depth: ${stack.length}`);
-      await new Promise((res) => setTimeout(res, 500));
-
       if (key === target) {
-        setMessage(`Target (3,3) reached! Final Path: ${currentPath.join(' -> ')}.`);
+        steps.push({
+          visited: Array.from(vis),
+          path: [...curPath],
+          callStack: [...curStack],
+          activeCell: key,
+          isFound: true,
+          message: `Target (3,3) reached! Complete path: ${curPath.join(' -> ')}.`
+        });
         return true;
       }
 
-      // Explore Right, Down, Left, Up
-      const directions = [
-        [r, c + 1],
-        [r + 1, c],
-        [r, c - 1],
-        [r - 1, c]
-      ];
+      const dirs = [[r, c + 1], [r + 1, c], [r, c - 1], [r - 1, c]];
+      for (const [nr, nc] of dirs) {
+        const nKey = `${nr},${nc}`;
+        if (
+          nr >= 0 && nr < rows &&
+          nc >= 0 && nc < cols &&
+          !obstacles.includes(nKey) &&
+          !vis.has(nKey)
+        ) {
+          vis.add(nKey);
+          curPath.push(nKey);
+          curStack.push(`dfs(${nr},${nc})`);
+          steps.push({
+            visited: Array.from(vis),
+            path: [...curPath],
+            callStack: [...curStack],
+            activeCell: nKey,
+            isFound: false,
+            message: `Advancing to (${nr}, ${nc}). Stack depth: ${curStack.length}`
+          });
 
-      for (const [nr, nc] of directions) {
-        const found = await dfs(nr, nc);
-        if (found) return true;
+          if (dfs(nr, nc)) return true;
+
+          // Backtrack step
+          curPath.pop();
+          curStack.pop();
+          steps.push({
+            visited: Array.from(vis),
+            path: [...curPath],
+            callStack: [...curStack],
+            activeCell: key,
+            isFound: false,
+            message: `Dead end at (${nr}, ${nc}). Backtracking to (${r}, ${c})...`
+          });
+        }
       }
-
-      // Backtrack
-      setMessage(`Dead end from (${r}, ${c}). Backtracking...`);
-      currentPath.pop();
-      stack.pop();
-      setPath([...currentPath]);
-      setCallStack([...stack]);
-      await new Promise((res) => setTimeout(res, 400));
       return false;
     };
 
-    await dfs(0, 0);
-    setIsRunning(false);
+    dfs(0, 0);
+    return steps;
+  };
+
+  const allSteps = useRef<DFSState[]>(precomputeDFSSteps());
+  const [stepIdx, setStepIdx] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<SimulationSpeed>(1);
+
+  const currentState = allSteps.current[stepIdx] || allSteps.current[0];
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stepForward = () => {
+    if (stepIdx < allSteps.current.length - 1) {
+      setStepIdx(prev => prev + 1);
+    } else {
+      setIsPlaying(false);
+    }
+  };
+
+  const stepBackward = () => {
+    if (stepIdx > 0) {
+      setIsPlaying(false);
+      setStepIdx(prev => prev - 1);
+    }
+  };
+
+  const handleFastForward = () => {
+    setStepIdx(allSteps.current.length - 1);
+    setIsPlaying(false);
   };
 
   const handleReset = () => {
-    setVisited([]);
-    setPath([]);
-    setCallStack([]);
-    setActiveCell(null);
-    setIsRunning(false);
-    setMessage('DFS reset.');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setStepIdx(0);
+    setIsPlaying(false);
   };
+
+  useEffect(() => {
+    if (isPlaying) {
+      if (stepIdx >= allSteps.current.length - 1) {
+        setIsPlaying(false);
+        return;
+      }
+      const delay = Math.round(750 / speed);
+      timerRef.current = setTimeout(() => {
+        setStepIdx(prev => prev + 1);
+      }, delay);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isPlaying, stepIdx, speed]);
+
+  const watcherVars: WatcherVariable[] = [
+    { name: 'activeCell', value: currentState.activeCell, type: 'pointer', scope: 'Current Scope', isModified: true },
+    { name: 'recursionDepth', value: currentState.callStack.length, type: 'number', scope: 'Stack' },
+    { name: 'currentPath', value: currentState.path, type: 'array', scope: 'Backtracking State', isModified: true },
+    { name: 'visitedCount', value: currentState.visited.length, type: 'number', scope: 'Set' },
+    { name: 'isFound', value: currentState.isFound, type: 'boolean', scope: 'Status' }
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -105,10 +162,10 @@ export const DFSVisualizer: React.FC = () => {
           alignItems: 'center'
         }}
       >
-        {/* Grid */}
+        {/* Maze Grid */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>
-            Exploration Maze Grid
+            Maze Exploration
           </span>
           <div
             style={{
@@ -123,9 +180,9 @@ export const DFSVisualizer: React.FC = () => {
                 const key = `${r},${c}`;
                 const isObstacle = obstacles.includes(key);
                 const isTarget = key === target;
-                const isCurrent = activeCell === key;
-                const inPath = path.includes(key);
-                const isVis = visited.includes(key);
+                const isCurrent = currentState.activeCell === key;
+                const inPath = currentState.path.includes(key);
+                const isVis = currentState.visited.includes(key);
 
                 let bg = 'rgba(16, 28, 54, 0.7)';
                 let borderColor = 'rgba(0, 245, 255, 0.2)';
@@ -188,26 +245,21 @@ export const DFSVisualizer: React.FC = () => {
               gap: '4px'
             }}
           >
-            {callStack.map((frame, idx) => (
+            {currentState.callStack.map((frame, idx) => (
               <div
                 key={idx}
                 style={{
                   padding: '4px 8px',
-                  backgroundColor: idx === callStack.length - 1 ? 'rgba(0, 245, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                  borderLeft: `3px solid ${idx === callStack.length - 1 ? 'var(--neon-cyan)' : 'var(--text-dim)'}`,
+                  backgroundColor: idx === currentState.callStack.length - 1 ? 'rgba(0, 245, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderLeft: `3px solid ${idx === currentState.callStack.length - 1 ? 'var(--neon-cyan)' : 'var(--text-dim)'}`,
                   fontSize: '0.75rem',
                   fontFamily: 'var(--font-mono)',
-                  color: idx === callStack.length - 1 ? '#fff' : 'var(--text-muted)'
+                  color: idx === currentState.callStack.length - 1 ? '#fff' : 'var(--text-muted)'
                 }}
               >
                 {frame}
               </div>
             ))}
-            {callStack.length === 0 && (
-              <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
-                [ Call Stack Empty ]
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -225,38 +277,33 @@ export const DFSVisualizer: React.FC = () => {
           color: '#c9e6ff'
         }}
       >
-        &gt; {message}
+        &gt; {currentState.message}
       </div>
 
-      {/* Control Panel */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          background: 'rgba(13, 21, 39, 0.6)',
-          padding: '14px',
-          borderRadius: 'var(--radius-md)',
-          alignItems: 'center'
+      {/* Playback Controls with 5-Speed Gear Lever */}
+      <PlaybackController
+        isPlaying={isPlaying}
+        onPlayToggle={() => {
+          if (stepIdx >= allSteps.current.length - 1) handleReset();
+          setIsPlaying(!isPlaying);
         }}
-      >
-        <button
-          onClick={runDFS}
-          disabled={isRunning}
-          className="cyber-btn"
-          style={{ padding: '7px 16px', fontSize: '0.8rem' }}
-        >
-          <Play size={14} /> Run DFS & Backtrack
-        </button>
+        onStepForward={stepForward}
+        onStepBackward={stepBackward}
+        onFastForward={handleFastForward}
+        onReset={handleReset}
+        canStepBackward={stepIdx > 0}
+        canStepForward={stepIdx < allSteps.current.length - 1}
+        speed={speed}
+        onSpeedChange={setSpeed}
+      />
 
-        <button
-          onClick={handleReset}
-          disabled={isRunning}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem', marginLeft: 'auto' }}
-        >
-          <RotateCcw size={14} /> Reset
-        </button>
-      </div>
+      {/* Debugger Variable Inspector */}
+      <VariableWatcher
+        variables={watcherVars}
+        callStack={currentState.callStack}
+        stepIndex={stepIdx + 1}
+        totalSteps={allSteps.current.length}
+      />
     </div>
   );
 };

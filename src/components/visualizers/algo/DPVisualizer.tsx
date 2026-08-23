@@ -1,25 +1,39 @@
-import React, { useState } from 'react';
-import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PlaybackController, type SimulationSpeed } from '../../common/PlaybackController';
+import { VariableWatcher, type WatcherVariable } from '../../common/VariableWatcher';
+
+interface DPState {
+  currentAmount: number;
+  dpTable: (number | string)[];
+  message: string;
+}
 
 export const DPVisualizer: React.FC = () => {
   const coins = [1, 2, 5];
   const targetAmount = 7;
 
-  // dp table from 0 to 7
-  const [dpTable, setDpTable] = useState<(number | string)[]>([0, '∞', '∞', '∞', '∞', '∞', '∞', '∞']);
-  const [currentAmount, setCurrentAmount] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [message, setMessage] = useState('Dynamic Programming (1D Tabulation - Coin Change). Computes minimum coins for each amount i from 0 to 7.');
+  const initialState: DPState = {
+    currentAmount: 0,
+    dpTable: [0, '∞', '∞', '∞', '∞', '∞', '∞', '∞'],
+    message: 'Dynamic Programming (1D Tabulation - Coin Change). Computes minimum coins for each amount i from 0 to 7.'
+  };
 
-  const stepForward = (currAmt: number) => {
-    if (currAmt >= targetAmount) {
+  const [history, setHistory] = useState<DPState[]>([initialState]);
+  const [historyIdx, setHistoryIdx] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<SimulationSpeed>(1);
+
+  const currentState = history[historyIdx] || initialState;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stepForward = () => {
+    if (currentState.currentAmount >= targetAmount) {
       setIsPlaying(false);
-      setMessage(`DP complete! For amount ${targetAmount}, minimum coins required is dp[${targetAmount}] = ${dpTable[targetAmount]}.`);
       return;
     }
 
-    const nextAmt = currAmt + 1;
-    const currentTable = [...dpTable];
+    const nextAmt = currentState.currentAmount + 1;
+    const currentTable = [...currentState.dpTable];
     let minCoins = Infinity;
     let chosenCoin = null;
 
@@ -37,39 +51,85 @@ export const DPVisualizer: React.FC = () => {
     }
 
     currentTable[nextAmt] = minCoins === Infinity ? '∞' : minCoins;
-    setDpTable(currentTable);
-    setCurrentAmount(nextAmt);
-    setMessage(`Computing dp[${nextAmt}]: min(dp[${nextAmt} - c] + 1) using coin ${chosenCoin} -> dp[${nextAmt}] = ${minCoins}.`);
+
+    const nextState: DPState = {
+      currentAmount: nextAmt,
+      dpTable: currentTable,
+      message: `Computing dp[${nextAmt}]: min(dp[${nextAmt} - c] + 1) using coin ${chosenCoin} -> dp[${nextAmt}] = ${minCoins}.`
+    };
+
+    const newHist = [...history.slice(0, historyIdx + 1), nextState];
+    setHistory(newHist);
+    setHistoryIdx(newHist.length - 1);
   };
 
-  const handlePlayToggle = () => {
-    if (isPlaying) {
+  const stepBackward = () => {
+    if (historyIdx > 0) {
       setIsPlaying(false);
-    } else {
-      if (currentAmount >= targetAmount) {
-        handleReset();
-      }
-      setIsPlaying(true);
-      runLoop(currentAmount);
+      setHistoryIdx(historyIdx - 1);
     }
   };
 
-  const runLoop = async (startAmt: number) => {
-    let a = startAmt;
-    while (a < targetAmount) {
-      await new Promise((r) => setTimeout(r, 850));
-      a++;
-      stepForward(a - 1);
+  const handleFastForward = () => {
+    let curAmt = currentState.currentAmount;
+    let curTable = [...currentState.dpTable];
+    const fullHist = [...history.slice(0, historyIdx + 1)];
+
+    while (curAmt < targetAmount) {
+      curAmt++;
+      let minCoins = Infinity;
+      for (const c of coins) {
+        if (curAmt - c >= 0) {
+          const prevVal = curTable[curAmt - c];
+          if (typeof prevVal === 'number') {
+            minCoins = Math.min(minCoins, prevVal + 1);
+          }
+        }
+      }
+      curTable[curAmt] = minCoins === Infinity ? '∞' : minCoins;
+      fullHist.push({
+        currentAmount: curAmt,
+        dpTable: [...curTable],
+        message: `Fast-Forward: dp[${curAmt}] calculated as ${curTable[curAmt]}`
+      });
     }
+
+    setHistory(fullHist);
+    setHistoryIdx(fullHist.length - 1);
     setIsPlaying(false);
   };
 
   const handleReset = () => {
-    setDpTable([0, '∞', '∞', '∞', '∞', '∞', '∞', '∞']);
-    setCurrentAmount(0);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setHistory([initialState]);
+    setHistoryIdx(0);
     setIsPlaying(false);
-    setMessage('DP table reset to base case dp[0] = 0.');
   };
+
+  useEffect(() => {
+    if (isPlaying) {
+      if (currentState.currentAmount >= targetAmount) {
+        setIsPlaying(false);
+        return;
+      }
+      const delay = Math.round(900 / speed);
+      timerRef.current = setTimeout(() => {
+        stepForward();
+      }, delay);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isPlaying, historyIdx, speed]);
+
+  // Variables for Debugger Inspector
+  const watcherVars: WatcherVariable[] = [
+    { name: 'currentAmount (i)', value: currentState.currentAmount, type: 'number', scope: 'Tabulation Index', isModified: true },
+    { name: 'targetAmount', value: targetAmount, type: 'number', scope: 'Constant' },
+    { name: 'dp[currentAmount]', value: currentState.dpTable[currentState.currentAmount], type: 'number', scope: 'Memo/State', isModified: true },
+    { name: 'coins (Denominations)', value: coins, type: 'array', scope: 'Input' },
+    { name: 'fullDpTable', value: currentState.dpTable, type: 'array', scope: 'DP Cache' }
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -88,15 +148,15 @@ export const DPVisualizer: React.FC = () => {
       >
         {/* Recurrence Banner */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span className="cyber-badge badge-yellow">Available Coins: [1, 2, 5]</span>
+          <span className="cyber-badge badge-yellow">Coins: [1, 2, 5]</span>
           <span className="cyber-badge badge-magenta">Target Amount: {targetAmount}</span>
           <span className="cyber-badge badge-cyan">Formula: dp[i] = min(dp[i - c] + 1)</span>
         </div>
 
         {/* DP Array */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {dpTable.map((val, idx) => {
-            const isCurrent = idx === currentAmount;
+          {currentState.dpTable.map((val, idx) => {
+            const isCurrent = idx === currentState.currentAmount;
             const isDone = typeof val === 'number';
 
             return (
@@ -147,7 +207,7 @@ export const DPVisualizer: React.FC = () => {
                     fontFamily: 'var(--font-mono)',
                     color: isCurrent ? '#fff' : isDone ? 'var(--neon-cyan)' : 'var(--text-dim)',
                     transform: isCurrent ? 'scale(1.08)' : 'scale(1)',
-                    transition: 'all 0.25s'
+                    transition: 'all 0.2s'
                   }}
                 >
                   <span>{val}</span>
@@ -173,47 +233,33 @@ export const DPVisualizer: React.FC = () => {
             color: '#c9e6ff'
           }}
         >
-          &gt; {message}
+          &gt; {currentState.message}
         </div>
       </div>
 
-      {/* Control Player */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          background: 'rgba(13, 21, 39, 0.6)',
-          padding: '14px',
-          borderRadius: 'var(--radius-md)',
-          alignItems: 'center'
+      {/* Playback Controls with 5-Speed Gear Lever */}
+      <PlaybackController
+        isPlaying={isPlaying}
+        onPlayToggle={() => {
+          if (currentState.currentAmount >= targetAmount) handleReset();
+          setIsPlaying(!isPlaying);
         }}
-      >
-        <button
-          onClick={handlePlayToggle}
-          className="cyber-btn"
-          style={{ padding: '7px 16px', fontSize: '0.8rem' }}
-        >
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pause' : 'Play DP Tabulation'}</span>
-        </button>
+        onStepForward={stepForward}
+        onStepBackward={stepBackward}
+        onFastForward={handleFastForward}
+        onReset={handleReset}
+        canStepBackward={historyIdx > 0}
+        canStepForward={currentState.currentAmount < targetAmount}
+        speed={speed}
+        onSpeedChange={setSpeed}
+      />
 
-        <button
-          onClick={() => stepForward(currentAmount)}
-          disabled={isPlaying || currentAmount >= targetAmount}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem' }}
-        >
-          <SkipForward size={14} /> Next Cell ({currentAmount}/{targetAmount})
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem', marginLeft: 'auto' }}
-        >
-          <RotateCcw size={14} /> Reset
-        </button>
-      </div>
+      {/* Debugger Variable Inspector */}
+      <VariableWatcher
+        variables={watcherVars}
+        stepIndex={historyIdx + 1}
+        totalSteps={targetAmount + 1}
+      />
     </div>
   );
 };

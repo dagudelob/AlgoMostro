@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { AlgorithmResult } from '../../types/flowchart';
 import { Modal } from '../common/Modal';
-import { CodeSnippet } from './CodeSnippet';
+import { SyntaxHighlighter } from '../common/SyntaxHighlighter';
 import { ComplexityBadge } from '../common/ComplexityBadge';
 import { 
   CheckCircle2, 
@@ -69,7 +69,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={result.name} maxWidth="880px">
+    <Modal isOpen={isOpen} onClose={onClose} title={result.name} maxWidth="900px">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Header Tags & Complexities */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
@@ -203,7 +203,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
           </div>
         )}
 
-        {/* Tab 3: Code & Problem */}
+        {/* Tab 3: Code & Problem with Native IDE Highlighting */}
         {activeTab === 'code' && currentProblem && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Problem card */}
@@ -226,8 +226,8 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
               </div>
             </div>
 
-            {/* Code Snippet Box */}
-            <CodeSnippet
+            {/* Native IDE Syntax Highlighting Code Box */}
+            <SyntaxHighlighter
               pythonCode={currentProblem.pythonCode}
               tsCode={currentProblem.tsCode}
               title={`Solution for ${currentProblem.title}`}

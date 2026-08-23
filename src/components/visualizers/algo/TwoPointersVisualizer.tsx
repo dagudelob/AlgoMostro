@@ -1,88 +1,157 @@
-import React, { useState } from 'react';
-import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PlaybackController, type SimulationSpeed } from '../../common/PlaybackController';
+import { VariableWatcher, type WatcherVariable } from '../../common/VariableWatcher';
+
+interface TwoPointersState {
+  left: number;
+  right: number;
+  isFound: boolean;
+  message: string;
+}
 
 export const TwoPointersVisualizer: React.FC = () => {
-  // Sorted array for Two Sum II
   const sortedArray = [1, 3, 4, 6, 8, 9, 11, 15];
-  const target = 14; // 3 + 11 or 6 + 8
+  const [target, setTarget] = useState<number>(14);
 
-  const [left, setLeft] = useState<number>(0);
-  const [right, setRight] = useState<number>(sortedArray.length - 1);
-  const [isFound, setIsFound] = useState<boolean>(false);
+  const initialState: TwoPointersState = {
+    left: 0,
+    right: sortedArray.length - 1,
+    isFound: false,
+    message: `Two Pointers on sorted array for Target=${target}. L=0, R=${sortedArray.length - 1}.`
+  };
+
+  const [history, setHistory] = useState<TwoPointersState[]>([initialState]);
+  const [historyIdx, setHistoryIdx] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [message, setMessage] = useState(`Two Pointers on sorted array for Target=${target}. L=0, R=${sortedArray.length - 1}.`);
+  const [speed, setSpeed] = useState<SimulationSpeed>(1);
 
-  const stepForward = (curL: number, curR: number) => {
-    if (curL >= curR) {
+  const currentState = history[historyIdx] || initialState;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stepForward = () => {
+    if (currentState.left >= currentState.right || currentState.isFound) {
       setIsPlaying(false);
-      setMessage(`Pointers met without finding target sum ${target}.`);
       return;
     }
 
+    const curL = currentState.left;
+    const curR = currentState.right;
     const sum = sortedArray[curL] + sortedArray[curR];
 
     if (sum === target) {
-      setIsFound(true);
+      const nextState: TwoPointersState = {
+        left: curL,
+        right: curR,
+        isFound: true,
+        message: `Match Found! arr[${curL}] (${sortedArray[curL]}) + arr[${curR}] (${sortedArray[curR]}) == ${target}!`
+      };
+      const newHist = [...history.slice(0, historyIdx + 1), nextState];
+      setHistory(newHist);
+      setHistoryIdx(newHist.length - 1);
       setIsPlaying(false);
-      setMessage(`Match Found! arr[${curL}] (${sortedArray[curL]}) + arr[${curR}] (${sortedArray[curR]}) == ${target}!`);
       return;
     }
 
+    let nextL = curL;
+    let nextR = curR;
+    let msg = '';
+
     if (sum < target) {
-      const nextL = curL + 1;
-      setLeft(nextL);
-      setMessage(`Sum ${sum} < ${target} -> Increment Left pointer (L = ${nextL}) to increase sum.`);
+      nextL = curL + 1;
+      msg = `Sum ${sum} < ${target} -> Increment Left pointer (L = ${nextL}) to increase sum.`;
     } else {
-      const nextR = curR - 1;
-      setRight(nextR);
-      setMessage(`Sum ${sum} > ${target} -> Decrement Right pointer (R = ${nextR}) to decrease sum.`);
+      nextR = curR - 1;
+      msg = `Sum ${sum} > ${target} -> Decrement Right pointer (R = ${nextR}) to decrease sum.`;
     }
+
+    const nextState: TwoPointersState = {
+      left: nextL,
+      right: nextR,
+      isFound: false,
+      message: msg
+    };
+
+    const newHist = [...history.slice(0, historyIdx + 1), nextState];
+    setHistory(newHist);
+    setHistoryIdx(newHist.length - 1);
   };
 
-  const handlePlayToggle = () => {
-    if (isPlaying) {
+  const stepBackward = () => {
+    if (historyIdx > 0) {
       setIsPlaying(false);
-    } else {
-      if (isFound || left >= right) {
-        handleReset();
-      }
-      setIsPlaying(true);
-      runLoop(left, right);
+      setHistoryIdx(historyIdx - 1);
     }
   };
 
-  const runLoop = async (initL: number, initR: number) => {
-    let l = initL;
-    let r = initR;
-    while (l < r) {
-      const sum = sortedArray[l] + sortedArray[r];
+  const handleFastForward = () => {
+    let curL = currentState.left;
+    let curR = currentState.right;
+    const fullHist = [...history.slice(0, historyIdx + 1)];
+
+    while (curL < curR) {
+      const sum = sortedArray[curL] + sortedArray[curR];
       if (sum === target) {
-        setIsFound(true);
-        setIsPlaying(false);
-        setMessage(`Match Found! [${sortedArray[l]}] + [${sortedArray[r]}] == ${target}!`);
-        return;
+        fullHist.push({
+          left: curL,
+          right: curR,
+          isFound: true,
+          message: `Fast-Forward: Target match found [${sortedArray[curL]} + ${sortedArray[curR]} = ${target}]!`
+        });
+        break;
       }
-      await new Promise((resolve) => setTimeout(resolve, 850));
       if (sum < target) {
-        l++;
-        setLeft(l);
+        curL++;
       } else {
-        r--;
-        setRight(r);
+        curR--;
       }
+      fullHist.push({
+        left: curL,
+        right: curR,
+        isFound: false,
+        message: `Fast-Forward: Checking pointers [L=${curL}, R=${curR}]`
+      });
     }
+
+    setHistory(fullHist);
+    setHistoryIdx(fullHist.length - 1);
     setIsPlaying(false);
   };
 
   const handleReset = () => {
-    setLeft(0);
-    setRight(sortedArray.length - 1);
-    setIsFound(false);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setHistory([initialState]);
+    setHistoryIdx(0);
     setIsPlaying(false);
-    setMessage(`Two Pointers reset for target sum ${target}.`);
   };
 
-  const currentSum = sortedArray[left] + sortedArray[right];
+  useEffect(() => {
+    if (isPlaying) {
+      if (currentState.left >= currentState.right || currentState.isFound) {
+        setIsPlaying(false);
+        return;
+      }
+      const delay = Math.round(900 / speed);
+      timerRef.current = setTimeout(() => {
+        stepForward();
+      }, delay);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isPlaying, historyIdx, speed, target]);
+
+  const currentSum = sortedArray[currentState.left] + sortedArray[currentState.right];
+
+  // Debugger variables
+  const watcherVars: WatcherVariable[] = [
+    { name: 'left (Index)', value: currentState.left, type: 'pointer', scope: 'Pointers', isModified: true },
+    { name: 'right (Index)', value: currentState.right, type: 'pointer', scope: 'Pointers', isModified: true },
+    { name: 'nums[left]', value: sortedArray[currentState.left], type: 'number', scope: 'Array Access' },
+    { name: 'nums[right]', value: sortedArray[currentState.right], type: 'number', scope: 'Array Access' },
+    { name: 'currentSum', value: currentSum, type: 'number', scope: 'Arithmetic', isModified: true },
+    { name: 'target', value: target, type: 'number', scope: 'Input' },
+    { name: 'isFound', value: currentState.isFound, type: 'boolean', scope: 'Status' }
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -101,20 +170,20 @@ export const TwoPointersVisualizer: React.FC = () => {
       >
         {/* Status Badges */}
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span className="cyber-badge badge-green">Pointer L: arr[{left}] = {sortedArray[left]}</span>
-          <span className="cyber-badge badge-magenta">Pointer R: arr[{right}] = {sortedArray[right]}</span>
+          <span className="cyber-badge badge-green">L: arr[{currentState.left}] = {sortedArray[currentState.left]}</span>
+          <span className="cyber-badge badge-magenta">R: arr[{currentState.right}] = {sortedArray[currentState.right]}</span>
           <span className="cyber-badge badge-yellow">Target: {target}</span>
-          <span className={`cyber-badge ${isFound ? 'badge-green' : 'badge-cyan'}`}>
-            Current Sum: {currentSum} {isFound ? '(MATCH!)' : ''}
+          <span className={`cyber-badge ${currentState.isFound ? 'badge-green' : 'badge-cyan'}`}>
+            Current Sum = {currentSum} {currentState.isFound ? '(MATCH FOUND!)' : ''}
           </span>
         </div>
 
         {/* Sorted Array Grid */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {sortedArray.map((val, idx) => {
-            const isL = idx === left;
-            const isR = idx === right;
-            const isMatch = isFound && (isL || isR);
+            const isL = idx === currentState.left;
+            const isR = idx === currentState.right;
+            const isMatch = currentState.isFound && (isL || isR);
 
             return (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -166,7 +235,7 @@ export const TwoPointersVisualizer: React.FC = () => {
                     fontFamily: 'var(--font-mono)',
                     color: isMatch ? '#39ff14' : isL || isR ? '#fff' : '#c9d8f0',
                     transform: isL || isR ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'all 0.25s'
+                    transition: 'all 0.2s'
                   }}
                 >
                   {val}
@@ -189,47 +258,56 @@ export const TwoPointersVisualizer: React.FC = () => {
             color: '#c9e6ff'
           }}
         >
-          &gt; {message}
+          &gt; {currentState.message}
         </div>
       </div>
 
-      {/* Control Player */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          background: 'rgba(13, 21, 39, 0.6)',
-          padding: '14px',
-          borderRadius: 'var(--radius-md)',
-          alignItems: 'center'
+      {/* Playback Controls with 5-Speed Gear Lever & Target Input */}
+      <PlaybackController
+        isPlaying={isPlaying}
+        onPlayToggle={() => {
+          if (currentState.isFound || currentState.left >= currentState.right) handleReset();
+          setIsPlaying(!isPlaying);
         }}
-      >
-        <button
-          onClick={handlePlayToggle}
-          className="cyber-btn"
-          style={{ padding: '7px 16px', fontSize: '0.8rem' }}
-        >
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pause' : 'Play Convergence'}</span>
-        </button>
+        onStepForward={stepForward}
+        onStepBackward={stepBackward}
+        onFastForward={handleFastForward}
+        onReset={handleReset}
+        canStepBackward={historyIdx > 0}
+        canStepForward={!currentState.isFound && currentState.left < currentState.right}
+        speed={speed}
+        onSpeedChange={setSpeed}
+        customControls={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Target:</span>
+            <input
+              type="number"
+              value={target}
+              onChange={(e) => {
+                setTarget(parseInt(e.target.value) || 0);
+                handleReset();
+              }}
+              style={{
+                width: '54px',
+                padding: '4px 6px',
+                background: '#080c14',
+                border: '1px solid rgba(0, 245, 255, 0.3)',
+                color: '#fff',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.8rem'
+              }}
+            />
+          </div>
+        }
+      />
 
-        <button
-          onClick={() => stepForward(left, right)}
-          disabled={isPlaying || isFound || left >= right}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem' }}
-        >
-          <SkipForward size={14} /> Next Step
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem', marginLeft: 'auto' }}
-        >
-          <RotateCcw size={14} /> Reset
-        </button>
-      </div>
+      {/* Debugger Variable Inspector */}
+      <VariableWatcher
+        variables={watcherVars}
+        stepIndex={historyIdx + 1}
+        totalSteps={sortedArray.length}
+      />
     </div>
   );
 };
