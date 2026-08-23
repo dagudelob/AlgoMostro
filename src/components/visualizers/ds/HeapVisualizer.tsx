@@ -5,7 +5,7 @@ export const HeapVisualizer: React.FC = () => {
   // Min-Heap array
   const [heap, setHeap] = useState<number[]>([4, 10, 15, 20, 25, 30, 45]);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [message, setMessage] = useState('Min-Heap (Priority Queue). La raíz en heap[0] siempre contiene el elemento menor.');
+  const [message, setMessage] = useState('Min-Heap (Priority Queue). The root at heap[0] always contains the minimum element.');
   const [newVal, setNewVal] = useState<string>('3');
 
   // Node positions for binary tree mapping
@@ -23,11 +23,11 @@ export const HeapVisualizer: React.FC = () => {
     const val = parseInt(newVal);
     if (isNaN(val)) return;
     if (heap.length >= 7) {
-      setMessage('Límite del visualizador alcanzado (máx 7 nodos).');
+      setMessage('Visualizer capacity reached (max 7 nodes).');
       return;
     }
 
-    setMessage(`Insertando ${val} al final del array. Ejecutando Bubble-Up O(log N)...`);
+    setMessage(`Inserting ${val} at the end of array. Executing Bubble-Up O(log N)...`);
     const newHeap = [...heap, val];
     let curr = newHeap.length - 1;
     setHeap([...newHeap]);
@@ -38,7 +38,7 @@ export const HeapVisualizer: React.FC = () => {
     while (curr > 0) {
       const parent = Math.floor((curr - 1) / 2);
       if (newHeap[curr] < newHeap[parent]) {
-        setMessage(`Swap: hijo [${newHeap[curr]}] < padre [${newHeap[parent]}]. Intercambiando posiciones.`);
+        setMessage(`Swap: child [${newHeap[curr]}] < parent [${newHeap[parent]}]. Swapping positions.`);
         const temp = newHeap[curr];
         newHeap[curr] = newHeap[parent];
         newHeap[parent] = temp;
@@ -51,7 +51,7 @@ export const HeapVisualizer: React.FC = () => {
       }
     }
     setActiveIdx(null);
-    setMessage(`¡Elemento ${val} insertado y propiedad de Min-Heap restablecida!`);
+    setMessage(`Element ${val} inserted and Min-Heap property restored!`);
   };
 
   const handleExtractMin = async () => {
@@ -59,11 +59,11 @@ export const HeapVisualizer: React.FC = () => {
     const minVal = heap[0];
     if (heap.length === 1) {
       setHeap([]);
-      setMessage(`Extraído el valor mínimo: ${minVal}. El heap está vacío.`);
+      setMessage(`Extracted minimum value: ${minVal}. Heap is now empty.`);
       return;
     }
 
-    setMessage(`Extrayendo valor mínimo heap[0] = ${minVal}. Moviendo el último elemento a la raíz y ejecutando Sift-Down O(log N)...`);
+    setMessage(`Extracting minimum value heap[0] = ${minVal}. Moving last element to root and executing Sift-Down O(log N)...`);
     const newHeap = [...heap];
     const last = newHeap.pop()!;
     newHeap[0] = last;
@@ -86,7 +86,7 @@ export const HeapVisualizer: React.FC = () => {
       }
 
       if (smallest !== curr) {
-        setMessage(`Sift-down: intercambiando nodo ${newHeap[curr]} con el menor hijo ${newHeap[smallest]}.`);
+        setMessage(`Sift-down: swapping node ${newHeap[curr]} with smaller child ${newHeap[smallest]}.`);
         const temp = newHeap[curr];
         newHeap[curr] = newHeap[smallest];
         newHeap[smallest] = temp;
@@ -99,13 +99,13 @@ export const HeapVisualizer: React.FC = () => {
       }
     }
     setActiveIdx(null);
-    setMessage(`¡Mínimo extraído (${minVal}) y heap reorganizado en O(log N)!`);
+    setMessage(`Extracted minimum (${minVal}) and restored heap in O(log N)!`);
   };
 
   const handleReset = () => {
     setHeap([4, 10, 15, 20, 25, 30, 45]);
     setActiveIdx(null);
-    setMessage('Min-Heap restablecido a estado inicial.');
+    setMessage('Min-Heap reset.');
   };
 
   return (
@@ -182,7 +182,7 @@ export const HeapVisualizer: React.FC = () => {
         {/* Array representation */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '12px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-            Representación en Array Contiguo (parent = floor((i-1)/2), left = 2i+1, right = 2i+2)
+            Array Representation (parent = floor((i-1)/2), left = 2i+1, right = 2i+2)
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             {heap.map((val, idx) => {
@@ -275,7 +275,7 @@ export const HeapVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '7px 12px', fontSize: '0.8rem' }}
           >
-            <Plus size={14} /> Insertar (Bubble Up) O(log N)
+            <Plus size={14} /> Insert (Bubble Up) O(log N)
           </button>
         </div>
 
@@ -284,7 +284,7 @@ export const HeapVisualizer: React.FC = () => {
           className="cyber-btn-magenta"
           style={{ padding: '7px 14px', fontSize: '0.8rem' }}
         >
-          <Trash2 size={14} /> Extraer Min (Sift Down) O(log N)
+          <Trash2 size={14} /> Extract Min (Sift Down) O(log N)
         </button>
 
         <button

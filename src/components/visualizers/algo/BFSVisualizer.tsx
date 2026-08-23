@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Play, RotateCcw } from 'lucide-react';
 
 export const BFSVisualizer: React.FC = () => {
-  // 5x5 Grid for BFS shortest path
+  // 5x4 Grid for BFS shortest path
   const rows = 4;
   const cols = 5;
   const start = [0, 0];
@@ -15,7 +15,7 @@ export const BFSVisualizer: React.FC = () => {
   const [activeCell, setActiveCell] = useState<string | null>(null);
   const [isFound, setIsFound] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [message, setMessage] = useState('BFS (Breadth-First Search) en cuadrícula. Explora por ondas concéntricas garantizando el camino más corto.');
+  const [message, setMessage] = useState('BFS (Breadth-First Search) on 2D grid. Expands in concentric wavefronts guaranteeing shortest path.');
 
   const runBFS = async () => {
     setIsRunning(true);
@@ -29,12 +29,12 @@ export const BFSVisualizer: React.FC = () => {
       const [r, c, dist] = q.shift()!;
       const key = `${r},${c}`;
       setActiveCell(key);
-      setMessage(`Procesando celda (${r}, ${c}) a distancia ${dist}...`);
+      setMessage(`Processing cell (${r}, ${c}) at distance ${dist}...`);
       await new Promise((res) => setTimeout(res, 450));
 
       if (r === target[0] && c === target[1]) {
         setIsFound(true);
-        setMessage(`¡Meta alcanzada en (${r}, ${c})! Distancia más corta garantizada = ${dist} pasos.`);
+        setMessage(`Target reached at (${r}, ${c})! Guaranteed shortest distance = ${dist} steps.`);
         setIsRunning(false);
         return;
       }
@@ -67,7 +67,7 @@ export const BFSVisualizer: React.FC = () => {
     }
 
     setIsRunning(false);
-    setMessage('Búsqueda completada.');
+    setMessage('Search completed.');
   };
 
   const handleReset = () => {
@@ -76,7 +76,7 @@ export const BFSVisualizer: React.FC = () => {
     setActiveCell(null);
     setIsFound(false);
     setIsRunning(false);
-    setMessage('BFS restablecido a celda inicial (0,0).');
+    setMessage('BFS reset to start cell (0,0).');
   };
 
   return (
@@ -97,13 +97,13 @@ export const BFSVisualizer: React.FC = () => {
         {/* Queue Display */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-            Cola FIFO BFS:
+            FIFO BFS Queue:
           </span>
           <div style={{ display: 'flex', gap: '4px' }}>
             {queue.slice(0, 7).map((item, idx) => (
               <span key={idx} className="cyber-badge badge-cyan">{item}</span>
             ))}
-            {queue.length > 7 && <span style={{ color: 'var(--text-dim)' }}>+{queue.length - 7} más</span>}
+            {queue.length > 7 && <span style={{ color: 'var(--text-dim)' }}>+{queue.length - 7} more</span>}
           </div>
         </div>
 
@@ -167,11 +167,11 @@ export const BFSVisualizer: React.FC = () => {
                   }}
                 >
                   {isObstacle ? (
-                    <span style={{ fontSize: '0.65rem', color: '#555' }}>BLOQ</span>
+                    <span style={{ fontSize: '0.65rem', color: '#555' }}>BLOCK</span>
                   ) : isStart ? (
-                    <span>INICIO</span>
+                    <span>START</span>
                   ) : isTarget ? (
-                    <span style={{ color: isFound ? '#39ff14' : '#ffb703' }}>META</span>
+                    <span style={{ color: isFound ? '#39ff14' : '#ffb703' }}>TARGET</span>
                   ) : isVis ? (
                     <span style={{ fontSize: '0.9rem' }}>d={visited[key]}</span>
                   ) : (
@@ -217,7 +217,7 @@ export const BFSVisualizer: React.FC = () => {
           className="cyber-btn"
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
-          <Play size={14} /> Ejecutar BFS O(V+E)
+          <Play size={14} /> Run BFS O(V+E)
         </button>
 
         <button

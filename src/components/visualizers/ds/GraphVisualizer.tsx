@@ -35,14 +35,14 @@ export const GraphVisualizer: React.FC = () => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [visitedNodes, setVisitedNodes] = useState<number[]>([]);
   const [activeEdge, setActiveEdge] = useState<GraphEdge | null>(null);
-  const [message, setMessage] = useState('Grafo ponderado G=(V, E) con 5 vértices y 6 aristas.');
+  const [message, setMessage] = useState('Weighted Graph G=(V, E) with 5 vertices and 6 edges.');
   const [isTraversing, setIsTraversing] = useState(false);
   const [viewMode, setViewMode] = useState<'graph' | 'adjList' | 'matrix'>('graph');
 
   const handleBFS = async () => {
     setIsTraversing(true);
     setVisitedNodes([]);
-    setMessage('Iniciando recorrido BFS desde el vértice 0...');
+    setMessage('Starting BFS traversal from vertex 0...');
     const queue: number[] = [0];
     const visited = new Set<number>([0]);
     setVisitedNodes([0]);
@@ -50,7 +50,7 @@ export const GraphVisualizer: React.FC = () => {
     while (queue.length > 0) {
       const u = queue.shift()!;
       setActiveNode(u);
-      setMessage(`Procesando vértice ${u}. Explorando aristas adyacentes...`);
+      setMessage(`Processing vertex ${u}. Exploring adjacent incident edges...`);
       await new Promise((r) => setTimeout(r, 650));
 
       const neighbors = edges
@@ -63,14 +63,14 @@ export const GraphVisualizer: React.FC = () => {
           queue.push(v);
           setVisitedNodes(Array.from(visited));
           setActiveEdge({ u, v });
-          setMessage(`Descubriendo vértice vecino ${v} a través de la arista (${u}-${v}).`);
+          setMessage(`Discovered neighbor vertex ${v} via edge (${u}-${v}).`);
           await new Promise((r) => setTimeout(r, 650));
         }
       }
     }
     setActiveNode(null);
     setActiveEdge(null);
-    setMessage('¡Recorrido de grafo completado en tiempo O(V + E)!');
+    setMessage('Graph traversal completed in O(V + E) time!');
     setIsTraversing(false);
   };
 
@@ -78,7 +78,7 @@ export const GraphVisualizer: React.FC = () => {
     setActiveNode(null);
     setVisitedNodes([]);
     setActiveEdge(null);
-    setMessage('Grafo restablecido.');
+    setMessage('Graph reset.');
   };
 
   return (
@@ -90,21 +90,21 @@ export const GraphVisualizer: React.FC = () => {
           className={viewMode === 'graph' ? 'cyber-btn' : 'cyber-btn-secondary'}
           style={{ padding: '6px 12px', fontSize: '0.8rem' }}
         >
-          <Share2 size={14} /> Vista Gráfica
+          <Share2 size={14} /> Graphical View
         </button>
         <button
           onClick={() => setViewMode('adjList')}
           className={viewMode === 'adjList' ? 'cyber-btn' : 'cyber-btn-secondary'}
           style={{ padding: '6px 12px', fontSize: '0.8rem' }}
         >
-          Lista de Adyacencia O(V+E)
+          Adjacency List O(V+E)
         </button>
         <button
           onClick={() => setViewMode('matrix')}
           className={viewMode === 'matrix' ? 'cyber-btn' : 'cyber-btn-secondary'}
           style={{ padding: '6px 12px', fontSize: '0.8rem' }}
         >
-          Matriz de Adyacencia O(V²)
+          Adjacency Matrix O(V²)
         </button>
       </div>
 
@@ -206,11 +206,11 @@ export const GraphVisualizer: React.FC = () => {
                 .filter((e) => e.u === n.id || e.v === n.id)
                 .map((e) => {
                   const target = e.u === n.id ? e.v : e.u;
-                  return `[V${target}, peso:${e.weight}]`;
+                  return `[V${target}, wt:${e.weight}]`;
                 });
               return (
                 <div key={n.id} style={{ display: 'flex', gap: '8px', padding: '4px 0' }}>
-                  <span style={{ color: '#ff007f', fontWeight: 700 }}>Nodo {n.id} :</span>
+                  <span style={{ color: '#ff007f', fontWeight: 700 }}>Node {n.id} :</span>
                   <span style={{ color: '#c9e6ff' }}>{neighbors.join(' -> ')}</span>
                 </div>
               );
@@ -294,7 +294,7 @@ export const GraphVisualizer: React.FC = () => {
           className="cyber-btn"
           style={{ padding: '7px 14px', fontSize: '0.8rem' }}
         >
-          <Play size={14} /> Explorar Grafo con BFS O(V+E)
+          <Play size={14} /> Traverse Graph with BFS O(V+E)
         </button>
 
         <button

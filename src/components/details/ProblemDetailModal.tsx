@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Modal } from '../common/Modal';
-import { ComplexityBadge } from '../common/ComplexityBadge';
-import { CodeSnippet } from './CodeSnippet';
-import { Sparkles, CheckCircle2, AlertTriangle, Play, BookOpen } from 'lucide-react';
 import type { AlgorithmResult } from '../../types/flowchart';
+import { Modal } from '../common/Modal';
+import { CodeSnippet } from './CodeSnippet';
+import { ComplexityBadge } from '../common/ComplexityBadge';
+import { 
+  CheckCircle2, 
+  XCircle, 
+  Lightbulb, 
+  Code,
+  Sparkles
+} from 'lucide-react';
 
 // Visualizers
 import { ArrayVisualizer } from '../visualizers/ds/ArrayVisualizer';
@@ -24,24 +30,24 @@ import { GreedyVisualizer } from '../visualizers/algo/GreedyVisualizer';
 import { PrefixSumVisualizer } from '../visualizers/algo/PrefixSumVisualizer';
 
 interface ProblemDetailModalProps {
-  algorithmResult: AlgorithmResult | null;
   isOpen: boolean;
   onClose: () => void;
+  result: AlgorithmResult | null;
 }
 
 export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
-  algorithmResult,
   isOpen,
-  onClose
+  onClose,
+  result
 }) => {
-  const [activeTab, setActiveTab] = useState<'problem' | 'simulator'>('problem');
+  const [activeTab, setActiveTab] = useState<'overview' | 'simulator' | 'code'>('overview');
 
-  if (!algorithmResult) return null;
+  if (!result) return null;
 
-  const classic = algorithmResult.classicProblems[0];
+  const currentProblem = result.classicProblems[0];
 
-  const renderSimulator = () => {
-    switch (algorithmResult.visualizerType) {
+  const renderVisualizer = () => {
+    switch (result.visualizerType) {
       case 'array': return <ArrayVisualizer />;
       case 'linked_list': return <LinkedListVisualizer />;
       case 'tree': return <TreeVisualizer />;
@@ -58,140 +64,174 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
       case 'binary_search': return <BinarySearchVisualizer />;
       case 'greedy': return <GreedyVisualizer />;
       case 'prefix_sum': return <PrefixSumVisualizer />;
-      default: return <SlidingWindowVisualizer />;
+      default: return <BFSVisualizer />;
     }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      maxWidth="1000px"
-      title={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Sparkles size={20} color="#00f5ff" />
-          <span>{algorithmResult.name}</span>
-        </div>
-      }
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={result.name} maxWidth="880px">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {/* Navigation Tabs in Modal */}
-        <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid rgba(0, 245, 255, 0.15)', paddingBottom: '10px' }}>
+        {/* Header Tags & Complexities */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+              {result.dataStructures.map(ds => (
+                <span key={ds} className="cyber-badge badge-cyan">{ds}</span>
+              ))}
+              {result.algorithms.map(algo => (
+                <span key={algo} className="cyber-badge badge-magenta">{algo}</span>
+              ))}
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              {result.tagline}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <ComplexityBadge complexity={result.timeComplexity} label="Time" />
+            <ComplexityBadge complexity={result.spaceComplexity} label="Space" />
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(0, 245, 255, 0.15)', paddingBottom: '8px' }}>
           <button
-            onClick={() => setActiveTab('problem')}
-            className={activeTab === 'problem' ? 'cyber-btn' : 'cyber-btn-secondary'}
-            style={{ padding: '6px 14px', fontSize: '0.85rem' }}
+            onClick={() => setActiveTab('overview')}
+            className={`cyber-tab ${activeTab === 'overview' ? 'active' : ''}`}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '4px',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: activeTab === 'overview' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
+              color: activeTab === 'overview' ? 'var(--neon-cyan)' : 'var(--text-muted)'
+            }}
           >
-            <BookOpen size={14} /> Solución & Ejercicio LeetCode
+            <Lightbulb size={15} /> Overview & Theory
           </button>
+
           <button
             onClick={() => setActiveTab('simulator')}
-            className={activeTab === 'simulator' ? 'cyber-btn' : 'cyber-btn-secondary'}
-            style={{ padding: '6px 14px', fontSize: '0.85rem' }}
+            className={`cyber-tab ${activeTab === 'simulator' ? 'active' : ''}`}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '4px',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: activeTab === 'simulator' ? 'rgba(255, 0, 127, 0.2)' : 'transparent',
+              color: activeTab === 'simulator' ? 'var(--neon-magenta)' : 'var(--text-muted)'
+            }}
           >
-            <Play size={14} /> Simulador Interactivo en Vivo
+            <Sparkles size={15} /> Live Interactive Simulator
+          </button>
+
+          <button
+            onClick={() => setActiveTab('code')}
+            className={`cyber-tab ${activeTab === 'code' ? 'active' : ''}`}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '4px',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: activeTab === 'code' ? 'rgba(57, 255, 20, 0.2)' : 'transparent',
+              color: activeTab === 'code' ? 'var(--neon-green)' : 'var(--text-muted)'
+            }}
+          >
+            <Code size={15} /> LeetCode Solution & Code
           </button>
         </div>
 
-        {activeTab === 'problem' && (
-          <>
-            {/* Header Description & Complexities */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <p style={{ fontSize: '1rem', color: '#e0eaff', lineHeight: '1.5' }}>
-                {algorithmResult.description}
-              </p>
-
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <ComplexityBadge type="time" value={algorithmResult.timeComplexity} size="md" />
-                <ComplexityBadge type="space" value={algorithmResult.spaceComplexity} size="md" />
-                <span className="cyber-badge badge-purple">
-                  DS: {algorithmResult.dataStructures.join(', ')}
-                </span>
-                <span className="cyber-badge badge-yellow">
-                  Patrón: {algorithmResult.algorithms.join(', ')}
-                </span>
-              </div>
-            </div>
-
-            {/* Why This Pattern */}
-            <div
-              style={{
-                backgroundColor: 'rgba(0, 245, 255, 0.05)',
-                borderLeft: '4px solid var(--neon-cyan)',
-                borderRadius: '0 8px 8px 0',
-                padding: '14px 18px'
-              }}
-            >
-              <h4 style={{ color: 'var(--neon-cyan)', fontFamily: 'var(--font-mono)', fontSize: '0.9rem', marginBottom: '6px' }}>
-                ¿POR QUÉ SE ELIGE ESTE PATRÓN EN EL FLOWCHART?
+        {/* Tab 1: Overview */}
+        {activeTab === 'overview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ backgroundColor: 'rgba(13, 21, 39, 0.6)', padding: '16px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--neon-cyan)' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--neon-cyan)', fontFamily: 'var(--font-mono)' }}>
+                WHY CHOOSE THIS PATTERN IN THE FLOWCHART?
               </h4>
-              <p style={{ color: '#c9e6ff', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                {algorithmResult.whyThisPattern}
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#c9e6ff', lineHeight: 1.5 }}>
+                {result.whyThisPattern}
               </p>
             </div>
 
-            {/* When to Use / When to Avoid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
-              <div style={{ background: '#080d18', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(57, 255, 20, 0.2)' }}>
-                <h4 style={{ color: '#39ff14', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={14} /> CUÁNDO USARLO
-                </h4>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {algorithmResult.whenToUse.map((w, idx) => (
-                    <li key={idx} style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>• {w}</li>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+              <div style={{ backgroundColor: 'rgba(57, 255, 20, 0.05)', border: '1px solid rgba(57, 255, 20, 0.2)', padding: '14px', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <CheckCircle2 size={16} color="var(--neon-green)" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--neon-green)' }}>WHEN TO USE</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  {result.whenToUse.map((u, i) => (
+                    <li key={i}>{u}</li>
                   ))}
                 </ul>
               </div>
 
-              <div style={{ background: '#080d18', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 0, 127, 0.2)' }}>
-                <h4 style={{ color: '#ff007f', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <AlertTriangle size={14} /> CUÁNDO EVITARLO
-                </h4>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {algorithmResult.whenToAvoid.map((w, idx) => (
-                    <li key={idx} style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>• {w}</li>
+              <div style={{ backgroundColor: 'rgba(255, 0, 127, 0.05)', border: '1px solid rgba(255, 0, 127, 0.2)', padding: '14px', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <XCircle size={16} color="var(--neon-magenta)" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--neon-magenta)' }}>WHEN TO AVOID</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  {result.whenToAvoid.map((a, i) => (
+                    <li key={i}>{a}</li>
                   ))}
                 </ul>
               </div>
             </div>
-
-            {/* Classic Problem Card */}
-            {classic && (
-              <div style={{ background: 'rgba(13, 21, 39, 0.8)', border: '1px solid rgba(0, 245, 255, 0.25)', borderRadius: 'var(--radius-md)', padding: '18px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="cyber-badge badge-cyan">{classic.platform} #{classic.problemNumber}</span>
-                    <h3 style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>{classic.title}</h3>
-                  </div>
-                  <span className={`cyber-badge ${classic.difficulty === 'Easy' ? 'badge-green' : classic.difficulty === 'Medium' ? 'badge-yellow' : 'badge-magenta'}`}>
-                    {classic.difficulty}
-                  </span>
-                </div>
-
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '12px', lineHeight: '1.5' }}>
-                  {classic.summary}
-                </p>
-
-                {/* Key Insight */}
-                <div style={{ background: '#060a12', padding: '10px 14px', borderRadius: '6px', borderLeft: '3px solid #ffb703', marginBottom: '12px' }}>
-                  <span style={{ color: '#ffb703', fontWeight: 700, fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>INSIGHT CLAVE: </span>
-                  <span style={{ color: '#e0eaff', fontSize: '0.8rem' }}>{classic.keyInsight}</span>
-                </div>
-
-                {/* Code Solution with Python & TypeScript */}
-                <CodeSnippet
-                  pythonCode={classic.pythonCode}
-                  tsCode={classic.tsCode}
-                  title={`${classic.title} - Implementación Óptima`}
-                />
-              </div>
-            )}
-          </>
+          </div>
         )}
 
+        {/* Tab 2: Interactive Simulator */}
         {activeTab === 'simulator' && (
           <div>
-            {renderSimulator()}
+            {renderVisualizer()}
+          </div>
+        )}
+
+        {/* Tab 3: Code & Problem */}
+        {activeTab === 'code' && currentProblem && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Problem card */}
+            <div style={{ backgroundColor: 'rgba(13, 21, 39, 0.7)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="cyber-badge badge-green">#{currentProblem.problemNumber || 'LC'}</span>
+                  <h4 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>{currentProblem.title}</h4>
+                </div>
+                <span className="cyber-badge badge-yellow">{currentProblem.difficulty}</span>
+              </div>
+
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                {currentProblem.summary}
+              </p>
+
+              <div style={{ backgroundColor: '#070a14', padding: '10px', borderRadius: '4px', fontSize: '0.8rem', color: '#a0c4ff', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ color: 'var(--neon-cyan)', fontWeight: 700 }}>KEY INSIGHT: </span>
+                {currentProblem.keyInsight}
+              </div>
+            </div>
+
+            {/* Code Snippet Box */}
+            <CodeSnippet
+              pythonCode={currentProblem.pythonCode}
+              tsCode={currentProblem.tsCode}
+              title={`Solution for ${currentProblem.title}`}
+            />
           </div>
         )}
       </div>

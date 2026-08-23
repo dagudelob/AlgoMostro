@@ -1,103 +1,73 @@
 import React, { useState } from 'react';
-import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw } from 'lucide-react';
 
 interface Interval {
   id: number;
   start: number;
   end: number;
-  selected?: boolean;
-  rejected?: boolean;
+  label: string;
 }
 
 export const GreedyVisualizer: React.FC = () => {
-  // Intervals to schedule
+  // Interval Scheduling problem
   const initialIntervals: Interval[] = [
-    { id: 1, start: 1, end: 3 },
-    { id: 2, start: 2, end: 5 },
-    { id: 3, start: 3, end: 6 },
-    { id: 4, start: 5, end: 7 },
-    { id: 5, start: 6, end: 8 },
-    { id: 6, start: 8, end: 10 }
+    { id: 1, start: 1, end: 3, label: 'Task A [1..3]' },
+    { id: 2, start: 2, end: 5, label: 'Task B [2..5]' },
+    { id: 3, start: 4, end: 7, label: 'Task C [4..7]' },
+    { id: 4, start: 1, end: 8, label: 'Task D [1..8]' },
+    { id: 5, start: 6, end: 9, label: 'Task E [6..9]' },
+    { id: 6, start: 8, end: 10, label: 'Task F [8..10]' }
   ];
 
-  const [intervals, setIntervals] = useState<Interval[]>(initialIntervals);
-  const [currentIdx, setCurrentIdx] = useState<number>(0);
-  const [lastEnd, setLastEnd] = useState<number>(-1);
-  const [selectedCount, setSelectedCount] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [message, setMessage] = useState('Estrategia Voraz (Greedy): Programación de Intervalos. Ordenar por tiempo de finalización y tomar vorazmente el que termine más temprano.');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [rejectedIds, setRejectedIds] = useState<number[]>([]);
+  const [activeIntervalId, setActiveIntervalId] = useState<number | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [message, setMessage] = useState('Greedy Interval Scheduling. Sort by finish time and greedily select non-overlapping intervals in O(N log N).');
 
-  const stepForward = (idx: number, prevEnd: number, count: number) => {
-    if (idx >= intervals.length) {
-      setIsPlaying(false);
-      setMessage(`¡Algoritmo Greedy finalizado! Se seleccionaron ${count} intervalos compatibles máximos.`);
-      return;
-    }
+  const runGreedy = async () => {
+    setIsRunning(true);
+    setSelectedIds([]);
+    setRejectedIds([]);
 
-    const current = intervals[idx];
-    const newIntervals = [...intervals];
+    // Sort by end time
+    const sorted = [...initialIntervals].sort((a, b) => a.end - b.end);
+    const chosen: number[] = [];
+    const rejected: number[] = [];
+    let lastEnd = -Infinity;
 
-    if (current.start >= prevEnd) {
-      newIntervals[idx] = { ...current, selected: true };
-      const newCount = count + 1;
-      const newEnd = current.end;
-      setIntervals(newIntervals);
-      setCurrentIdx(idx + 1);
-      setLastEnd(newEnd);
-      setSelectedCount(newCount);
-      setMessage(`Intervalo [${current.start}, ${current.end}] es compatible (start ${current.start} >= último end ${prevEnd === -1 ? 0 : prevEnd}). ¡Seleccionado vorazmente!`);
-    } else {
-      newIntervals[idx] = { ...current, rejected: true };
-      setIntervals(newIntervals);
-      setCurrentIdx(idx + 1);
-      setMessage(`Intervalo [${current.start}, ${current.end}] se solapa con el anterior (start ${current.start} < end ${prevEnd}). Rechazado.`);
-    }
-  };
+    setMessage('Step 1: Sort all tasks by finish time (earliest end time first)...');
+    await new Promise((r) => setTimeout(r, 700));
 
-  const handlePlayToggle = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      if (currentIdx >= intervals.length) {
-        handleReset();
-      }
-      setIsPlaying(true);
-      runLoop(currentIdx, lastEnd, selectedCount);
-    }
-  };
+    for (const item of sorted) {
+      setActiveIntervalId(item.id);
+      setMessage(`Inspecting ${item.label}: Start = ${item.start}, End = ${item.end}...`);
+      await new Promise((r) => setTimeout(r, 700));
 
-  const runLoop = async (initIdx: number, initEnd: number, initCount: number) => {
-    let idx = initIdx;
-    let end = initEnd;
-    let cnt = initCount;
-    const workingList = [...intervals];
-
-    while (idx < workingList.length) {
-      await new Promise((r) => setTimeout(r, 850));
-      const curr = workingList[idx];
-      if (curr.start >= end) {
-        workingList[idx] = { ...curr, selected: true };
-        end = curr.end;
-        cnt++;
+      if (item.start >= lastEnd) {
+        chosen.push(item.id);
+        lastEnd = item.end;
+        setSelectedIds([...chosen]);
+        setMessage(`Selected ${item.label}! Does not overlap with previous end time (${lastEnd}).`);
       } else {
-        workingList[idx] = { ...curr, rejected: true };
+        rejected.push(item.id);
+        setRejectedIds([...rejected]);
+        setMessage(`Rejected ${item.label}! Overlaps with previous active interval ending at ${lastEnd}.`);
       }
-      setIntervals([...workingList]);
-      idx++;
-      setCurrentIdx(idx);
-      setLastEnd(end);
-      setSelectedCount(cnt);
+      await new Promise((r) => setTimeout(r, 600));
     }
-    setIsPlaying(false);
+
+    setActiveIntervalId(null);
+    setIsRunning(false);
+    setMessage(`Greedy selection complete! Maximized non-overlapping tasks = ${chosen.length}.`);
   };
 
   const handleReset = () => {
-    setIntervals(initialIntervals);
-    setCurrentIdx(0);
-    setLastEnd(-1);
-    setSelectedCount(0);
-    setIsPlaying(false);
-    setMessage('Intervalos restablecidos y ordenados por end time.');
+    setSelectedIds([]);
+    setRejectedIds([]);
+    setActiveIntervalId(null);
+    setIsRunning(false);
+    setMessage('Interval scheduling reset.');
   };
 
   return (
@@ -112,62 +82,75 @@ export const GreedyVisualizer: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '20px'
+          gap: '16px'
         }}
       >
-        {/* Banner */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span className="cyber-badge badge-green">Seleccionados: {selectedCount}</span>
-          <span className="cyber-badge badge-magenta">Último Fin: {lastEnd === -1 ? 'None' : lastEnd}</span>
-          <span className="cyber-badge badge-cyan">Complejidad: O(N log N)</span>
-        </div>
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+          Timeline Axis [0 to 10]
+        </span>
 
-        {/* Timeline Visualization */}
-        <div style={{ width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {intervals.map((item, idx) => {
-            const isCurrent = idx === currentIdx;
-            const leftPct = (item.start / 11) * 100;
-            const widthPct = ((item.end - item.start) / 11) * 100;
+        {/* Intervals Axis View */}
+        <div style={{ width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {initialIntervals.map((item) => {
+            const isChosen = selectedIds.includes(item.id);
+            const isRejected = rejectedIds.includes(item.id);
+            const isActive = activeIntervalId === item.id;
 
-            let bgColor = 'rgba(16, 28, 54, 0.8)';
+            // percentage positioning across 0 to 10 scale
+            const leftPct = (item.start / 10) * 100;
+            const widthPct = ((item.end - item.start) / 10) * 100;
+
+            let bg = 'rgba(16, 28, 54, 0.8)';
             let borderColor = 'rgba(0, 245, 255, 0.3)';
-            let textColor = '#c9e6ff';
+            let color = '#c9e6ff';
 
-            if (item.selected) {
-              bgColor = 'rgba(57, 255, 20, 0.3)';
+            if (isChosen) {
+              bg = 'rgba(57, 255, 20, 0.3)';
               borderColor = 'var(--neon-green)';
-              textColor = '#39ff14';
-            } else if (item.rejected) {
-              bgColor = 'rgba(255, 0, 127, 0.15)';
-              borderColor = 'rgba(255, 0, 127, 0.3)';
-              textColor = 'rgba(255, 0, 127, 0.6)';
-            } else if (isCurrent) {
-              borderColor = 'var(--neon-cyan)';
+              color = '#39ff14';
+            } else if (isRejected) {
+              bg = 'rgba(255, 0, 127, 0.15)';
+              borderColor = 'rgba(255, 0, 127, 0.4)';
+              color = 'rgba(255, 0, 127, 0.7)';
+            } else if (isActive) {
+              bg = 'rgba(255, 214, 10, 0.3)';
+              borderColor = 'var(--neon-yellow)';
+              color = '#ffd60a';
             }
 
             return (
-              <div key={item.id} style={{ position: 'relative', height: '34px', width: '100%', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }}>
+              <div
+                key={item.id}
+                style={{
+                  position: 'relative',
+                  height: '32px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
                 <div
                   style={{
                     position: 'absolute',
                     left: `${leftPct}%`,
                     width: `${widthPct}%`,
-                    height: '100%',
-                    backgroundColor: bgColor,
-                    border: `2px solid ${borderColor}`,
-                    borderRadius: '6px',
+                    height: '26px',
+                    backgroundColor: bg,
+                    border: `1px solid ${borderColor}`,
+                    borderRadius: '4px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    fontSize: '0.72rem',
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.8rem',
                     fontWeight: 700,
-                    color: textColor,
-                    boxShadow: item.selected ? '0 0 10px rgba(57, 255, 20, 0.5)' : isCurrent ? '0 0 8px #00f5ff' : 'none',
+                    color: color,
+                    boxShadow: isChosen ? '0 0 10px rgba(57, 255, 20, 0.4)' : isActive ? '0 0 10px rgba(255, 214, 10, 0.4)' : 'none',
                     transition: 'all 0.25s'
                   }}
                 >
-                  [{item.start}, {item.end}] {item.selected ? '✓' : item.rejected ? '✗' : ''}
+                  {item.label}
                 </div>
               </div>
             );
@@ -191,7 +174,7 @@ export const GreedyVisualizer: React.FC = () => {
         </div>
       </div>
 
-      {/* Control Player */}
+      {/* Control Panel */}
       <div
         style={{
           display: 'flex',
@@ -203,25 +186,17 @@ export const GreedyVisualizer: React.FC = () => {
         }}
       >
         <button
-          onClick={handlePlayToggle}
+          onClick={runGreedy}
+          disabled={isRunning}
           className="cyber-btn"
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pausar' : 'Play Greedy Scan'}</span>
-        </button>
-
-        <button
-          onClick={() => stepForward(currentIdx, lastEnd, selectedCount)}
-          disabled={isPlaying || currentIdx >= intervals.length}
-          className="cyber-btn-secondary"
-          style={{ padding: '7px 12px', fontSize: '0.8rem' }}
-        >
-          <SkipForward size={14} /> Siguiente Intervalo ({currentIdx}/{intervals.length})
+          <Play size={14} /> Run Greedy Scheduling O(N log N)
         </button>
 
         <button
           onClick={handleReset}
+          disabled={isRunning}
           className="cyber-btn-secondary"
           style={{ padding: '7px 12px', fontSize: '0.8rem', marginLeft: 'auto' }}
         >

@@ -5,22 +5,22 @@ export const ALGORITHM_RESULTS: Record<string, AlgorithmResult> = {
     id: 'tree-dp',
     name: 'Tree DP / Divide & Conquer',
     category: 'tree',
-    tagline: 'Descomposición recursiva y programación dinámica sobre árboles',
-    description: 'Calcula respuestas óptimas o cuenta combinaciones combinando los resultados independientes de los subárboles izquierdo y derecho.',
-    whyThisPattern: 'Los árboles tienen una estructura recursiva inherente. Al resolver subárboles hijos de forma independiente, podemos agregar las soluciones hacia la raíz.',
+    tagline: 'Recursive decomposition and dynamic programming over tree topologies',
+    description: 'Computes optimal answers or counts structural combinations by independently aggregating results from left and right subtrees.',
+    whyThisPattern: 'Trees possess an inherently recursive structure. By solving independent child subtrees, we can aggregate solutions upwards to the root.',
     timeComplexity: 'O(N)',
-    spaceComplexity: 'O(H) donde H es la altura del árbol',
+    spaceComplexity: 'O(H) where H is tree height',
     dataStructures: ['Trees', 'Recursion Stack'],
     algorithms: ['DFS', 'Dynamic Programming'],
     visualizerType: 'tree',
     whenToUse: [
-      'Contar árboles de búsqueda binaria estructuralmente únicos',
-      'Diámetro o suma máxima de camino en un árbol binario',
-      'Problemas de coloreo o cobertura de vértices en árboles'
+      'Counting structurally unique binary search trees',
+      'Computing tree diameter or maximum path sum',
+      'Tree vertex cover and coloring optimizations'
     ],
     whenToAvoid: [
-      'Grafos con ciclos donde se requiere detectar visitados',
-      'Recorridos por capas donde BFS es más natural'
+      'General cyclic graphs where visited state cycles exist',
+      'Level-order breadth evaluations where BFS is more natural'
     ],
     classicProblems: [
       {
@@ -29,8 +29,8 @@ export const ALGORITHM_RESULTS: Record<string, AlgorithmResult> = {
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 96,
-        summary: 'Dado un entero n, retorna el número de árboles de búsqueda binaria estructuralmente únicos que tienen exactamente n nodos con valores únicos de 1 a n.',
-        keyInsight: 'Para cada nodo i elegido como raíz, hay i-1 nodos en el subárbol izquierdo y n-i en el derecho. Número total G(n) = sum(G(i-1) * G(n-i)) (Números de Catalan).',
+        summary: 'Given an integer n, return the number of structurally unique BSTs with exactly n nodes having unique values from 1 to n.',
+        keyInsight: 'Choosing root i leaves i-1 nodes in the left subtree and n-i in the right. Total G(n) = sum(G(i-1) * G(n-i)) (Catalan numbers).',
         timeComplexity: 'O(N^2)',
         spaceComplexity: 'O(N)',
         pythonCode: `class Solution:
@@ -62,22 +62,22 @@ export const ALGORITHM_RESULTS: Record<string, AlgorithmResult> = {
     id: 'tree-bfs',
     name: 'Tree Breadth-First Search (Level Order)',
     category: 'tree',
-    tagline: 'Exploración capa por capa de nodos en un árbol mediante cola FIFO',
-    description: 'Procesa todos los nodos en la profundidad K antes de descender a la profundidad K+1, ideal para vistas laterales, niveles y distancias mínimas.',
-    whyThisPattern: 'Una cola FIFO almacena la capa actual y permite procesar en lotes (batching) el tamaño de cada nivel `len(queue)`.',
+    tagline: 'Layer-by-layer traversal using a FIFO queue',
+    description: 'Processes all nodes at depth K before descending to depth K+1, ideal for side views, level aggregations, and shortest distances.',
+    whyThisPattern: 'A FIFO queue buffers the current depth level and allows batch processing based on queue length `len(queue)`.',
     timeComplexity: 'O(N)',
-    spaceComplexity: 'O(W) donde W es el ancho máximo del árbol',
+    spaceComplexity: 'O(W) where W is maximum tree width',
     dataStructures: ['Trees', 'Queues'],
     algorithms: ['BFS'],
     visualizerType: 'bfs',
     whenToUse: [
-      'Recorrido por niveles (Level Order Traversal)',
-      'Vista derecha o izquierda de un árbol binario',
-      'Calcular la distancia de nivel o nodos más cercanos'
+      'Binary tree level order traversal',
+      'Right/left side views of a binary tree',
+      'Finding the minimum depth or nearest target node'
     ],
     whenToAvoid: [
-      'Cuando se requiere visitar hojas primero (post-order)',
-      'Cuando la memoria para la cola es muy alta en árboles densos'
+      'When post-order child-to-parent aggregation is needed (use DFS)',
+      'When queue memory overhead is excessive in dense trees'
     ],
     classicProblems: [
       {
@@ -86,8 +86,8 @@ export const ALGORITHM_RESULTS: Record<string, AlgorithmResult> = {
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 102,
-        summary: 'Dada la raíz de un árbol binario, retorna el recorrido por niveles de los valores de sus nodos (de izquierda a derecha, nivel por nivel).',
-        keyInsight: 'Registrar la longitud actual de la cola antes de cada iteración del bucle exterior para agrupar exactamente los nodos de un mismo nivel.',
+        summary: 'Given the root of a binary tree, return the level order traversal of its nodes values (left to right, level by level).',
+        keyInsight: 'Snapshot the current queue size before iterating the inner loop to isolate nodes strictly within the same depth tier.',
         timeComplexity: 'O(N)',
         spaceComplexity: 'O(N)',
         pythonCode: `from collections import deque
@@ -134,21 +134,21 @@ class Solution:
     id: 'tree-dfs',
     name: 'Tree Depth-First Search (Pre / In / Post)',
     category: 'tree',
-    tagline: 'Exploración en profundidad y backtracking en árboles',
-    description: 'Desciende por los caminos hasta las hojas procesando los nodos de acuerdo al orden deseado (Pre-order, In-order, Post-order).',
-    whyThisPattern: 'Aprovecha la pila de llamadas para descender y retornar información del subárbol hacia el ancestro (ej. altura, ancestro común).',
+    tagline: 'Deep recursive traversal and backtracking in trees',
+    description: 'Traverses downwards along each branch to leaf nodes, executing operations in Pre-order, In-order, or Post-order.',
+    whyThisPattern: 'Leverages the call stack to descend and propagate subtree summaries back up to parent nodes (e.g. height, ancestor match).',
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(H)',
     dataStructures: ['Trees', 'Recursion Stack'],
     algorithms: ['DFS'],
     visualizerType: 'dfs',
     whenToUse: [
-      'Calcular altura o profundidad máxima de un árbol',
+      'Computing tree height or maximum depth',
       'Lowest Common Ancestor (LCA)',
-      'Validar si un árbol es BST (recorrido In-order estrictamente creciente)'
+      'Validating BST properties (In-order traversal is strictly increasing)'
     ],
     whenToAvoid: [
-      'Buscar el camino más corto en un árbol desbalanceado infinito'
+      'Finding the shortest path in skewed or infinite trees'
     ],
     classicProblems: [
       {
@@ -157,8 +157,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 236,
-        summary: 'Dado un árbol binario, encuentra el ancestro común más bajo (LCA) de dos nodos dados p y q.',
-        keyInsight: 'Si la raíz actual coincide con p o q, retorna la raíz. Busca recursivamente en izquierda y derecha: si ambos retornan no-nulo, la raíz actual es el LCA.',
+        summary: 'Given a binary tree, find the lowest common ancestor (LCA) of two given nodes p and q.',
+        keyInsight: 'If the current node matches p or q, return it. Recursively search left and right subtrees: if both return non-null, the current root is the LCA.',
         timeComplexity: 'O(N)',
         spaceComplexity: 'O(H)',
         pythonCode: `class Solution:
@@ -187,21 +187,21 @@ class Solution:
     id: 'topological-sort',
     name: 'Topological Sort (Kahn / DFS)',
     category: 'graph',
-    tagline: 'Ordenamiento lineal de vértices en un Grafo Dirigido Acíclico (DAG)',
-    description: 'Establece un orden secuencial respetando dependencias direccionales (u -> v significa que u debe ejecutarse antes que v).',
-    whyThisPattern: 'El algoritmo de Kahn cuenta el grado de entrada (in-degree) de cada nodo; aquellos con in-degree = 0 pueden procesarse de inmediato.',
+    tagline: 'Linear ordering of vertices in a Directed Acyclic Graph (DAG)',
+    description: 'Produces a valid execution sequence respecting directional prerequisites (u -> v implies u must execute before v).',
+    whyThisPattern: "Kahn's algorithm tracks vertex in-degrees; nodes with in-degree = 0 have all prerequisites satisfied and can be processed immediately.",
     timeComplexity: 'O(V + E)',
     spaceComplexity: 'O(V + E)',
     dataStructures: ['Graphs', 'Queues', 'Arrays'],
     algorithms: ['BFS', 'DFS'],
     visualizerType: 'graph',
     whenToUse: [
-      'Resolución de dependencias y orden de compilación de paquetes',
-      'Planificación de cursos universitarios con prerrequisitos',
-      'Detección de dependencias circulares / ciclos en grafos dirigidos'
+      'Dependency resolution and build order in package managers',
+      'Course schedule planning with prerequisites',
+      'Detecting circular dependencies and cycles in directed graphs'
     ],
     whenToAvoid: [
-      'Grafos no dirigidos (no existe concepto de prerrequisito unívoco)'
+      'Undirected graphs where prerequisite directionality is undefined'
     ],
     classicProblems: [
       {
@@ -210,8 +210,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 207,
-        summary: 'Hay numCourses cursos etiquetados de 0 a numCourses-1. Se da una lista de prerrequisitos [a, b]. Determina si es posible finalizar todos los cursos.',
-        keyInsight: 'Construir el in-degree array y la lista de adyacencia. Encolar los cursos con in-degree = 0. Si el conteo de cursos procesados es igual a numCourses, no hay ciclo.',
+        summary: 'There are numCourses courses labeled 0 to numCourses-1 with prerequisites [a, b]. Return true if you can finish all courses.',
+        keyInsight: 'Build in-degree array and adjacency list. Enqueue courses with in-degree 0. If processed courses count equals numCourses, no cycle exists.',
         timeComplexity: 'O(V + E)',
         spaceComplexity: 'O(V + E)',
         pythonCode: `from collections import deque
@@ -266,22 +266,22 @@ class Solution:
     id: 'dijkstra',
     name: "Dijkstra's Algorithm",
     category: 'graph',
-    tagline: 'Camino más corto en grafos ponderados con pesos no negativos',
-    description: 'Encuentra las distancias mínimas desde un nodo origen a todos los demás vértices expandiendo siempre la menor distancia tentativa acumulada mediante un Min-Heap.',
-    whyThisPattern: 'La cola de prioridad voraz (Min-Heap) garantiza que una vez que un nodo es extraído con la menor distancia, su costo óptimo ya no podrá mejorar con aristas de peso positivo.',
+    tagline: 'Single-source shortest path in graphs with non-negative edge weights',
+    description: 'Finds shortest distances from a source node by greedily expanding the tentative minimum distance vertex using a Min-Heap.',
+    whyThisPattern: 'The greedy priority queue guarantees that once a node is popped with minimal tentative distance, its shortest path is permanently finalized.',
     timeComplexity: 'O((V + E) log V)',
     spaceComplexity: 'O(V + E)',
     dataStructures: ['Heaps', 'Graphs', 'Arrays'],
     algorithms: ['Greedy', 'BFS'],
     visualizerType: 'heap',
     whenToUse: [
-      'Rutas GPS y mapas de carreteras con tiempos/distancias positivas',
-      'Latencia mínima en redes de telecomunicaciones',
-      'Menor costo de transformación con ponderaciones no uniformes'
+      'GPS navigation and road networks with positive road travel times',
+      'Minimum latency routing in telecommunication networks',
+      'Non-uniform positive edge weight shortest path queries'
     ],
     whenToAvoid: [
-      'Grafos con aristas de peso negativo (usar Bellman-Ford / SPFA)',
-      'Grafos no ponderados donde BFS estándar es más rápido O(V + E)'
+      'Graphs with negative edge weights (use Bellman-Ford / SPFA)',
+      'Unweighted graphs where standard BFS is faster at O(V + E)'
     ],
     classicProblems: [
       {
@@ -290,8 +290,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 743,
-        summary: 'Se da una red de n nodos y tiempos de viaje times[i] = [u, v, w]. Se envía una señal desde el nodo k. Retorna el tiempo mínimo para que todos los nodos reciban la señal.',
-        keyInsight: 'Ejecutar Dijkstra desde el nodo k. La respuesta es el valor máximo entre las distancias más cortas a todos los nodos alcanzables.',
+        summary: 'Given a network of n nodes and travel times times[i] = [u, v, w], signal sent from node k. Return minimum time for all nodes to receive the signal.',
+        keyInsight: 'Run Dijkstra from source k. The result is the maximum value among all shortest paths if all nodes are reachable.',
         timeComplexity: 'O(E log V)',
         spaceComplexity: 'O(V + E)',
         pythonCode: `import heapq
@@ -351,21 +351,21 @@ class Solution:
     id: 'graph-bfs',
     name: 'Graph Breadth-First Search (Shortest Path)',
     category: 'graph',
-    tagline: 'Camino más corto en grafos no ponderados y matrices 2D',
-    description: 'Exploración concéntrica por niveles que garantiza encontrar el camino con la menor cantidad de aristas.',
-    whyThisPattern: 'Cada nivel de la cola corresponde a una distancia de exactamente +1 respecto al nodo inicial.',
+    tagline: 'Shortest path in unweighted graphs and 2D matrices',
+    description: 'Frontier layer expansion guaranteeing the path with the fewest edges.',
+    whyThisPattern: 'Each queue level represents a distance offset of exactly +1 edge relative to the starting source.',
     timeComplexity: 'O(V + E)',
     spaceComplexity: 'O(V)',
     dataStructures: ['Graphs', 'Queues', 'Hash Tables (Visited)'],
     algorithms: ['BFS'],
     visualizerType: 'bfs',
     whenToUse: [
-      'Laberintos y matrices 2D (distancia mínima de inicio a fin)',
-      'Transformación de palabras (Word Ladder)',
-      'Inundación / propagación en simultáneo (Multi-source BFS)'
+      '2D grid mazes (minimum steps from start to destination)',
+      'Word transformation sequences (Word Ladder)',
+      'Simultaneous multi-source wave flooding'
     ],
     whenToAvoid: [
-      'Grafos con costos o pesos diferentes en las aristas (usar Dijkstra)'
+      'Graphs with non-uniform edge weights (use Dijkstra)'
     ],
     classicProblems: [
       {
@@ -374,9 +374,9 @@ class Solution:
         difficulty: 'Hard',
         platform: 'LeetCode',
         problemNumber: 127,
-        summary: 'Dadas dos palabras beginWord y endWord, y un diccionario wordList, encuentra el número de palabras en la secuencia de transformación más corta cambiando 1 letra a la vez.',
-        keyInsight: 'Modelar cada palabra como un nodo y las transformaciones de 1 letra como aristas no ponderadas. BFS halla la secuencia más corta.',
-        timeComplexity: 'O(M^2 * N) donde M es la longitud de la palabra',
+        summary: 'Given beginWord, endWord, and wordList dictionary, find the number of words in the shortest transformation sequence changing 1 letter at a time.',
+        keyInsight: 'Model words as vertices and 1-letter transformations as unweighted edges. BFS directly discovers the shortest sequence.',
+        timeComplexity: 'O(M^2 * N) where M is word length',
         spaceComplexity: 'O(M^2 * N)',
         pythonCode: `from collections import deque
 
@@ -430,22 +430,22 @@ class Solution:
     id: 'union-find',
     name: 'Disjoint Set Union (Union-Find)',
     category: 'graph',
-    tagline: 'Gestión dinámica de componentes conexas y relaciones de equivalencia',
-    description: 'Mantiene colecciones de conjuntos disjuntos con operaciones casi en tiempo constante para unir componentes y consultar si dos elementos pertenecen al mismo grupo.',
-    whyThisPattern: 'Con Path Compression y Union by Rank, la complejidad amortizada es O(alpha(N)) prácticamente O(1).',
+    tagline: 'Dynamic connectivity and equivalence relations',
+    description: 'Maintains disjoint sets with near-constant time operations to union components and query group membership.',
+    whyThisPattern: 'Path compression and union by rank reduce amortized time complexity to O(alpha(N)) which is practically O(1).',
     timeComplexity: 'O(alpha(N)) ~= O(1)',
     spaceComplexity: 'O(N)',
     dataStructures: ['Arrays', 'Trees'],
     algorithms: ['Greedy'],
     visualizerType: 'graph',
     whenToUse: [
-      'Detectar ciclos en grafos no dirigidos (Kruskal MST)',
-      'Contar componentes conexas dinámicamente',
-      'Problemas de cuentas de usuarios o amigos conectados en redes'
+      'Cycle detection in undirected graphs (Kruskal MST)',
+      'Dynamic connected component counting',
+      'Friend circles and network account clustering'
     ],
     whenToAvoid: [
-      'Grafos dirigidos donde la conectividad tiene dirección (usar Kosaraju / Tarjan)',
-      'Consultas que requieran el camino real entre dos nodos'
+      'Directed graphs where edge direction matters (use Kosaraju / Tarjan)',
+      'Queries requiring the full path reconstruction between nodes'
     ],
     classicProblems: [
       {
@@ -454,8 +454,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 684,
-        summary: 'En un grafo no dirigido que comenzó como un árbol y se le agregó una arista extra, encuentra la arista que crea el ciclo.',
-        keyInsight: 'Para cada arista (u, v), verificar si find(u) == find(v). Si es verdadero, ya estaban conectados y esta arista crea el ciclo redundante.',
+        summary: 'In an undirected graph that started as a tree with one extra edge added, find the edge creating the cycle.',
+        keyInsight: 'For each edge (u, v), check if find(u) == find(v). If true, they were already connected and this edge forms the cycle.',
         timeComplexity: 'O(N * alpha(N))',
         spaceComplexity: 'O(N)',
         pythonCode: `class Solution:
@@ -496,21 +496,21 @@ class Solution:
     id: 'binary-search',
     name: 'Binary Search / Search on Answer',
     category: 'binary_search',
-    tagline: 'Búsqueda logarítmica O(log N) sobre espacios monótonos',
-    description: 'Reduce a la mitad el rango de búsqueda en cada paso comparando el punto medio con el objetivo o evaluando un predicado de viabilidad monótono.',
-    whyThisPattern: 'Si una propiedad f(x) cambia de Falso a Verdadero una sola vez, la búsqueda binaria encuentra la transición en O(log N).',
+    tagline: 'Logarithmic O(log N) search over monotonic solution spaces',
+    description: 'Halves the search space at each iteration by comparing the midpoint against the target or testing a monotonic feasibility predicate.',
+    whyThisPattern: 'If a property f(x) flips from False to True exactly once, binary search pinpoints the transition in O(log N).',
     timeComplexity: 'O(log N)',
     spaceComplexity: 'O(1)',
     dataStructures: ['Arrays'],
     algorithms: ['Binary Search'],
     visualizerType: 'binary_search',
     whenToUse: [
-      'Búsqueda en arrays ordenados o rotados',
-      'Optimización paramétrica: "Encontrar la velocidad mínima / capacidad mínima para lograr X"',
-      'Calcular raíces cuadradas o potencias'
+      'Searching in sorted or rotated arrays',
+      'Parametric optimization: "Find the minimum speed / capacity to achieve X"',
+      'Computing square roots or power calculations'
     ],
     whenToAvoid: [
-      'Colecciones no ordenadas donde no existe predicado monótono'
+      'Unsorted collections where no monotonic invariant exists'
     ],
     classicProblems: [
       {
@@ -519,8 +519,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 875,
-        summary: 'Koko come plátanos a velocidad k/hora. Determina la velocidad mínima k para comer todas las pilas en h horas.',
-        keyInsight: 'El rango de velocidades posibles es [1, max(piles)]. A mayor velocidad, menor tiempo requerido (propiedad monótona). Aplicar Binary Search on Answer.',
+        summary: 'Koko eats bananas at speed k per hour. Determine minimum integer k to finish all piles within h hours.',
+        keyInsight: 'Speed range is [1, max(piles)]. Higher speed monotonically decreases hours needed. Apply Binary Search on Answer.',
         timeComplexity: 'O(N log(max(piles)))',
         spaceComplexity: 'O(1)',
         pythonCode: `import math
@@ -564,21 +564,21 @@ class Solution:
     id: 'heap-topk',
     name: 'Heap / Priority Queue (Top-K)',
     category: 'heap',
-    tagline: 'Mantenimiento eficiente de los K elementos extremos',
-    description: 'Utiliza un Min-Heap de tamaño K para retener los K elementos mayores, expulsando el menor cuando el tamaño supera K.',
-    whyThisPattern: 'Evita ordenar toda la colección O(N log N), logrando un tiempo O(N log K) con memoria espacial O(K).',
+    tagline: 'Efficiently tracking K extreme elements',
+    description: 'Maintains a Min-Heap of size K to retain the top K largest elements, evicting the smallest whenever size exceeds K.',
+    whyThisPattern: 'Avoids full O(N log N) sorting, achieving O(N log K) time and O(K) space.',
     timeComplexity: 'O(N log K)',
     spaceComplexity: 'O(K)',
     dataStructures: ['Heaps', 'Arrays'],
     algorithms: ['Greedy'],
     visualizerType: 'heap',
     whenToUse: [
-      'K-ésimo elemento más grande o pequeño en un stream continuo',
-      'Top K elementos más frecuentes',
-      'Combinar K listas ordenadas'
+      'Kth largest or smallest element in a continuous data stream',
+      'Top K frequent elements',
+      'Merging K sorted lists'
     ],
     whenToAvoid: [
-      'Si se requiere ordenar todo el array y N es pequeño (QuickSort / TimSort es más simple)'
+      'When all elements must be sorted and N is small (QuickSort/TimSort is simpler)'
     ],
     classicProblems: [
       {
@@ -587,8 +587,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 215,
-        summary: 'Dado un array de enteros nums y un entero k, retorna el k-ésimo elemento más grande del array.',
-        keyInsight: 'Mantener un Min-Heap con los K elementos más grandes encontrados hasta ahora. El tope del heap siempre será el k-ésimo mayor.',
+        summary: 'Given an integer array nums and integer k, return the kth largest element in the array.',
+        keyInsight: 'Maintain a Min-Heap of size K. The heap top always stores the Kth largest element encountered so far.',
         timeComplexity: 'O(N log K)',
         spaceComplexity: 'O(K)',
         pythonCode: `import heapq
@@ -602,7 +602,6 @@ class Solution:
                 heapq.heappop(min_heap)
         return min_heap[0]`,
         tsCode: `function findKthLargest(nums: number[], k: number): number {
-  // Ordenamiento O(N log N) o Min-Heap de tamaño K
   nums.sort((a, b) => b - a);
   return nums[k - 1];
 }`,
@@ -616,22 +615,22 @@ class Solution:
     id: 'two-pointers',
     name: 'Two Pointers (Opposite & Fast/Slow)',
     category: 'array_string',
-    tagline: 'Dos referencias de índice para barridos lineales en memoria O(1)',
-    description: 'Utiliza punteros opuestos que convergen o punteros con velocidades distintas para procesar elementos in-place.',
-    whyThisPattern: 'Aprovecha el ordenamiento o las relaciones estructurales para tomar decisiones definitivas sin evaluar combinaciones redundantes O(N^2).',
+    tagline: 'Dual index references for linear scans in O(1) space',
+    description: 'Utilizes converging pointers or different speed pointers to process items in-place.',
+    whyThisPattern: 'Exploits sorted order or structural invariants to make definitive decisions without O(N^2) quadratic evaluations.',
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(1)',
     dataStructures: ['Arrays', 'Linked Lists'],
     algorithms: ['Two Pointers'],
     visualizerType: 'two_pointers',
     whenToUse: [
-      'Two Sum en arrays ordenados / 3Sum / 4Sum',
-      'Verificar o construir palíndromos',
-      'Detección de ciclos en listas enlazadas (Tortoise & Hare)',
-      'Partición in-place (ej. Sort Colors)'
+      'Two Sum on sorted arrays / 3Sum / 4Sum',
+      'Palindrome verification and two-way checks',
+      'Linked list cycle detection (Tortoise & Hare)',
+      'In-place array partitioning (e.g. Sort Colors)'
     ],
     whenToAvoid: [
-      'Arrays desordenados donde no se puede ordenar previamente'
+      'Unsorted arrays where sorting is prohibited'
     ],
     classicProblems: [
       {
@@ -640,10 +639,10 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 15,
-        summary: 'Dado un array de enteros nums, retorna todos los tripletes [nums[i], nums[j], nums[k]] tales que i != j != k y nums[i] + nums[j] + nums[k] == 0.',
-        keyInsight: 'Ordenar el array. Fijar el primer elemento y usar Two Pointers sobre el resto del array. Saltar duplicados para evitar ternas repetidas.',
+        summary: 'Given an integer array nums, return all triplets [nums[i], nums[j], nums[k]] such that i != j != k and nums[i] + nums[j] + nums[k] == 0.',
+        keyInsight: 'Sort the array. Fix the first element and run Two Pointers on the remaining range. Skip duplicate values to ensure unique triplets.',
         timeComplexity: 'O(N^2)',
-        spaceComplexity: 'O(1) o O(N) por ordenamiento',
+        spaceComplexity: 'O(1) or O(N) for sorting',
         pythonCode: `class Solution:
     def threeSum(self, nums: List[int]) -> List[List[int]]:
         nums.sort()
@@ -696,22 +695,22 @@ class Solution:
     id: 'sliding-window',
     name: 'Sliding Window',
     category: 'array_string',
-    tagline: 'Ventana de límites variables para subarreglos y subcadenas contiguas',
-    description: 'Mantiene una ventana contigua [L, R] expandiendo R y contrayendo L cuando se viola la condición del problema.',
-    whyThisPattern: 'Cada elemento entra y sale de la ventana como máximo una vez, transformando un algoritmo O(N^2) en O(N).',
+    tagline: 'Variable boundary window for contiguous subarrays and substrings',
+    description: 'Maintains a contiguous window [L, R] by expanding R and contracting L when constraints are violated.',
+    whyThisPattern: 'Each element enters and exits the window at most once, transforming O(N^2) brute force into O(N) linear time.',
     timeComplexity: 'O(N)',
-    spaceComplexity: 'O(K) (HashMap de frecuencias)',
+    spaceComplexity: 'O(K) (frequency map)',
     dataStructures: ['Arrays', 'Hash Tables'],
     algorithms: ['Sliding Window'],
     visualizerType: 'sliding_window',
     whenToUse: [
-      'Subcadena más larga sin caracteres repetidos',
-      'Subarray de suma mínima mayor o igual a K',
-      'Contar anagramas o permutaciones en una cadena'
+      'Longest substring without repeating characters',
+      'Minimum size subarray with sum >= K',
+      'Finding all anagrams or permutations in a string'
     ],
     whenToAvoid: [
-      'Subsecuencias no contiguas (usar DP)',
-      'Arrays con números negativos donde la suma no es monótona con la expansión (usar Prefix Sum + HashMap)'
+      'Non-contiguous subsequences (use DP)',
+      'Arrays with negative numbers where expansion is not monotonic (use Prefix Sum + HashMap)'
     ],
     classicProblems: [
       {
@@ -720,8 +719,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 3,
-        summary: 'Dada una cadena s, encuentra la longitud de la subcadena más larga sin caracteres repetidos.',
-        keyInsight: 'Guardar el último índice visto de cada carácter. Cuando se encuentra un duplicado, mover L al máximo entre L y el índice previo + 1.',
+        summary: 'Given a string s, find the length of the longest substring without repeating characters.',
+        keyInsight: 'Track the last seen index of each character. When a duplicate is encountered within the current window, jump L forward.',
         timeComplexity: 'O(N)',
         spaceComplexity: 'O(min(N, M))',
         pythonCode: `class Solution:
@@ -759,21 +758,21 @@ class Solution:
     id: 'monotonic-stack',
     name: 'Monotonic Stack',
     category: 'array_string',
-    tagline: 'Pila monótona para hallar el siguiente elemento mayor o menor en O(N)',
-    description: 'Pila cuyos elementos se mantienen en orden estrictamente creciente o decreciente para resolver problemas de límites y rangos de impacto.',
-    whyThisPattern: 'Cada elemento es apilado y desapilado exactamente una vez, lo que permite computar límites izquierdo y derecho para todos los elementos en tiempo lineal.',
+    tagline: 'Monotonic stack for next greater/smaller element queries in O(N)',
+    description: 'A stack whose elements are maintained in strictly increasing or decreasing order to resolve nearest boundary problems.',
+    whyThisPattern: 'Each element is pushed and popped at most once, allowing boundary calculations for all elements in linear time.',
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(N)',
     dataStructures: ['Stacks', 'Arrays'],
     algorithms: ['Greedy'],
     visualizerType: 'stack',
     whenToUse: [
-      'Siguiente elemento mayor (Next Greater Element)',
-      'Temperaturas diarias y conteo de días de espera',
-      'Trapping Rain Water y Mayor Rectángulo en Histograma'
+      'Next Greater Element / Daily Temperatures',
+      'Largest Rectangle in Histogram',
+      'Trapping Rain Water'
     ],
     whenToAvoid: [
-      'Cuando se requiere procesar elementos no lineales en 2D general'
+      'Non-linear 2D arbitrary geometry problems'
     ],
     classicProblems: [
       {
@@ -782,8 +781,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 739,
-        summary: 'Dado un array temperatures, retorna un array answer tal que answer[i] es el número de días que debes esperar después del día i para tener una temperatura más cálida.',
-        keyInsight: 'Mantener un stack con índices de temperaturas decrecientes. Cuando llega una temperatura mayor, desapilar y calcular la diferencia de índices.',
+        summary: 'Given an array of temperatures, return an array answer where answer[i] is the number of days you must wait for a warmer temperature.',
+        keyInsight: 'Maintain a decreasing monotonic stack of indices. When encountering a warmer temperature, pop and compute the index difference.',
         timeComplexity: 'O(N)',
         spaceComplexity: 'O(N)',
         pythonCode: `class Solution:
@@ -818,21 +817,21 @@ class Solution:
     id: 'prefix-sum',
     name: 'Prefix Sums & HashMap',
     category: 'array_string',
-    tagline: 'Sumas acumuladas para consultas de rangos y subarreglos con suma meta en O(1)',
-    description: 'Precomputa sumas acumuladas tal que la suma de cualquier rango [L, R] se obtiene como Prefix[R] - Prefix[L-1].',
-    whyThisPattern: 'Permite responder consultas repetidas en O(1) y, combinada con un HashMap de frecuencias, encontrar subarreglos con suma K en O(N).',
+    tagline: 'Cumulative sums for instant O(1) range queries and target sum matching',
+    description: 'Precomputes cumulative sums such that any subarray sum [L, R] is computed as Prefix[R+1] - Prefix[L].',
+    whyThisPattern: 'Answers range queries in O(1) time and, when combined with a frequency HashMap, finds target sum subarrays in O(N).',
     timeComplexity: 'O(N)',
     spaceComplexity: 'O(N)',
     dataStructures: ['Arrays', 'Hash Tables'],
     algorithms: ['Prefix Sum'],
     visualizerType: 'prefix_sum',
     whenToUse: [
-      'Subarray Sum Equals K (especialmente con números negativos)',
-      'Consultas de sumas de rangos 1D y 2D (matrices)',
-      'Subarreglos con suma divisible por K'
+      'Subarray Sum Equals K (handles positive, zero, and negative values)',
+      'Static 1D and 2D matrix range sum queries',
+      'Subarrays with sums divisible by K'
     ],
     whenToAvoid: [
-      'Cuando hay actualizaciones frecuentes de valores en el array (usar Fenwick / Segment Tree)'
+      'Frequent array point updates (use Segment Tree or Fenwick Tree)'
     ],
     classicProblems: [
       {
@@ -841,8 +840,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 560,
-        summary: 'Dado un array de enteros nums y un entero k, retorna el número total de subarreglos cuya suma es igual a k.',
-        keyInsight: 'Si la suma acumulada actual es sum, buscamos cuántas veces ha ocurrido una suma previa de (sum - k). Usar un HashMap de conteo de sumas de prefijo.',
+        summary: 'Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals to k.',
+        keyInsight: 'If current cumulative sum is currSum, check how many times (currSum - k) occurred previously using a prefix frequency HashMap.',
         timeComplexity: 'O(N)',
         spaceComplexity: 'O(N)',
         pythonCode: `class Solution:
@@ -879,21 +878,21 @@ class Solution:
     id: 'dp-general',
     name: 'Dynamic Programming (1D / 2D / Knapsack)',
     category: 'dp',
-    tagline: 'Subproblemas superpuestos y subestructura óptima',
-    description: 'Resuelve problemas complejos dividiéndolos en subproblemas más pequeños y almacenando sus resultados para evitar recomputaciones redundantes.',
-    whyThisPattern: 'Reduce complejidades exponenciales O(2^N) a polinomios O(N * W) o O(N^2).',
-    timeComplexity: 'O(N * W) o O(N^2)',
-    spaceComplexity: 'O(N) o O(N * W)',
+    tagline: 'Overlapping subproblems and optimal substructure',
+    description: 'Solves complex problems by caching solutions to simpler subproblems to avoid exponential recalculations.',
+    whyThisPattern: 'Reduces exponential O(2^N) brute force search spaces down to polynomial O(N * W) or O(N^2) complexity.',
+    timeComplexity: 'O(N * W) or O(N^2)',
+    spaceComplexity: 'O(N) or O(N * W)',
     dataStructures: ['Arrays', 'Hash Tables'],
     algorithms: ['Dynamic Programming'],
     visualizerType: 'dp',
     whenToUse: [
       'Coin Change, House Robber, Longest Increasing Subsequence',
-      'Problemas de mochila (0/1 Knapsack, Unbounded Knapsack)',
-      'Distancia de edición (Edit Distance) y alineamiento de secuencias'
+      'Knapsack problems (0/1 and unbounded knapsack)',
+      'Edit Distance and sequence alignment'
     ],
     whenToAvoid: [
-      'Problemas sin subproblemas repetidos (usar Divide & Conquer directo)'
+      'Problems lacking overlapping subproblems (use standard Divide and Conquer)'
     ],
     classicProblems: [
       {
@@ -902,8 +901,8 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 322,
-        summary: 'Dado un array de monedas de diferentes denominaciones y un monto total de dinero amount, retorna el número mínimo de monedas necesarias para formar dicho monto.',
-        keyInsight: 'dp[i] = min(dp[i - coin] + 1) para cada moneda coin <= i. Caso base dp[0] = 0.',
+        summary: 'Given an array of coin denominations and total amount, return the fewest number of coins needed to make up that amount.',
+        keyInsight: 'dp[i] = min(dp[i - coin] + 1) for each coin <= i. Base case dp[0] = 0.',
         timeComplexity: 'O(amount * len(coins))',
         spaceComplexity: 'O(amount)',
         pythonCode: `class Solution:
@@ -937,21 +936,21 @@ class Solution:
     id: 'trie-patterns',
     name: 'Trie / Prefix Tree Matching',
     category: 'array_string',
-    tagline: 'Búsqueda ultra rápida de prefijos y palabras en diccionarios',
-    description: 'Árbol n-ario donde cada nodo representa un carácter, permitiendo compartir prefijos comunes y validar palabras en O(L).',
-    whyThisPattern: 'La búsqueda de prefijos no depende de la cantidad total de palabras N, solo de la longitud de la cadena consultada L.',
-    timeComplexity: 'O(L) por operación',
+    tagline: 'Ultra-fast prefix queries and dictionary word matching',
+    description: 'An N-ary character tree where common prefixes share the same path, enabling prefix verification in O(L) time.',
+    whyThisPattern: 'Prefix searches do not scale with the dictionary size N, only with the query length L.',
+    timeComplexity: 'O(L) per operation',
     spaceComplexity: 'O(N * L * ALPHABET)',
     dataStructures: ['Tries', 'Hash Tables'],
     algorithms: ['DFS'],
     visualizerType: 'trie',
     whenToUse: [
-      'Autocompletado de texto y sugerencias',
-      'Word Break y Word Search II en matrices',
-      'Operaciones de prefijos más largos o XOR máximo'
+      'Search engine autocomplete and text suggestions',
+      'Word Break and Word Search II in 2D grids',
+      'Longest common prefix and bitwise maximum XOR queries'
     ],
     whenToAvoid: [
-      'Búsqueda exacta simple donde un HashSet O(1) es suficiente y consume menos memoria'
+      'Simple exact lookup where HashSet O(1) suffices with less memory overhead'
     ],
     classicProblems: [
       {
@@ -960,10 +959,10 @@ class Solution:
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 208,
-        summary: 'Implementa la estructura de datos Trie con métodos insert(word), search(word) y startsWith(prefix).',
-        keyInsight: 'Cada nodo contiene un diccionario/mapa de hijos carácter->TrieNode y un booleano isEnd que marca si termina una palabra válida.',
-        timeComplexity: 'O(L) para todas las operaciones',
-        spaceComplexity: 'O(Total de caracteres insertados)',
+        summary: 'Implement a Trie with insert(word), search(word), and startsWith(prefix) methods.',
+        keyInsight: 'Each node contains a children map (char -> TrieNode) and a boolean isEnd marking completed dictionary words.',
+        timeComplexity: 'O(L) for all operations',
+        spaceComplexity: 'O(Total inserted characters)',
         pythonCode: `class TrieNode:
     def __init__(self):
         self.children = {}
@@ -1041,21 +1040,21 @@ class Trie {
     id: 'greedy-intervals',
     name: 'Greedy & Interval Scheduling',
     category: 'greedy',
-    tagline: 'Elecciones locales óptimas sobre intervalos temporales o rangos',
-    description: 'Ordena intervalos por hora de inicio o finalización y selecciona vorazmente aquellos que maximizan la cantidad de tareas no superpuestas.',
-    whyThisPattern: 'Elegir el intervalo que termina más temprano deja el máximo tiempo libre posible para los intervalos restantes.',
+    tagline: 'Locally optimal choices over time ranges and intervals',
+    description: 'Sorts intervals by finish time and greedily selects non-overlapping intervals to maximize total completed tasks.',
+    whyThisPattern: 'Selecting the interval with the earliest finish time leaves the maximum remaining time available for subsequent intervals.',
     timeComplexity: 'O(N log N)',
-    spaceComplexity: 'O(1) o O(N)',
+    spaceComplexity: 'O(1) or O(N)',
     dataStructures: ['Arrays'],
     algorithms: ['Greedy'],
     visualizerType: 'greedy',
     whenToUse: [
-      'Merge Intervals y Non-overlapping Intervals',
-      'Meeting Rooms II (asignación de salas mínimas)',
-      'Jump Game y Gas Station'
+      'Merge Intervals and Non-overlapping Intervals',
+      'Meeting Rooms II (minimum rooms allocation)',
+      'Jump Game and Gas Station'
     ],
     whenToAvoid: [
-      'Problemas donde las decisiones pasadas requieren backtracking o donde la elección local no garantiza el óptimo global'
+      'Problems where locally optimal choices do not lead to a provable global optimum'
     ],
     classicProblems: [
       {
@@ -1064,8 +1063,8 @@ class Trie {
         difficulty: 'Medium',
         platform: 'LeetCode',
         problemNumber: 56,
-        summary: 'Dado un array de intervals donde intervals[i] = [start, end], une todos los intervalos superpuestos y retorna un array de intervalos no superpuestos.',
-        keyInsight: 'Ordenar los intervalos por start time. Si el start del intervalo actual es <= al end del último intervalo fusionado, expandir el end con max(end1, end2).',
+        summary: 'Given an array of intervals [start, end], merge all overlapping intervals and return non-overlapping intervals covering all input.',
+        keyInsight: 'Sort by start time. If the current start is <= previous merged end, extend end to max(end1, end2).',
         timeComplexity: 'O(N log N)',
         spaceComplexity: 'O(N)',
         pythonCode: `class Solution:

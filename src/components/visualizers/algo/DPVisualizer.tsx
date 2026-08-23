@@ -9,12 +9,12 @@ export const DPVisualizer: React.FC = () => {
   const [dpTable, setDpTable] = useState<(number | string)[]>([0, '∞', '∞', '∞', '∞', '∞', '∞', '∞']);
   const [currentAmount, setCurrentAmount] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [message, setMessage] = useState('Dynamic Programming (Tabulación 1D - Coin Change). Calcula el mínimo de monedas para cada monto i de 0 a 7.');
+  const [message, setMessage] = useState('Dynamic Programming (1D Tabulation - Coin Change). Computes minimum coins for each amount i from 0 to 7.');
 
   const stepForward = (currAmt: number) => {
     if (currAmt >= targetAmount) {
       setIsPlaying(false);
-      setMessage(`¡DP finalizado! Para el monto ${targetAmount}, el mínimo de monedas requerido es dp[${targetAmount}] = ${dpTable[targetAmount]}.`);
+      setMessage(`DP complete! For amount ${targetAmount}, minimum coins required is dp[${targetAmount}] = ${dpTable[targetAmount]}.`);
       return;
     }
 
@@ -39,7 +39,7 @@ export const DPVisualizer: React.FC = () => {
     currentTable[nextAmt] = minCoins === Infinity ? '∞' : minCoins;
     setDpTable(currentTable);
     setCurrentAmount(nextAmt);
-    setMessage(`Calculando dp[${nextAmt}]: min(dp[${nextAmt} - c] + 1) usando moneda ${chosenCoin} -> dp[${nextAmt}] = ${minCoins}.`);
+    setMessage(`Computing dp[${nextAmt}]: min(dp[${nextAmt} - c] + 1) using coin ${chosenCoin} -> dp[${nextAmt}] = ${minCoins}.`);
   };
 
   const handlePlayToggle = () => {
@@ -68,7 +68,7 @@ export const DPVisualizer: React.FC = () => {
     setDpTable([0, '∞', '∞', '∞', '∞', '∞', '∞', '∞']);
     setCurrentAmount(0);
     setIsPlaying(false);
-    setMessage('Tabla DP restablecida al caso base dp[0] = 0.');
+    setMessage('DP table reset to base case dp[0] = 0.');
   };
 
   return (
@@ -88,9 +88,9 @@ export const DPVisualizer: React.FC = () => {
       >
         {/* Recurrence Banner */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span className="cyber-badge badge-yellow">Monedas disponibles: [1, 2, 5]</span>
-          <span className="cyber-badge badge-magenta">Monto Objetivo: {targetAmount}</span>
-          <span className="cyber-badge badge-cyan">Fórmula: dp[i] = min(dp[i - c] + 1)</span>
+          <span className="cyber-badge badge-yellow">Available Coins: [1, 2, 5]</span>
+          <span className="cyber-badge badge-magenta">Target Amount: {targetAmount}</span>
+          <span className="cyber-badge badge-cyan">Formula: dp[i] = min(dp[i - c] + 1)</span>
         </div>
 
         {/* DP Array */}
@@ -117,7 +117,7 @@ export const DPVisualizer: React.FC = () => {
                     marginBottom: '4px'
                   }}
                 >
-                  monto={idx}
+                  amt={idx}
                 </span>
 
                 <div
@@ -194,7 +194,7 @@ export const DPVisualizer: React.FC = () => {
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
           {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pausar' : 'Play Tabulación DP'}</span>
+          <span>{isPlaying ? 'Pause' : 'Play DP Tabulation'}</span>
         </button>
 
         <button
@@ -203,7 +203,7 @@ export const DPVisualizer: React.FC = () => {
           className="cyber-btn-secondary"
           style={{ padding: '7px 12px', fontSize: '0.8rem' }}
         >
-          <SkipForward size={14} /> Siguiente Celda ({currentAmount}/{targetAmount})
+          <SkipForward size={14} /> Next Cell ({currentAmount}/{targetAmount})
         </button>
 
         <button

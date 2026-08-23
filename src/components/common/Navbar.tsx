@@ -1,210 +1,282 @@
-import React from 'react';
-import { Terminal, Network, Sparkles, Cpu, ListTree } from 'lucide-react';
-
-export type AppView = 'canvas' | 'wizard' | 'tree' | 'visualizers';
+import React, { useState } from 'react';
+import { 
+  GitFork, 
+  Sparkles, 
+  ListTree, 
+  Terminal, 
+  Search,
+  Zap
+} from 'lucide-react';
+import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
+import { DATA_STRUCTURES } from '../../data/dataStructuresData';
+import { ALGORITHMS } from '../../data/algorithmsData';
 
 interface NavbarProps {
-  currentView: AppView;
-  onChangeView: (view: AppView) => void;
-  searchQuery: string;
-  onSearchChange: (q: string) => void;
+  activeView: 'canvas' | 'wizard' | 'tree' | 'visualizers';
+  onViewChange: (view: 'canvas' | 'wizard' | 'tree' | 'visualizers') => void;
+  onSelectResult: (id: string) => void;
+  onSelectVisualizerItem?: (type: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentView,
-  onChangeView,
-  searchQuery,
-  onSearchChange
+  activeView,
+  onViewChange,
+  onSelectResult,
+  onSelectVisualizerItem
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
+  // Search through all data structures, algorithms, and problem results
+  const searchResults = searchQuery.trim() === '' ? [] : [
+    ...Object.values(ALGORITHM_RESULTS).filter(r => 
+      r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.classicProblems.some(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).map(r => ({ type: 'problem' as const, id: r.id, name: r.name, sub: r.tagline })),
+
+    ...DATA_STRUCTURES.filter(ds => 
+      ds.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ds.description.toLowerCase().includes(searchQuery.toLowerCase())
+    ).map(ds => ({ type: 'ds' as const, id: ds.type, name: ds.name, sub: 'Data Structure' })),
+
+    ...ALGORITHMS.filter(algo => 
+      algo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      algo.description.toLowerCase().includes(searchQuery.toLowerCase())
+    ).map(algo => ({ type: 'algo' as const, id: algo.type, name: algo.name, sub: 'Algorithmic Pattern' }))
+  ];
+
   return (
     <header
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        backgroundColor: 'rgba(8, 12, 20, 0.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(0, 245, 255, 0.2)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.6)'
+        zIndex: 50,
+        backgroundColor: 'rgba(5, 8, 16, 0.85)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(0, 245, 255, 0.15)',
+        padding: '12px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px'
       }}
     >
-      <div
-        style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '12px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px'
-        }}
+      {/* Brand / Logo */}
+      <div 
+        onClick={() => onViewChange('canvas')}
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
       >
-        {/* Brand */}
-        <div
-          onClick={() => onChangeView('canvas')}
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        <div 
+          style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 15px rgba(0, 245, 255, 0.5)'
+          }}
         >
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(255, 0, 127, 0.2))',
-              border: '1px solid var(--neon-cyan)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 12px rgba(0, 245, 255, 0.4)'
-            }}
-          >
-            <Network size={20} color="#00f5ff" />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '0.05em', color: '#fff' }}>
-                ALGOMONSTER
-              </span>
-              <span style={{ color: 'var(--neon-magenta)', fontWeight: 800, fontSize: '1.1rem' }}>
-                //
-              </span>
-              <span style={{ color: 'var(--neon-cyan)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '0.05em' }}>
-                CYBERFLOW
-              </span>
-            </div>
-            <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-              STUDY NAVIGATOR & DSA VISUALIZER
-            </span>
-          </div>
+          <Zap size={22} color="#050810" />
         </div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '0.05em', color: '#fff' }}>
+              ALGOMONSTER
+            </span>
+            <span style={{ color: 'var(--neon-cyan)', fontWeight: 800, fontSize: '1.15rem' }}>//</span>
+            <span style={{ color: 'var(--neon-magenta)', fontWeight: 700, fontSize: '1.15rem' }}>CYBERFLOW</span>
+          </div>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+            INTERACTIVE DSA DECISION MATRIX
+          </span>
+        </div>
+      </div>
 
-        {/* View Mode Tabs */}
-        <nav style={{ display: 'flex', gap: '6px', background: 'rgba(0,0,0,0.4)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <button
-            onClick={() => onChangeView('canvas')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: currentView === 'canvas' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-              color: currentView === 'canvas' ? '#00f5ff' : 'var(--text-muted)',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              fontFamily: 'var(--font-sans)',
-              cursor: 'pointer',
-              boxShadow: currentView === 'canvas' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Network size={14} /> Flowchart Canvas
-          </button>
+      {/* View Switcher Controls */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(13, 21, 39, 0.7)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        <button
+          onClick={() => onViewChange('canvas')}
+          className={`cyber-tab ${activeView === 'canvas' ? 'active' : ''}`}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeView === 'canvas' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
+            color: activeView === 'canvas' ? 'var(--neon-cyan)' : 'var(--text-muted)',
+            boxShadow: activeView === 'canvas' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <GitFork size={16} />
+          <span>Interactive Flowchart</span>
+        </button>
 
-          <button
-            onClick={() => onChangeView('wizard')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: currentView === 'wizard' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-              color: currentView === 'wizard' ? '#00f5ff' : 'var(--text-muted)',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              fontFamily: 'var(--font-sans)',
-              cursor: 'pointer',
-              boxShadow: currentView === 'wizard' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Sparkles size={14} /> Modo Asistente
-          </button>
+        <button
+          onClick={() => onViewChange('wizard')}
+          className={`cyber-tab ${activeView === 'wizard' ? 'active' : ''}`}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeView === 'wizard' ? 'rgba(255, 0, 127, 0.2)' : 'transparent',
+            color: activeView === 'wizard' ? 'var(--neon-magenta)' : 'var(--text-muted)',
+            boxShadow: activeView === 'wizard' ? '0 0 10px rgba(255, 0, 127, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <Sparkles size={16} />
+          <span>Wizard Mode</span>
+        </button>
 
-          <button
-            onClick={() => onChangeView('visualizers')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: currentView === 'visualizers' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-              color: currentView === 'visualizers' ? '#00f5ff' : 'var(--text-muted)',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              fontFamily: 'var(--font-sans)',
-              cursor: 'pointer',
-              boxShadow: currentView === 'visualizers' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Cpu size={14} /> 16 Simuladores
-          </button>
+        <button
+          onClick={() => onViewChange('tree')}
+          className={`cyber-tab ${activeView === 'tree' ? 'active' : ''}`}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeView === 'tree' ? 'rgba(57, 255, 20, 0.2)' : 'transparent',
+            color: activeView === 'tree' ? 'var(--neon-green)' : 'var(--text-muted)',
+            boxShadow: activeView === 'tree' ? '0 0 10px rgba(57, 255, 20, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <ListTree size={16} />
+          <span>Tree Directory</span>
+        </button>
 
-          <button
-            onClick={() => onChangeView('tree')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: currentView === 'tree' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-              color: currentView === 'tree' ? '#00f5ff' : 'var(--text-muted)',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              fontFamily: 'var(--font-sans)',
-              cursor: 'pointer',
-              boxShadow: currentView === 'tree' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
-              transition: 'all 0.2s'
-            }}
-          >
-            <ListTree size={14} /> Vista Árbol
-          </button>
-        </nav>
+        <button
+          onClick={() => onViewChange('visualizers')}
+          className={`cyber-tab ${activeView === 'visualizers' ? 'active' : ''}`}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeView === 'visualizers' ? 'rgba(255, 214, 10, 0.2)' : 'transparent',
+            color: activeView === 'visualizers' ? 'var(--neon-yellow)' : 'var(--text-muted)',
+            boxShadow: activeView === 'visualizers' ? '0 0 10px rgba(255, 214, 10, 0.3)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <Terminal size={16} />
+          <span>16 Simulators</span>
+        </button>
+      </nav>
 
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
+      {/* Global Quick Search */}
+      <div style={{ position: 'relative', width: '260px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: 'rgba(13, 21, 39, 0.8)',
+            border: '1px solid rgba(0, 245, 255, 0.25)',
+            borderRadius: 'var(--radius-md)',
+            padding: '6px 12px'
+          }}
+        >
+          <Search size={15} color="var(--text-muted)" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar algoritmo o estructura..."
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSearchResults(true);
+            }}
+            onFocus={() => setShowSearchResults(true)}
+            placeholder="Search algorithm or DS..."
             style={{
-              width: '240px',
-              padding: '7px 12px',
-              paddingLeft: '32px',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              border: '1px solid rgba(0, 245, 255, 0.25)',
-              borderRadius: 'var(--radius-md)',
-              color: '#fff',
-              fontSize: '0.8rem',
-              fontFamily: 'var(--font-sans)',
+              background: 'transparent',
+              border: 'none',
               outline: 'none',
-              transition: 'all 0.2s'
+              color: '#fff',
+              fontSize: '0.85rem',
+              fontFamily: 'var(--font-mono)',
+              width: '100%'
             }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = 'var(--neon-cyan)';
-              e.currentTarget.style.boxShadow = '0 0 10px rgba(0, 245, 255, 0.3)';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(0, 245, 255, 0.25)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          />
-          <Terminal
-            size={14}
-            color="var(--neon-cyan)"
-            style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}
           />
         </div>
+
+        {/* Search Results Dropdown */}
+        {showSearchResults && searchResults.length > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              right: 0,
+              width: '320px',
+              backgroundColor: '#090e1c',
+              border: '1px solid rgba(0, 245, 255, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.8)',
+              maxHeight: '340px',
+              overflowY: 'auto',
+              padding: '6px',
+              zIndex: 100
+            }}
+          >
+            {searchResults.map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() => {
+                  if (item.type === 'problem') {
+                    onSelectResult(item.id);
+                  } else if (onSelectVisualizerItem) {
+                    onSelectVisualizerItem(item.id);
+                  }
+                  setShowSearchResults(false);
+                  setSearchQuery('');
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  transition: 'background 0.15s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 245, 255, 0.1)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{item.name}</span>
+                  <span className="cyber-badge badge-cyan" style={{ fontSize: '0.65rem' }}>{item.type.toUpperCase()}</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{item.sub}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );

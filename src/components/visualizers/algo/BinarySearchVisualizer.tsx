@@ -11,12 +11,12 @@ export const BinarySearchVisualizer: React.FC = () => {
   const [foundIdx, setFoundIdx] = useState<number | null>(null);
   const [stepCount, setStepCount] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [message, setMessage] = useState(`Búsqueda Binaria O(log N) para target=${target}. L=0, R=${array.length - 1}, MID=${Math.floor((0 + array.length - 1) / 2)}.`);
+  const [message, setMessage] = useState(`Binary Search O(log N) for target=${target}. L=0, R=${array.length - 1}, MID=${Math.floor((0 + array.length - 1) / 2)}.`);
 
   const stepForward = (curL: number, curR: number, count: number) => {
     if (curL > curR) {
       setIsPlaying(false);
-      setMessage(`Elemento ${target} no encontrado tras ${count} pasos O(log N).`);
+      setMessage(`Element ${target} not found after ${count} steps O(log N).`);
       return;
     }
 
@@ -27,18 +27,18 @@ export const BinarySearchVisualizer: React.FC = () => {
     if (array[curMid] === target) {
       setFoundIdx(curMid);
       setIsPlaying(false);
-      setMessage(`¡Encontrado! array[${curMid}] == ${target} en solo ${count} pasos logarítmicos.`);
+      setMessage(`Found! array[${curMid}] == ${target} in only ${count} logarithmic steps.`);
       return;
     }
 
     if (array[curMid] < target) {
       const nextL = curMid + 1;
       setLeft(nextL);
-      setMessage(`array[${curMid}] (${array[curMid]}) < ${target} -> Descartando mitad izquierda. Nuevo Left = ${nextL}.`);
+      setMessage(`array[${curMid}] (${array[curMid]}) < ${target} -> Discarding left half. New Left = ${nextL}.`);
     } else {
       const nextR = curMid - 1;
       setRight(nextR);
-      setMessage(`array[${curMid}] (${array[curMid]}) > ${target} -> Descartando mitad derecha. Nuevo Right = ${nextR}.`);
+      setMessage(`array[${curMid}] (${array[curMid]}) > ${target} -> Discarding right half. New Right = ${nextR}.`);
     }
   };
 
@@ -64,7 +64,7 @@ export const BinarySearchVisualizer: React.FC = () => {
       if (array[m] === target) {
         setFoundIdx(m);
         setIsPlaying(false);
-        setMessage(`¡Encontrado! array[${m}] == ${target} en el paso ${cnt}!`);
+        setMessage(`Found! array[${m}] == ${target} on step ${cnt}!`);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 850));
@@ -88,7 +88,7 @@ export const BinarySearchVisualizer: React.FC = () => {
     setFoundIdx(null);
     setStepCount(1);
     setIsPlaying(false);
-    setMessage(`Búsqueda binaria reiniciada para target=${target}.`);
+    setMessage(`Binary Search reset for target=${target}.`);
   };
 
   return (
@@ -111,7 +111,7 @@ export const BinarySearchVisualizer: React.FC = () => {
           <span className="cyber-badge badge-green">L = {left}</span>
           <span className="cyber-badge badge-magenta">MID = {mid} ({mid !== null ? array[mid] : '-'})</span>
           <span className="cyber-badge badge-yellow">R = {right}</span>
-          <span className="cyber-badge badge-cyan">Paso: {stepCount} de ~{Math.ceil(Math.log2(array.length))} máx</span>
+          <span className="cyber-badge badge-cyan">Step: {stepCount} of ~{Math.ceil(Math.log2(array.length))} max</span>
         </div>
 
         {/* Array Grid */}
@@ -225,7 +225,7 @@ export const BinarySearchVisualizer: React.FC = () => {
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
           {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pausar' : 'Play Binary Search'}</span>
+          <span>{isPlaying ? 'Pause' : 'Play Binary Search'}</span>
         </button>
 
         <button
@@ -234,7 +234,7 @@ export const BinarySearchVisualizer: React.FC = () => {
           className="cyber-btn-secondary"
           style={{ padding: '7px 12px', fontSize: '0.8rem' }}
         >
-          <SkipForward size={14} /> Siguiente División
+          <SkipForward size={14} /> Next Division
         </button>
 
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>

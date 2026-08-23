@@ -2,38 +2,40 @@ import React, { useState } from 'react';
 import { Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 
 export const TwoPointersVisualizer: React.FC = () => {
-  const array = [1, 3, 4, 6, 8, 9, 11, 15];
-  const target = 14; // Solution is 3 + 11 (indices 1 and 6) or 6 + 8 (indices 3 and 4)
+  // Sorted array for Two Sum II
+  const sortedArray = [1, 3, 4, 6, 8, 9, 11, 15];
+  const target = 14; // 3 + 11 or 6 + 8
 
   const [left, setLeft] = useState<number>(0);
-  const [right, setRight] = useState<number>(array.length - 1);
-  const [found, setFound] = useState<boolean>(false);
+  const [right, setRight] = useState<number>(sortedArray.length - 1);
+  const [isFound, setIsFound] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [message, setMessage] = useState(`Two Pointers sobre array ordenado. Buscando dos números con suma = ${target}.`);
+  const [message, setMessage] = useState(`Two Pointers on sorted array for Target=${target}. L=0, R=${sortedArray.length - 1}.`);
 
-  const stepForward = (currL: number, currR: number) => {
-    if (currL >= currR) {
+  const stepForward = (curL: number, curR: number) => {
+    if (curL >= curR) {
       setIsPlaying(false);
-      setMessage('Punteros se cruzaron. No existe par que sume el objetivo.');
+      setMessage(`Pointers met without finding target sum ${target}.`);
       return;
     }
 
-    const sum = array[currL] + array[currR];
+    const sum = sortedArray[curL] + sortedArray[curR];
+
     if (sum === target) {
-      setFound(true);
+      setIsFound(true);
       setIsPlaying(false);
-      setMessage(`¡Par encontrado! array[${currL}] (${array[currL]}) + array[${currR}] (${array[currR]}) = ${target} en tiempo O(N) y O(1) memoria.`);
+      setMessage(`Match Found! arr[${curL}] (${sortedArray[curL]}) + arr[${curR}] (${sortedArray[curR]}) == ${target}!`);
       return;
     }
 
     if (sum < target) {
-      const nextL = currL + 1;
+      const nextL = curL + 1;
       setLeft(nextL);
-      setMessage(`Suma actual ${array[currL]} + ${array[currR]} = ${sum} < ${target}. Aumentando Left a [${nextL}] para incrementar la suma.`);
+      setMessage(`Sum ${sum} < ${target} -> Increment Left pointer (L = ${nextL}) to increase sum.`);
     } else {
-      const nextR = currR - 1;
+      const nextR = curR - 1;
       setRight(nextR);
-      setMessage(`Suma actual ${array[currL]} + ${array[currR]} = ${sum} > ${target}. Disminuyendo Right a [${nextR}] para reducir la suma.`);
+      setMessage(`Sum ${sum} > ${target} -> Decrement Right pointer (R = ${nextR}) to decrease sum.`);
     }
   };
 
@@ -41,7 +43,7 @@ export const TwoPointersVisualizer: React.FC = () => {
     if (isPlaying) {
       setIsPlaying(false);
     } else {
-      if (found || left >= right) {
+      if (isFound || left >= right) {
         handleReset();
       }
       setIsPlaying(true);
@@ -53,14 +55,14 @@ export const TwoPointersVisualizer: React.FC = () => {
     let l = initL;
     let r = initR;
     while (l < r) {
-      const sum = array[l] + array[r];
+      const sum = sortedArray[l] + sortedArray[r];
       if (sum === target) {
-        setFound(true);
+        setIsFound(true);
         setIsPlaying(false);
-        setMessage(`¡Par encontrado! array[${l}] (${array[l]}) + array[${r}] (${array[r]}) = ${target}!`);
+        setMessage(`Match Found! [${sortedArray[l]}] + [${sortedArray[r]}] == ${target}!`);
         return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 850));
       if (sum < target) {
         l++;
         setLeft(l);
@@ -74,13 +76,13 @@ export const TwoPointersVisualizer: React.FC = () => {
 
   const handleReset = () => {
     setLeft(0);
-    setRight(array.length - 1);
-    setFound(false);
+    setRight(sortedArray.length - 1);
+    setIsFound(false);
     setIsPlaying(false);
-    setMessage(`Two Pointers restablecido. Buscando suma = ${target}.`);
+    setMessage(`Two Pointers reset for target sum ${target}.`);
   };
 
-  const currentSum = array[left] + array[right];
+  const currentSum = sortedArray[left] + sortedArray[right];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -97,40 +99,35 @@ export const TwoPointersVisualizer: React.FC = () => {
           gap: '20px'
         }}
       >
-        {/* Pointers Banner */}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <span className="cyber-badge badge-green">Left = [{left}] ({array[left]})</span>
-          <span className="cyber-badge badge-magenta">Right = [{right}] ({array[right]})</span>
-          <span className="cyber-badge badge-yellow">Suma = {currentSum}</span>
-          <span className="cyber-badge badge-cyan">Objetivo = {target}</span>
+        {/* Status Badges */}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <span className="cyber-badge badge-green">Pointer L: arr[{left}] = {sortedArray[left]}</span>
+          <span className="cyber-badge badge-magenta">Pointer R: arr[{right}] = {sortedArray[right]}</span>
+          <span className="cyber-badge badge-yellow">Target: {target}</span>
+          <span className={`cyber-badge ${isFound ? 'badge-green' : 'badge-cyan'}`}>
+            Current Sum: {currentSum} {isFound ? '(MATCH!)' : ''}
+          </span>
         </div>
 
-        {/* Array Grid */}
+        {/* Sorted Array Grid */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {array.map((val, idx) => {
+          {sortedArray.map((val, idx) => {
             const isL = idx === left;
             const isR = idx === right;
-            const isMatch = found && (isL || isR);
+            const isMatch = isFound && (isL || isR);
 
             return (
-              <div
-                key={idx}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-              >
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <span
                   style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.7rem',
                     fontFamily: 'var(--font-mono)',
                     color: isMatch ? '#39ff14' : isL ? 'var(--neon-green)' : isR ? 'var(--neon-magenta)' : 'var(--text-dim)',
                     fontWeight: 700,
                     marginBottom: '4px'
                   }}
                 >
-                  {isL && isR ? 'L,R' : isL ? 'LEFT' : isR ? 'RIGHT' : `[${idx}]`}
+                  {isMatch ? 'MATCH' : isL ? 'LEFT ->' : isR ? '<- RIGHT' : `[${idx}]`}
                 </span>
 
                 <div
@@ -139,36 +136,36 @@ export const TwoPointersVisualizer: React.FC = () => {
                     height: '50px',
                     borderRadius: '8px',
                     backgroundColor: isMatch
-                      ? 'rgba(57, 255, 20, 0.35)'
+                      ? 'rgba(57, 255, 20, 0.4)'
                       : isL
-                      ? 'rgba(57, 255, 20, 0.2)'
+                      ? 'rgba(0, 245, 255, 0.3)'
                       : isR
-                      ? 'rgba(255, 0, 127, 0.2)'
+                      ? 'rgba(255, 0, 127, 0.3)'
                       : 'rgba(16, 28, 54, 0.7)',
                     border: `2px solid ${
                       isMatch
                         ? 'var(--neon-green)'
                         : isL
-                        ? 'var(--neon-green)'
+                        ? 'var(--neon-cyan)'
                         : isR
                         ? 'var(--neon-magenta)'
-                        : 'rgba(0, 245, 255, 0.2)'
+                        : 'rgba(255, 255, 255, 0.08)'
                     }`,
                     boxShadow: isMatch
                       ? '0 0 20px rgba(57, 255, 20, 0.8)'
                       : isL
-                      ? '0 0 12px rgba(57, 255, 20, 0.4)'
+                      ? '0 0 12px var(--neon-cyan)'
                       : isR
-                      ? '0 0 12px rgba(255, 0, 127, 0.4)'
+                      ? '0 0 12px var(--neon-magenta)'
                       : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.2rem',
+                    fontSize: '1.15rem',
                     fontWeight: 700,
                     fontFamily: 'var(--font-mono)',
-                    color: isMatch ? '#39ff14' : isL ? '#fff' : isR ? '#fff' : '#c9d8f0',
-                    transform: isL || isR ? 'scale(1.08)' : 'scale(1)',
+                    color: isMatch ? '#39ff14' : isL || isR ? '#fff' : '#c9d8f0',
+                    transform: isL || isR ? 'scale(1.1)' : 'scale(1)',
                     transition: 'all 0.25s'
                   }}
                 >
@@ -213,16 +210,16 @@ export const TwoPointersVisualizer: React.FC = () => {
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
           {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          <span>{isPlaying ? 'Pausar' : 'Play Two Pointers'}</span>
+          <span>{isPlaying ? 'Pause' : 'Play Convergence'}</span>
         </button>
 
         <button
           onClick={() => stepForward(left, right)}
-          disabled={isPlaying || found || left >= right}
+          disabled={isPlaying || isFound || left >= right}
           className="cyber-btn-secondary"
           style={{ padding: '7px 12px', fontSize: '0.8rem' }}
         >
-          <SkipForward size={14} /> Siguiente Paso
+          <SkipForward size={14} /> Next Step
         </button>
 
         <button

@@ -1,222 +1,270 @@
 import React, { useState } from 'react';
 import { FLOWCHART_NODES, FLOWCHART_ROOT_ID } from '../../data/flowchartData';
 import { FlowNode } from './FlowNode';
-import { ZoomIn, ZoomOut, RotateCcw, Filter } from 'lucide-react';
-import type { FlowchartOption, AlgorithmResult } from '../../types/flowchart';
+import { RotateCcw, ZoomIn, ZoomOut, Maximize2, Compass } from 'lucide-react';
 
 interface FlowchartCanvasProps {
-  onHoverResult: (result: AlgorithmResult | null, e?: React.MouseEvent) => void;
-  onOpenResultModal: (result: AlgorithmResult) => void;
+  onSelectResult: (resultId: string) => void;
+  onHoverItem?: (term: string, event: React.MouseEvent) => void;
+  onLeaveItem?: () => void;
+}
+
+interface ActiveStep {
+  nodeId: string;
+  selectedOptionId?: string;
 }
 
 export const FlowchartCanvas: React.FC<FlowchartCanvasProps> = ({
-  onHoverResult,
-  onOpenResultModal
+  onSelectResult,
+  onHoverItem,
+  onLeaveItem
 }) => {
-  // Navigation path array of { nodeId, selectedOptionId }
-  const [path, setPath] = useState<{ nodeId: string; optionId?: string }[]>([
-    { nodeId: FLOWCHART_ROOT_ID }
-  ]);
-  const [zoom, setZoom] = useState<number>(1);
+  const [steps, setSteps] = useState<ActiveStep[]>([{ nodeId: FLOWCHART_ROOT_ID }]);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
-  const handleSelectOption = (nodeId: string, option: FlowchartOption) => {
-    // Find index of this node in path
-    const nodeIdx = path.findIndex((p) => p.nodeId === nodeId);
+  const handleSelectOption = (
+    nodeId: string, 
+    optionId: string, 
+    nextNodeId?: string, 
+    algorithmResultId?: string
+  ) => {
+    const nodeIdx = steps.findIndex(s => s.nodeId === nodeId);
     if (nodeIdx === -1) return;
 
-    // Truncate path after this node
-    const newPath = path.slice(0, nodeIdx + 1);
-    newPath[nodeIdx].optionId = option.id;
+    const updatedSteps = steps.slice(0, nodeIdx + 1);
+    updatedSteps[nodeIdx].selectedOptionId = optionId;
 
-    if (option.nextNodeId && FLOWCHART_NODES[option.nextNodeId]) {
-      newPath.push({ nodeId: option.nextNodeId });
+    if (algorithmResultId) {
+      setSteps(updatedSteps);
+      onSelectResult(algorithmResultId);
+      return;
     }
 
-    setPath(newPath);
+    if (nextNodeId && FLOWCHART_NODES[nextNodeId]) {
+      updatedSteps.push({ nodeId: nextNodeId });
+      setSteps(updatedSteps);
+    }
   };
 
-  const handleResetCanvas = () => {
-    setPath([{ nodeId: FLOWCHART_ROOT_ID }]);
-    setZoom(1);
+  const handleReset = () => {
+    setSteps([{ nodeId: FLOWCHART_ROOT_ID }]);
+    setZoomLevel(1);
   };
 
-  const handleJumpCategory = (rootOptionId: string) => {
-    const rootNode = FLOWCHART_NODES[FLOWCHART_ROOT_ID];
-    const opt = rootNode.options.find((o) => o.id === rootOptionId);
-    if (opt && opt.nextNodeId) {
-      setPath([
-        { nodeId: FLOWCHART_ROOT_ID, optionId: rootOptionId },
-        { nodeId: opt.nextNodeId }
+  const handleJumpToCategory = (targetNodeId: string) => {
+    if (FLOWCHART_NODES[targetNodeId]) {
+      setSteps([
+        { nodeId: FLOWCHART_ROOT_ID },
+        { nodeId: targetNodeId }
       ]);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-      {/* Top Toolbar */}
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: 'calc(100vh - 75px)',
+        overflow: 'hidden',
+        backgroundColor: '#050812',
+        backgroundImage: `
+          radial-gradient(circle at 50% 50%, rgba(0, 245, 255, 0.04) 0%, transparent 60%),
+          linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '100% 100%, 30px 30px, 30px 30px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* Top Floating Action Bar */}
       <div
         style={{
+          position: 'absolute',
+          top: '20px',
+          left: '24px',
+          right: '24px',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '10px',
-          background: 'rgba(13, 21, 39, 0.7)',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(0, 245, 255, 0.15)'
+          alignItems: 'center',
+          zIndex: 10,
+          pointerEvents: 'none'
         }}
       >
-        {/* Quick Category Jump */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto' }}>
-          <Filter size={15} color="var(--neon-cyan)" />
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginRight: '4px' }}>
-            Atajos:
+        {/* Category shortcuts */}
+        <div style={{ display: 'flex', gap: '8px', pointerEvents: 'auto', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', alignSelf: 'center', fontFamily: 'var(--font-mono)' }}>
+            QUICK SHORTCUTS:
           </span>
           <button
-            onClick={() => handleJumpCategory('opt-graph')}
+            onClick={() => handleJumpToCategory('node-graph-1')}
             className="cyber-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           >
-            Grafos & Árboles
+            Graphs & Trees
           </button>
           <button
-            onClick={() => handleJumpCategory('opt-sorted')}
+            onClick={() => handleJumpToCategory('node-sorted-1')}
             className="cyber-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           >
-            Input Ordenado / BS
+            Sorted / Binary Search
           </button>
           <button
-            onClick={() => handleJumpCategory('opt-subarray')}
+            onClick={() => handleJumpToCategory('node-subarray-1')}
             className="cyber-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           >
-            Subarray / Window
+            Subarrays & Windows
           </button>
           <button
-            onClick={() => handleJumpCategory('opt-ways-opt')}
+            onClick={() => handleJumpToCategory('node-dp-1')}
             className="cyber-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           >
             DP & Greedy
           </button>
           <button
-            onClick={() => handleJumpCategory('opt-string-dict')}
+            onClick={() => handleJumpToCategory('node-strings-1')}
             className="cyber-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           >
-            Tries / Cadenas
+            Tries & Strings
           </button>
         </div>
 
-        {/* Zoom & Reset Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Canvas Controls */}
+        <div style={{ display: 'flex', gap: '6px', pointerEvents: 'auto', backgroundColor: 'rgba(13, 21, 39, 0.8)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(0, 245, 255, 0.2)' }}>
           <button
-            onClick={() => setZoom((z) => Math.max(0.7, z - 0.1))}
+            onClick={() => setZoomLevel(prev => Math.min(prev + 0.1, 1.4))}
             className="cyber-btn-secondary"
-            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-            title="Zoom Out"
-          >
-            <ZoomOut size={14} />
-          </button>
-          <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--neon-cyan)', width: '45px', textAlign: 'center' }}>
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={() => setZoom((z) => Math.min(1.4, z + 0.1))}
-            className="cyber-btn-secondary"
-            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+            style={{ padding: '6px 8px' }}
             title="Zoom In"
           >
             <ZoomIn size={14} />
           </button>
           <button
-            onClick={handleResetCanvas}
+            onClick={() => setZoomLevel(prev => Math.max(prev - 0.1, 0.7))}
             className="cyber-btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', gap: '4px' }}
+            style={{ padding: '6px 8px' }}
+            title="Zoom Out"
           >
-            <RotateCcw size={13} /> Reiniciar Árbol
+            <ZoomOut size={14} />
+          </button>
+          <button
+            onClick={() => setZoomLevel(1)}
+            className="cyber-btn-secondary"
+            style={{ padding: '6px 8px' }}
+            title="Reset Zoom"
+          >
+            <Maximize2 size={14} />
+          </button>
+          <button
+            onClick={handleReset}
+            className="cyber-btn-secondary"
+            style={{ padding: '6px 10px', fontSize: '0.75rem', display: 'flex', gap: '4px' }}
+          >
+            <RotateCcw size={14} /> Reset Flow
           </button>
         </div>
       </div>
 
-      {/* Interactive Branching Canvas */}
+      {/* Main Flowchart Stream Container */}
       <div
         style={{
-          background: '#060a14',
-          border: '1px solid rgba(0, 245, 255, 0.2)',
-          borderRadius: 'var(--radius-xl)',
-          minHeight: '520px',
-          padding: '30px',
+          flex: 1,
           overflowX: 'auto',
           overflowY: 'auto',
           display: 'flex',
-          alignItems: 'flex-start',
-          position: 'relative'
+          alignItems: 'center',
+          padding: '100px 60px 40px 60px',
+          gap: '40px',
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: 'top left',
+          transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '40px',
-            transform: `scale(${zoom})`,
-            transformOrigin: 'top left',
-            transition: 'transform 0.2s ease',
-            minWidth: 'min-content',
-            padding: '20px 0'
-          }}
-        >
-          {path.map((step, idx) => {
-            const node = FLOWCHART_NODES[step.nodeId];
-            if (!node) return null;
+        {steps.map((step, idx) => {
+          const node = FLOWCHART_NODES[step.nodeId];
+          if (!node) return null;
 
-            return (
-              <React.Fragment key={step.nodeId}>
-                {/* Node Card */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <span
+          return (
+            <React.Fragment key={`${step.nodeId}-${idx}`}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontFamily: 'var(--font-mono)',
+                    color: 'var(--neon-cyan)',
+                    marginBottom: '8px',
+                    fontWeight: 700,
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  STEP {idx + 1}
+                </span>
+
+                <FlowNode
+                  node={node}
+                  stepNumber={idx + 1}
+                  selectedOptionId={step.selectedOptionId}
+                  onSelectOption={handleSelectOption}
+                  onHoverItem={onHoverItem}
+                  onLeaveItem={onLeaveItem}
+                />
+              </div>
+
+              {/* Connecting animated glowing connector */}
+              {idx < steps.length - 1 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '60px'
+                  }}
+                >
+                  <div
                     style={{
-                      fontSize: '0.7rem',
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--neon-cyan)',
-                      marginBottom: '6px',
-                      fontWeight: 600
+                      width: '60px',
+                      height: '2px',
+                      background: 'linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta))',
+                      boxShadow: '0 0 10px rgba(0, 245, 255, 0.6)'
                     }}
-                  >
-                    PASO {idx + 1}
-                  </span>
-                  <FlowNode
-                    node={node}
-                    selectedOptionId={step.optionId}
-                    onSelectOption={handleSelectOption}
-                    onHoverResult={onHoverResult}
-                    onOpenResultModal={onOpenResultModal}
                   />
+                  <span style={{ fontSize: '0.65rem', color: 'var(--neon-magenta)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
+                    BRANCH
+                  </span>
                 </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
 
-                {/* Animated Connecting Arrow */}
-                {idx < path.length - 1 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--neon-cyan)' }}>
-                    <div
-                      className="animate-pulse-glow"
-                      style={{
-                        width: '32px',
-                        height: '2px',
-                        background: 'linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta))',
-                        boxShadow: '0 0 8px var(--neon-cyan)'
-                      }}
-                    />
-                    <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: 'var(--neon-cyan)', marginTop: '4px' }}>
-                      ▶
-                    </span>
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
+      {/* Bottom Hint Footer */}
+      <div
+        style={{
+          padding: '12px 24px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          backgroundColor: 'rgba(5, 8, 16, 0.7)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.8rem',
+          color: 'var(--text-muted)',
+          zIndex: 5
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Compass size={14} color="var(--neon-cyan)" />
+          <span>Click any option to expand the next decision branch. Terminal options open full LeetCode solutions & interactive simulators.</span>
         </div>
+        <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--neon-green)' }}>
+          Active Level: {steps.length}
+        </span>
       </div>
     </div>
   );

@@ -13,14 +13,14 @@ export const DFSVisualizer: React.FC = () => {
   const [path, setPath] = useState<string[]>([]);
   const [activeCell, setActiveCell] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [message, setMessage] = useState('DFS (Depth-First Search & Backtracking). Desciende hasta encontrar un camino o retrocede usando la pila de llamadas.');
+  const [message, setMessage] = useState('DFS (Depth-First Search & Backtracking). Explores deeply until reaching dead-end or target, backtracking using recursion stack.');
 
   const runDFS = async () => {
     setIsRunning(true);
     setVisited([]);
     setPath([]);
     setCallStack([]);
-    setMessage('Iniciando DFS recursivo desde (0,0)...');
+    setMessage('Starting recursive DFS from (0,0)...');
 
     const vis = new Set<string>();
     const currentPath: string[] = [];
@@ -46,11 +46,11 @@ export const DFSVisualizer: React.FC = () => {
       setVisited(Array.from(vis));
       setPath([...currentPath]);
       setCallStack([...stack]);
-      setMessage(`Avanzando a (${r}, ${c}). Profundidad de llamada: ${stack.length}`);
+      setMessage(`Advancing to (${r}, ${c}). Call Stack Depth: ${stack.length}`);
       await new Promise((res) => setTimeout(res, 500));
 
       if (key === target) {
-        setMessage(`¡Meta (3,3) encontrada! Camino final: ${currentPath.join(' -> ')}.`);
+        setMessage(`Target (3,3) reached! Final Path: ${currentPath.join(' -> ')}.`);
         return true;
       }
 
@@ -68,7 +68,7 @@ export const DFSVisualizer: React.FC = () => {
       }
 
       // Backtrack
-      setMessage(`Camino sin salida desde (${r}, ${c}). Haciendo Backtrack...`);
+      setMessage(`Dead end from (${r}, ${c}). Backtracking...`);
       currentPath.pop();
       stack.pop();
       setPath([...currentPath]);
@@ -87,7 +87,7 @@ export const DFSVisualizer: React.FC = () => {
     setCallStack([]);
     setActiveCell(null);
     setIsRunning(false);
-    setMessage('DFS restablecido.');
+    setMessage('DFS reset.');
   };
 
   return (
@@ -108,7 +108,7 @@ export const DFSVisualizer: React.FC = () => {
         {/* Grid */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>
-            Laberinto de Exploración
+            Exploration Maze Grid
           </span>
           <div
             style={{
@@ -162,7 +162,7 @@ export const DFSVisualizer: React.FC = () => {
                       transition: 'all 0.2s'
                     }}
                   >
-                    {isObstacle ? 'BLOQ' : isTarget ? 'META' : key}
+                    {isObstacle ? 'BLOCK' : isTarget ? 'TARGET' : key}
                   </div>
                 );
               })
@@ -173,7 +173,7 @@ export const DFSVisualizer: React.FC = () => {
         {/* Call Stack Window */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-            Recursion Call Stack (Pila de llamadas):
+            Recursion Call Stack:
           </span>
           <div
             style={{
@@ -205,7 +205,7 @@ export const DFSVisualizer: React.FC = () => {
             ))}
             {callStack.length === 0 && (
               <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
-                [ Call Stack Vacío ]
+                [ Call Stack Empty ]
               </span>
             )}
           </div>
@@ -245,7 +245,7 @@ export const DFSVisualizer: React.FC = () => {
           className="cyber-btn"
           style={{ padding: '7px 16px', fontSize: '0.8rem' }}
         >
-          <Play size={14} /> Ejecutar DFS & Backtrack
+          <Play size={14} /> Run DFS & Backtrack
         </button>
 
         <button

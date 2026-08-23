@@ -6,23 +6,23 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Sliding Window',
     category: 'algorithm',
     type: 'sliding_window',
-    description: 'Técnica sobre arrays o strings contiguos que mantiene una ventana delimitada por punteros [L, R] expandiendo o contrayendo dinámicamente.',
+    description: 'An algorithmic pattern maintaining a contiguous window [L, R] over arrays or strings, expanding or shrinking dynamically.',
     iconName: 'Maximize2',
     timeComplexity: {
       best: 'O(N)',
       average: 'O(N)',
       worst: 'O(N)',
     },
-    spaceComplexity: 'O(K) o O(1)',
+    spaceComplexity: 'O(K) or O(1)',
     patterns: [
-      'Ventana de tamaño fijo (ej. suma de subconjunto de tamaño K)',
-      'Ventana de tamaño dinámico con condición de validez (ej. subcadena con caracteres únicos)',
-      'Ventana con conteo de frecuencias (HashMap o Array)'
+      'Fixed-size window (e.g. max sum of size K)',
+      'Dynamic-size window with validity condition (e.g. longest substring with unique chars)',
+      'Window with frequency counters (HashMap or Array)'
     ],
     keySignals: [
-      'Subarray o substring contiguo',
-      'Minimizar o maximizar longitud bajo restricción',
-      'Entrada lineal donde el problema se puede resolver expandiendo R y encogiendo L'
+      'Contiguous subarray or substring problem',
+      'Minimizing or maximizing window length under a constraint',
+      'Linear input where expanding R and shrinking L eliminates redundant computations'
     ],
     snippet: `function minSubArrayLen(target: number, nums: number[]): number {
   let l = 0, sum = 0, minLen = Infinity;
@@ -41,7 +41,7 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Two Pointers',
     category: 'algorithm',
     type: 'two_pointers',
-    description: 'Estrategia que utiliza dos referencias de índice que se mueven hacia el centro (convergentes) o a diferentes velocidades (rápido/lento).',
+    description: 'A technique utilizing two index pointers moving towards each other (converging) or at different speeds (fast/slow).',
     iconName: 'MoveHorizontal',
     timeComplexity: {
       best: 'O(N)',
@@ -50,14 +50,14 @@ export const ALGORITHMS: AlgoItem[] = [
     },
     spaceComplexity: 'O(1)',
     patterns: [
-      'Punteros opuestos (izq -> <- der) en arrays ordenados o palíndromos',
-      'Puntero rápido y lento (Tortoise & Hare) para ciclos en linked lists o punto medio',
-      'Particionamiento in-place (ej. Dutch National Flag, mover ceros al final)'
+      'Opposite directional pointers (left -> <- right) in sorted arrays or palindrome checks',
+      'Fast & slow pointers (Tortoise & Hare) for linked list cycles or midpoints',
+      'In-place partitioning (e.g. Dutch National Flag, move zeros)'
     ],
     keySignals: [
-      'Array ordenado con búsqueda de pares (Two Sum II, 3Sum)',
-      'Inversión de secuencias o chequeo simétrico',
-      'Detección de ciclos sin memoria adicional O(1)'
+      'Sorted array with target pair search (Two Sum II, 3Sum)',
+      'Sequence reversal or symmetric verification',
+      'Cycle detection in O(1) auxiliary space'
     ],
     snippet: `function twoSumSorted(numbers: number[], target: number): number[] {
   let l = 0, r = numbers.length - 1;
@@ -75,7 +75,7 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Breadth-First Search (BFS)',
     category: 'algorithm',
     type: 'bfs',
-    description: 'Recorrido por capas de nivel que explora todos los vecinos a distancia 1, luego distancia 2, garantizando el camino más corto en grafos no ponderados.',
+    description: 'A level-by-level exploration discovering all neighbors at distance 1, then distance 2, guaranteeing the shortest path in unweighted graphs.',
     iconName: 'Radio',
     timeComplexity: {
       best: 'O(V + E)',
@@ -84,14 +84,14 @@ export const ALGORITHMS: AlgoItem[] = [
     },
     spaceComplexity: 'O(V)',
     patterns: [
-      'Camino más corto en grafos no ponderados o matrices/laberintos',
-      'Recorrido por niveles en árboles binarios (Level Order Traversal)',
-      'Multi-source BFS (ej. propagación de fuego o podredumbre simultánea)'
+      'Shortest path in unweighted graphs or 2D grid mazes',
+      'Binary tree level-order traversal',
+      'Multi-source BFS (e.g. simultaneous fire or rot spread)'
     ],
     keySignals: [
-      'Encontrar el número MÍNIMO de pasos / turnos / transformaciones',
-      'Estructura de árbol o grafo donde se piden capas de profundidad',
-      'Requiere una cola FIFO (Queue) para procesar nodos'
+      'Finding the MINIMUM number of steps / transformations / moves',
+      'Tree or graph level-by-level inspection',
+      'Requires a FIFO Queue to process frontier nodes'
     ],
     snippet: `function bfsShortestPath(graph: number[][], start: number, target: number): number {
   const queue: [number, number][] = [[start, 0]];
@@ -114,29 +114,29 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Depth-First Search (DFS & Backtracking)',
     category: 'algorithm',
     type: 'dfs',
-    description: 'Exploración profunda que sigue cada rama hasta la hoja antes de retroceder (backtrack), usando recursión o pila explícita.',
+    description: 'A deep exploration strategy that traverses as far as possible down each branch before backtracking, utilizing recursion or an explicit stack.',
     iconName: 'CornerDownRight',
     timeComplexity: {
       best: 'O(V + E)',
       average: 'O(V + E)',
-      worst: 'O(V + E) o O(2^N / N!)',
+      worst: 'O(V + E) or O(2^N / N!)',
     },
-    spaceComplexity: 'O(H) o O(V)',
+    spaceComplexity: 'O(H) or O(V)',
     patterns: [
-      'Conectividad y componentes conexas (ej. Number of Islands)',
-      'Backtracking combinatorio (permutaciones, subconjuntos, N-Queens, Sudoku)',
-      'Detección de ciclos y Topological Sort en grafos dirigidos'
+      'Connectivity and connected components (e.g. Number of Islands)',
+      'Combinatorial backtracking (permutations, subsets, N-Queens, Sudoku)',
+      'Cycle detection and Topological Sort in directed graphs'
     ],
     keySignals: [
-      'Generar TODAS las combinaciones o caminos válidos',
-      'Problemas en árboles donde se procesan subárboles (Divide & Conquer)',
-      'Búsqueda exhaustiva con podas condicionales'
+      'Generate ALL valid combinations or path permutations',
+      'Tree problems where subtrees are processed recursively (Divide & Conquer)',
+      'Exhaustive search with pruning conditions'
     ],
     snippet: `function numIslands(grid: string[][]): number {
   let count = 0;
   function dfs(r: number, c: number) {
     if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] !== '1') return;
-    grid[r][c] = '0'; // Marcar visitado
+    grid[r][c] = '0'; // Mark visited
     dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
   }
   for (let r = 0; r < grid.length; r++) {
@@ -152,24 +152,24 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Dynamic Programming (DP)',
     category: 'algorithm',
     type: 'dp',
-    description: 'Técnica de optimización que descompone el problema en subproblemas superpuestos y almacena sus soluciones en una tabla (memoization o tabulación).',
+    description: 'An optimization method that breaks complex problems down into overlapping subproblems and caches their solutions (memoization or tabulation).',
     iconName: 'Grid',
     timeComplexity: {
-      best: 'O(N) o O(N*W)',
-      average: 'O(N^2) o O(N*K)',
+      best: 'O(N) or O(N*W)',
+      average: 'O(N^2) or O(N*K)',
       worst: 'O(N*M)',
     },
-    spaceComplexity: 'O(N) o O(N*M) optimizable a O(1)/O(M)',
+    spaceComplexity: 'O(N) or O(N*M) optimizable to O(1)/O(M)',
     patterns: [
       '1D DP: Fibonacci, House Robber, Climbing Stairs, Coin Change',
       '2D Grid DP: Unique Paths, Minimum Path Sum',
       'Strings DP: Longest Common Subsequence, Edit Distance',
-      'Knapsack (0/1 y no acotado) y Bitmask DP'
+      'Knapsack (0/1 and unbounded) and Bitmask DP'
     ],
     keySignals: [
-      'Contar número total de maneras (Ways to reach...)',
-      'Maximizar o minimizar valor con decisiones dependientes',
-      'Subestructura óptima y subproblemas repetidos'
+      'Counting the total number of ways (Ways to reach...)',
+      'Maximizing or minimizing a value with sequential decisions',
+      'Optimal substructure and repeating subproblems'
     ],
     snippet: `function coinChange(coins: number[], amount: number): number {
   const dp = new Array(amount + 1).fill(Infinity);
@@ -189,7 +189,7 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Binary Search',
     category: 'algorithm',
     type: 'binary_search',
-    description: 'Algoritmo de búsqueda logarítmica que descarta la mitad del espacio de búsqueda en cada paso, aplicable a colecciones ordenadas o funciones monótonas.',
+    description: 'A logarithmic search algorithm that halves the search space at each step, applicable to sorted arrays or monotonic predicate functions.',
     iconName: 'ScanLine',
     timeComplexity: {
       best: 'O(1)',
@@ -198,14 +198,14 @@ export const ALGORITHMS: AlgoItem[] = [
     },
     spaceComplexity: 'O(1)',
     patterns: [
-      'Búsqueda clásica de elemento en array ordenado',
-      'Binary Search on Answer / Monotonic Predicate (ej. Koko Eating Bananas, Capacity To Ship Packages)',
-      'Rotated Sorted Array (buscar pivote)'
+      'Classic sorted array element search',
+      'Binary Search on Answer / Monotonic Predicate (e.g. Koko Eating Bananas, Capacity To Ship Packages)',
+      'Rotated Sorted Array (find pivot point)'
     ],
     keySignals: [
-      'Entrada ordenada o respuesta con propiedad monótona (TTTTFFFF o FFFFFTTT)',
-      'Tiempo de ejecución requerido O(log N)',
-      'Problemas de "Encontrar el mínimo valor X tal que la condición se cumpla"'
+      'Sorted input or monotonic answer space (TTTTFFFF or FFFFFTTT)',
+      'Required runtime complexity of O(log N)',
+      '"Find the minimum X such that condition is satisfied"'
     ],
     snippet: `function binarySearch(nums: number[], target: number): number {
   let l = 0, r = nums.length - 1;
@@ -223,32 +223,32 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Greedy Algorithms',
     category: 'algorithm',
     type: 'greedy',
-    description: 'Estrategia heurística que toma la mejor decisión localmente óptima en cada paso con la esperanza de alcanzar la solución global óptima.',
+    description: 'A heuristic paradigm that makes the locally optimal choice at each stage with the goal of reaching a globally optimal solution.',
     iconName: 'Compass',
     timeComplexity: {
-      best: 'O(N log N) (con ordenamiento)',
+      best: 'O(N log N) (with sorting)',
       average: 'O(N log N)',
       worst: 'O(N log N)',
     },
-    spaceComplexity: 'O(1) o O(N)',
+    spaceComplexity: 'O(1) or O(N)',
     patterns: [
-      'Interval Scheduling y Non-overlapping Intervals',
+      'Interval Scheduling & Non-overlapping Intervals',
       'Gas Station / Jump Game',
-      'Huffman Coding, Kruskal / Prim MST, Dijkstra'
+      'Huffman Coding, Kruskal/Prim MST, Dijkstra'
     ],
     keySignals: [
-      'Ordenar los datos primero por tiempo de inicio o finalización',
-      'No se necesita reconsiderar elecciones pasadas (sin backtracking)',
-      'Propiedad de elección voraz demostrable matemáticamente'
+      'Sort elements first by start or end time',
+      'No need to revisit past choices (no backtracking required)',
+      'Greedy choice property is mathematically provable'
     ],
     snippet: `function eraseOverlapIntervals(intervals: number[][]): number {
-  intervals.sort((a, b) => a[1] - b[1]); // Ordenar por fin
+  intervals.sort((a, b) => a[1] - b[1]); // Sort by end time
   let count = 0, prevEnd = -Infinity;
   for (const [start, end] of intervals) {
     if (start >= prevEnd) {
       prevEnd = end;
     } else {
-      count++; // Eliminar intervalo solapado
+      count++; // Remove overlapping interval
     }
   }
   return count;
@@ -259,23 +259,23 @@ export const ALGORITHMS: AlgoItem[] = [
     name: 'Prefix Sum',
     category: 'algorithm',
     type: 'prefix_sum',
-    description: 'Técnica de precomputación de sumas acumuladas que permite responder consultas de suma de rango en O(1) y resolver problemas con tablas hash.',
+    description: 'A cumulative sum precomputation technique allowing O(1) range sum queries and O(N) subarray sum matching with HashMaps.',
     iconName: 'PlusSquare',
     timeComplexity: {
-      best: 'O(N) precomputación, O(1) query',
+      best: 'O(N) precomputation, O(1) query',
       average: 'O(N)',
       worst: 'O(N)',
     },
-    spaceComplexity: 'O(N) o O(1)',
+    spaceComplexity: 'O(N) or O(1)',
     patterns: [
-      'Range Sum Query 1D y 2D (matrices)',
+      'Range Sum Query 1D & 2D (matrices)',
       'Subarray Sum Equals K (Prefix Sum + HashMap)',
-      'Diferencia de arrays para actualizaciones de rango en O(1)'
+      'Difference array for O(1) range interval updates'
     ],
     keySignals: [
-      'Consultas repetidas de sumas de subarreglos',
-      'Buscar subarreglos cuya suma sea múltiplo de K o igual a K',
-      'Fórmula clave: Sum(L..R) = Prefix[R] - Prefix[L-1]'
+      'Repeated range sum queries on static arrays',
+      'Count contiguous subarrays with sum equal to or divisible by K',
+      'Core identity: Sum(L..R) = Prefix[R+1] - Prefix[L]'
     ],
     snippet: `function subarraySum(nums: number[], k: number): number {
   const map = new Map<number, number>([[0, 1]]);

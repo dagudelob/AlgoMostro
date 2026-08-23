@@ -4,7 +4,7 @@ import { RotateCcw, Plus, Trash2, Search } from 'lucide-react';
 export const ArrayVisualizer: React.FC = () => {
   const [array, setArray] = useState<number[]>([12, 45, 7, 23, 89, 34, 61]);
   const [highlightIdx, setHighlightIdx] = useState<number | null>(null);
-  const [message, setMessage] = useState<string>('Array en memoria contigua. Cada celda tiene índice directo O(1).');
+  const [message, setMessage] = useState<string>('Contiguous memory array. Each cell has direct O(1) index access.');
   const [isAnimating, setIsAnimating] = useState(false);
 
   const [inputVal, setInputVal] = useState<string>('50');
@@ -13,29 +13,29 @@ export const ArrayVisualizer: React.FC = () => {
 
   const handleAccess = (idx: number) => {
     setHighlightIdx(idx);
-    setMessage(`Acceso O(1) a array[${idx}] = ${array[idx]} en dirección de memoria base + ${idx} * sizeof(int).`);
+    setMessage(`O(1) Access to array[${idx}] = ${array[idx]} at memory address base + ${idx} * sizeof(int).`);
   };
 
   const handleSearch = async () => {
     const target = parseInt(searchTarget);
     if (isNaN(target)) return;
     setIsAnimating(true);
-    setMessage(`Búsqueda lineal O(N) de '${target}'...`);
+    setMessage(`Linear search O(N) for '${target}'...`);
     let found = false;
 
     for (let i = 0; i < array.length; i++) {
       setHighlightIdx(i);
-      setMessage(`Comparando array[${i}] (${array[i]}) con ${target}...`);
+      setMessage(`Comparing array[${i}] (${array[i]}) with ${target}...`);
       await new Promise(r => setTimeout(r, 600));
       if (array[i] === target) {
-        setMessage(`¡Encontrado! array[${i}] == ${target} tras ${i + 1} comparaciones.`);
+        setMessage(`Found! array[${i}] == ${target} after ${i + 1} comparisons.`);
         found = true;
         break;
       }
     }
     if (!found) {
       setHighlightIdx(null);
-      setMessage(`Elemento ${target} no encontrado tras recorrer los ${array.length} elementos (Peor caso O(N)).`);
+      setMessage(`Element ${target} not found after checking all ${array.length} elements (Worst case O(N)).`);
     }
     setIsAnimating(false);
   };
@@ -45,38 +45,37 @@ export const ArrayVisualizer: React.FC = () => {
     const idx = parseInt(insertIdx);
     if (isNaN(val) || isNaN(idx) || idx < 0 || idx > array.length) return;
     if (array.length >= 10) {
-      setMessage('Límite del visualizador alcanzado (máx 10 elementos).');
+      setMessage('Visualizer capacity reached (max 10 elements).');
       return;
     }
 
     setIsAnimating(true);
-    setMessage(`Insertando ${val} en índice ${idx}. Desplazando elementos a la derecha (Costo O(N))...`);
+    setMessage(`Inserting ${val} at index ${idx}. Shifting elements right (Cost O(N))...`);
     
-    // Animar desplazamiento
     const newArr = [...array];
     newArr.splice(idx, 0, val);
     setArray(newArr);
     setHighlightIdx(idx);
-    setMessage(`¡Elemento ${val} insertado en índice ${idx}! Se desplazaron ${array.length - idx} elementos.`);
+    setMessage(`Element ${val} inserted at index ${idx}! Shifted ${array.length - idx} elements.`);
     setIsAnimating(false);
   };
 
   const handleDelete = (idx: number) => {
     if (array.length <= 2) {
-      setMessage('El array debe tener al menos 2 elementos.');
+      setMessage('Array must contain at least 2 elements.');
       return;
     }
     const val = array[idx];
     const newArr = array.filter((_, i) => i !== idx);
     setArray(newArr);
     setHighlightIdx(null);
-    setMessage(`Eliminado array[${idx}] = ${val}. Elementos desplazados a la izquierda en O(N).`);
+    setMessage(`Deleted array[${idx}] = ${val}. Shifted elements left in O(N).`);
   };
 
   const handleReset = () => {
     setArray([12, 45, 7, 23, 89, 34, 61]);
     setHighlightIdx(null);
-    setMessage('Array restablecido a valores iniciales.');
+    setMessage('Array reset to initial values.');
   };
 
   return (
@@ -152,7 +151,7 @@ export const ArrayVisualizer: React.FC = () => {
                     e.stopPropagation();
                     if (!isAnimating) handleDelete(idx);
                   }}
-                  title="Eliminar elemento O(N)"
+                  title="Delete element O(N)"
                   style={{
                     marginTop: '6px',
                     background: 'transparent',
@@ -205,7 +204,7 @@ export const ArrayVisualizer: React.FC = () => {
             type="number"
             value={searchTarget}
             onChange={(e) => setSearchTarget(e.target.value)}
-            placeholder="Buscar val"
+            placeholder="Search val"
             style={{
               width: '90px',
               padding: '6px 8px',
@@ -223,7 +222,7 @@ export const ArrayVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '6px 12px', fontSize: '0.8rem' }}
           >
-            <Search size={14} /> Buscar O(N)
+            <Search size={14} /> Search O(N)
           </button>
         </div>
 
@@ -233,7 +232,7 @@ export const ArrayVisualizer: React.FC = () => {
             type="number"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder="Valor"
+            placeholder="Value"
             style={{
               width: '65px',
               padding: '6px 8px',
@@ -249,7 +248,7 @@ export const ArrayVisualizer: React.FC = () => {
             type="number"
             value={insertIdx}
             onChange={(e) => setInsertIdx(e.target.value)}
-            placeholder="Índice"
+            placeholder="Index"
             style={{
               width: '60px',
               padding: '6px 8px',
@@ -267,7 +266,7 @@ export const ArrayVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '6px 12px', fontSize: '0.8rem' }}
           >
-            <Plus size={14} /> Insertar
+            <Plus size={14} /> Insert
           </button>
         </div>
 
@@ -279,7 +278,7 @@ export const ArrayVisualizer: React.FC = () => {
             className="cyber-btn-secondary"
             style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', gap: '6px' }}
           >
-            <RotateCcw size={14} /> Restablecer
+            <RotateCcw size={14} /> Reset
           </button>
         </div>
       </div>

@@ -31,7 +31,7 @@ export type VisualizerType =
 
 export interface FlowchartOption {
   id: string;
-  label: string; // 'Sí' | 'No' | 'Depende' | custom text
+  label: string; // 'Yes' | 'No' | 'Depends' | custom text
   description?: string;
   nextNodeId?: string;
   algorithmResultId?: string;

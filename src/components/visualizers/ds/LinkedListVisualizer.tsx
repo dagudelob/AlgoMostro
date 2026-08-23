@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Plus, Trash2, RotateCcw, Play } from 'lucide-react';
+import { ArrowRight, RotateCcw, Plus, Trash2 } from 'lucide-react';
 
 interface LLNode {
   id: number;
@@ -9,79 +9,86 @@ interface LLNode {
 
 export const LinkedListVisualizer: React.FC = () => {
   const [nodes, setNodes] = useState<LLNode[]>([
-    { id: 1, val: 10, memoryAddr: '0x7F10' },
-    { id: 2, val: 25, memoryAddr: '0x8A44' },
-    { id: 3, val: 42, memoryAddr: '0x3C90' },
-    { id: 4, val: 88, memoryAddr: '0x1F22' }
+    { id: 1, val: 10, memoryAddr: '0x7ff1' },
+    { id: 2, val: 25, memoryAddr: '0x8ab3' },
+    { id: 3, val: 40, memoryAddr: '0x94cd' },
+    { id: 4, val: 65, memoryAddr: '0xaa1e' }
   ]);
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [message, setMessage] = useState('Lista Enlazada simple. Cada nodo contiene su valor y puntero al siguiente nodo.');
-  const [newVal, setNewVal] = useState('99');
+
+  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const [message, setMessage] = useState('Singly Linked List. Each node contains a value and a pointer address to the next node.');
   const [isTraversing, setIsTraversing] = useState(false);
+  const [newVal, setNewVal] = useState('80');
 
   const handleTraverse = async () => {
     setIsTraversing(true);
-    setMessage('Iniciando recorrido desde Head...');
+    setMessage('Traversing linked list from HEAD to NULL in O(N)...');
+
     for (let i = 0; i < nodes.length; i++) {
-      setActiveIdx(i);
-      setMessage(`Visitando nodo [${nodes[i].val}] en dirección ${nodes[i].memoryAddr}. Siguiente -> ${i === nodes.length - 1 ? 'NULL' : nodes[i + 1].memoryAddr}`);
-      await new Promise((r) => setTimeout(r, 700));
+      setHighlightId(nodes[i].id);
+      setMessage(`Visiting node [${nodes[i].val}] at address ${nodes[i].memoryAddr}. Next -> ${i === nodes.length - 1 ? 'NULL' : nodes[i + 1].memoryAddr}`);
+      await new Promise(r => setTimeout(r, 700));
     }
-    setActiveIdx(null);
-    setMessage('Recorrido completado en tiempo O(N).');
+    setHighlightId(null);
+    setMessage('End of Linked List reached (next == NULL). Traversal finished in O(N).');
     setIsTraversing(false);
   };
 
-  const handleAddHead = () => {
+  const handleInsertHead = () => {
     const val = parseInt(newVal);
     if (isNaN(val)) return;
-    if (nodes.length >= 7) {
-      setMessage('Límite alcanzado (máx 7 nodos para visualización).');
+    if (nodes.length >= 6) {
+      setMessage('Visualizer capacity reached (max 6 nodes).');
       return;
     }
-    const hex = '0x' + Math.floor(Math.random() * 65535).toString(16).toUpperCase();
-    const newNode: LLNode = { id: Date.now(), val, memoryAddr: hex };
+
+    const randomHex = '0x' + Math.floor(Math.random() * 0xffff).toString(16).padStart(4, '0');
+    const newNode: LLNode = { id: Date.now(), val, memoryAddr: randomHex };
     setNodes([newNode, ...nodes]);
-    setMessage(`¡Nuevo Head [${val}] insertado en O(1)! Nuevo puntero next apunta al antiguo Head.`);
+    setHighlightId(newNode.id);
+    setMessage(`Inserted ${val} at HEAD in O(1) time. New node points to old HEAD.`);
   };
 
-  const handleAddTail = () => {
+  const handleInsertTail = () => {
     const val = parseInt(newVal);
     if (isNaN(val)) return;
-    if (nodes.length >= 7) {
-      setMessage('Límite alcanzado (máx 7 nodos).');
+    if (nodes.length >= 6) {
+      setMessage('Visualizer capacity reached (max 6 nodes).');
       return;
     }
-    const hex = '0x' + Math.floor(Math.random() * 65535).toString(16).toUpperCase();
-    const newNode: LLNode = { id: Date.now(), val, memoryAddr: hex };
+
+    const randomHex = '0x' + Math.floor(Math.random() * 0xffff).toString(16).padStart(4, '0');
+    const newNode: LLNode = { id: Date.now(), val, memoryAddr: randomHex };
     setNodes([...nodes, newNode]);
-    setMessage(`¡Nuevo Tail [${val}] insertado en O(1) con puntero al tail!`);
+    setHighlightId(newNode.id);
+    setMessage(`Appended ${val} at TAIL in O(1) time (with tail pointer).`);
   };
 
   const handleDeleteHead = () => {
     if (nodes.length <= 1) {
-      setMessage('Debe haber al menos 1 nodo en la lista.');
+      setMessage('List must have at least 1 node.');
       return;
     }
-    const deleted = nodes[0];
+    const removed = nodes[0];
     setNodes(nodes.slice(1));
-    setMessage(`Eliminado Head [${deleted.val}] en O(1). Head actualizado al siguiente nodo.`);
+    setHighlightId(null);
+    setMessage(`Removed HEAD node [${removed.val}] in O(1). HEAD pointer moved to head.next.`);
   };
 
   const handleReset = () => {
     setNodes([
-      { id: 1, val: 10, memoryAddr: '0x7F10' },
-      { id: 2, val: 25, memoryAddr: '0x8A44' },
-      { id: 3, val: 42, memoryAddr: '0x3C90' },
-      { id: 4, val: 88, memoryAddr: '0x1F22' }
+      { id: 1, val: 10, memoryAddr: '0x7ff1' },
+      { id: 2, val: 25, memoryAddr: '0x8ab3' },
+      { id: 3, val: 40, memoryAddr: '0x94cd' },
+      { id: 4, val: 65, memoryAddr: '0xaa1e' }
     ]);
-    setActiveIdx(null);
-    setMessage('Lista enlazada restablecida.');
+    setHighlightId(null);
+    setMessage('Linked list reset.');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Visual Canvas */}
+      {/* Canvas */}
       <div
         style={{
           background: '#070c18',
@@ -92,114 +99,102 @@ export const LinkedListVisualizer: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           gap: '20px',
-          overflowX: 'auto'
+          minHeight: '180px',
+          justifyContent: 'center'
         }}
       >
-        {/* Node Chain */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 'min-content', padding: '10px 0' }}>
+        {/* Nodes stream */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {nodes.map((node, idx) => {
+            const isSelected = highlightId === node.id;
             const isHead = idx === 0;
             const isTail = idx === nodes.length - 1;
-            const isActive = activeIdx === idx;
 
             return (
               <React.Fragment key={node.id}>
-                {/* Node Box */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    transition: 'all 0.3s'
-                  }}
-                >
-                  {/* Head / Tail Tags */}
-                  <div style={{ height: '20px', display: 'flex', gap: '4px', marginBottom: '4px' }}>
-                    {isHead && <span className="cyber-badge badge-green">HEAD</span>}
-                    {isTail && <span className="cyber-badge badge-magenta">TAIL</span>}
-                  </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {/* Pointer tag */}
+                  <span
+                    style={{
+                      fontSize: '0.7rem',
+                      fontFamily: 'var(--font-mono)',
+                      color: isHead ? 'var(--neon-green)' : isTail ? 'var(--neon-magenta)' : 'var(--text-dim)',
+                      fontWeight: 700,
+                      marginBottom: '4px'
+                    }}
+                  >
+                    {isHead && isTail ? 'HEAD & TAIL' : isHead ? 'HEAD' : isTail ? 'TAIL' : `Node ${idx + 1}`}
+                  </span>
 
-                  {/* Dual cell: Value | Next Pointer */}
+                  {/* Node block */}
                   <div
                     style={{
                       display: 'flex',
                       borderRadius: '8px',
-                      backgroundColor: isActive ? 'rgba(0, 245, 255, 0.3)' : 'rgba(16, 28, 54, 0.85)',
-                      border: `2px solid ${isActive ? 'var(--neon-cyan)' : 'rgba(0, 245, 255, 0.3)'}`,
-                      boxShadow: isActive ? '0 0 16px rgba(0, 245, 255, 0.6)' : 'none',
                       overflow: 'hidden',
-                      transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                      transition: 'all 0.25s'
+                      border: `2px solid ${isSelected ? 'var(--neon-cyan)' : 'rgba(0, 245, 255, 0.3)'}`,
+                      boxShadow: isSelected ? '0 0 16px rgba(0, 245, 255, 0.6)' : 'none',
+                      backgroundColor: isSelected ? 'rgba(0, 245, 255, 0.2)' : 'rgba(16, 28, 54, 0.9)',
+                      transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
+                    {/* Val */}
                     <div
                       style={{
-                        padding: '12px 16px',
+                        padding: '12px 14px',
                         fontSize: '1.1rem',
                         fontWeight: 700,
-                        fontFamily: 'var(--font-mono)',
-                        color: '#fff',
-                        borderRight: '1px solid rgba(0, 245, 255, 0.2)'
+                        color: isSelected ? '#fff' : '#c9d8f0',
+                        fontFamily: 'var(--font-mono)'
                       }}
                     >
                       {node.val}
                     </div>
+
+                    {/* Next pointer address */}
                     <div
                       style={{
                         padding: '12px 10px',
-                        fontSize: '0.75rem',
+                        backgroundColor: 'rgba(0, 245, 255, 0.08)',
+                        borderLeft: '1px solid rgba(0, 245, 255, 0.2)',
+                        fontSize: '0.7rem',
                         fontFamily: 'var(--font-mono)',
                         color: 'var(--neon-cyan)',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'rgba(0, 245, 255, 0.06)'
+                        alignItems: 'center'
                       }}
-                      title={`Puntero next -> ${isTail ? 'NULL' : nodes[idx + 1].memoryAddr}`}
                     >
-                      •
+                      {isTail ? 'NULL' : nodes[idx + 1].memoryAddr}
                     </div>
                   </div>
 
-                  {/* Memory address */}
-                  <span
-                    style={{
-                      fontSize: '0.65rem',
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--text-dim)',
-                      marginTop: '4px'
-                    }}
-                  >
+                  {/* Address label */}
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
                     {node.memoryAddr}
                   </span>
                 </div>
 
-                {/* Arrow to next */}
-                <div style={{ display: 'flex', alignItems: 'center', color: isActive ? 'var(--neon-cyan)' : 'rgba(0, 245, 255, 0.4)', padding: '0 4px' }}>
-                  <ArrowRight size={22} className={isActive ? 'animate-pulse-glow' : ''} />
-                </div>
+                {/* Arrow */}
+                {idx < nodes.length - 1 && (
+                  <ArrowRight size={18} color="var(--neon-cyan)" style={{ marginTop: '10px' }} />
+                )}
               </React.Fragment>
             );
           })}
 
-          {/* NULL Terminator */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <div style={{ height: '20px' }} />
+          {/* NULL pointer termination */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px' }}>
+            <span style={{ fontSize: '0.65rem', color: 'transparent' }}>-</span>
             <div
               style={{
-                padding: '10px 14px',
-                borderRadius: '6px',
-                border: '1px dashed rgba(255, 0, 127, 0.5)',
+                padding: '6px 12px',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 0, 127, 0.15)',
+                border: '1px dashed var(--neon-magenta)',
                 color: 'var(--neon-magenta)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.85rem',
+                fontSize: '0.75rem',
                 fontWeight: 700
               }}
             >
@@ -225,14 +220,14 @@ export const LinkedListVisualizer: React.FC = () => {
         </div>
       </div>
 
-      {/* Action Controls */}
+      {/* Control Panel */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: '10px',
           background: 'rgba(13, 21, 39, 0.6)',
-          padding: '16px',
+          padding: '14px',
           borderRadius: 'var(--radius-md)',
           alignItems: 'center'
         }}
@@ -243,7 +238,7 @@ export const LinkedListVisualizer: React.FC = () => {
           className="cyber-btn"
           style={{ padding: '7px 14px', fontSize: '0.8rem' }}
         >
-          <Play size={14} /> Recorrer O(N)
+          <ArrowRight size={14} /> Traverse O(N)
         </button>
 
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -264,20 +259,20 @@ export const LinkedListVisualizer: React.FC = () => {
             }}
           />
           <button
-            onClick={handleAddHead}
+            onClick={handleInsertHead}
             disabled={isTraversing}
-            className="cyber-btn"
-            style={{ padding: '7px 12px', fontSize: '0.8rem' }}
+            className="cyber-btn-secondary"
+            style={{ padding: '7px 10px', fontSize: '0.8rem' }}
           >
-            <Plus size={14} /> Insertar Head O(1)
+            <Plus size={14} /> Insert Head O(1)
           </button>
           <button
-            onClick={handleAddTail}
+            onClick={handleInsertTail}
             disabled={isTraversing}
-            className="cyber-btn"
-            style={{ padding: '7px 12px', fontSize: '0.8rem' }}
+            className="cyber-btn-secondary"
+            style={{ padding: '7px 10px', fontSize: '0.8rem' }}
           >
-            <Plus size={14} /> Insertar Tail O(1)
+            <Plus size={14} /> Insert Tail O(1)
           </button>
         </div>
 
@@ -285,9 +280,9 @@ export const LinkedListVisualizer: React.FC = () => {
           onClick={handleDeleteHead}
           disabled={isTraversing}
           className="cyber-btn-magenta"
-          style={{ padding: '7px 12px', fontSize: '0.8rem' }}
+          style={{ padding: '7px 10px', fontSize: '0.8rem' }}
         >
-          <Trash2 size={14} /> Eliminar Head O(1)
+          <Trash2 size={14} /> Delete Head O(1)
         </button>
 
         <button

@@ -15,25 +15,25 @@ export const TreeVisualizer: React.FC = () => {
 
   const [activeVal, setActiveVal] = useState<number | null>(null);
   const [visitedVals, setVisitedVals] = useState<number[]>([]);
-  const [message, setMessage] = useState('Árbol Binario de Búsqueda (BST). Subárbol izquierdo < Raíz < Subárbol derecho.');
+  const [message, setMessage] = useState('Binary Search Tree (BST). Left subtree < Root < Right subtree.');
   const [newVal, setNewVal] = useState('65');
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInOrder = async () => {
     setIsProcessing(true);
     setVisitedVals([]);
-    setMessage('Ejecutando recorrido In-Order (Izquierda -> Raíz -> Derecha). Visita los nodos ordenados de menor a mayor.');
+    setMessage('Running In-Order Traversal (Left -> Root -> Right). Visits nodes in sorted ascending order.');
     const order = [20, 30, 40, 50, 60, 70, 80];
     const visited: number[] = [];
     for (const v of order) {
       setActiveVal(v);
       visited.push(v);
       setVisitedVals([...visited]);
-      setMessage(`Visitando nodo [${v}]...`);
+      setMessage(`Visiting node [${v}]...`);
       await new Promise((r) => setTimeout(r, 600));
     }
     setActiveVal(null);
-    setMessage(`¡In-Order completado: [${order.join(', ')}]!`);
+    setMessage(`In-Order completed: [${order.join(', ')}]!`);
     setIsProcessing(false);
   };
 
@@ -42,7 +42,7 @@ export const TreeVisualizer: React.FC = () => {
     if (isNaN(target)) return;
     setIsProcessing(true);
     setVisitedVals([]);
-    setMessage(`Buscando ${target} en BST en tiempo O(log N)...`);
+    setMessage(`Searching for ${target} in BST in O(log N) time...`);
 
     let curr: number | undefined = 50;
     const path: number[] = [];
@@ -54,19 +54,19 @@ export const TreeVisualizer: React.FC = () => {
       await new Promise((r) => setTimeout(r, 700));
 
       if (curr === target) {
-        setMessage(`¡Encontrado ${target}! Camino recorrido: ${path.join(' -> ')} en ${path.length} pasos.`);
+        setMessage(`Found ${target}! Search path: ${path.join(' -> ')} in ${path.length} steps.`);
         setIsProcessing(false);
         return;
       }
 
       if (target < curr) {
-        setMessage(`${target} < ${curr} -> Descendiendo al subárbol izquierdo.`);
+        setMessage(`${target} < ${curr} -> Descending to left subtree.`);
         if (curr === 50) curr = 30;
         else if (curr === 30) curr = 20;
         else if (curr === 70) curr = 60;
         else curr = undefined;
       } else {
-        setMessage(`${target} > ${curr} -> Descendiendo al subárbol derecho.`);
+        setMessage(`${target} > ${curr} -> Descending to right subtree.`);
         if (curr === 50) curr = 70;
         else if (curr === 30) curr = 40;
         else if (curr === 70) curr = 80;
@@ -75,14 +75,14 @@ export const TreeVisualizer: React.FC = () => {
     }
 
     setActiveVal(null);
-    setMessage(`El valor ${target} no existe en el BST tras ${path.length} comparaciones O(log N).`);
+    setMessage(`Value ${target} does not exist in BST after ${path.length} comparisons O(log N).`);
     setIsProcessing(false);
   };
 
   const handleReset = () => {
     setActiveVal(null);
     setVisitedVals([]);
-    setMessage('BST restablecido.');
+    setMessage('BST reset.');
   };
 
   return (
@@ -188,7 +188,7 @@ export const TreeVisualizer: React.FC = () => {
           className="cyber-btn"
           style={{ padding: '7px 14px', fontSize: '0.8rem' }}
         >
-          <Layers size={14} /> Recorrido In-Order O(N)
+          <Layers size={14} /> In-Order Traversal O(N)
         </button>
 
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -196,7 +196,7 @@ export const TreeVisualizer: React.FC = () => {
             type="number"
             value={newVal}
             onChange={(e) => setNewVal(e.target.value)}
-            placeholder="Buscar"
+            placeholder="Search"
             style={{
               width: '65px',
               padding: '6px 8px',
@@ -214,7 +214,7 @@ export const TreeVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '7px 12px', fontSize: '0.8rem' }}
           >
-            <Search size={14} /> Buscar O(log N)
+            <Search size={14} /> Search O(log N)
           </button>
         </div>
 

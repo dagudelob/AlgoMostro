@@ -1,34 +1,41 @@
 import React, { useState } from 'react';
 import { FLOWCHART_NODES, FLOWCHART_ROOT_ID } from '../../data/flowchartData';
 import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
-import { ChevronRight, ChevronDown, Sparkles, BookOpen } from 'lucide-react';
-import type { AlgorithmResult } from '../../types/flowchart';
+import { ChevronRight, ChevronDown, Sparkles, HelpCircle, FolderTree } from 'lucide-react';
 
 interface TreeListViewProps {
-  onOpenResultModal: (result: AlgorithmResult) => void;
+  onSelectResult: (resultId: string) => void;
+  onHoverItem?: (term: string, event: React.MouseEvent) => void;
+  onLeaveItem?: () => void;
 }
 
-export const TreeListView: React.FC<TreeListViewProps> = ({ onOpenResultModal }) => {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set([FLOWCHART_ROOT_ID, 'node-graph-1']));
+export const TreeListView: React.FC<TreeListViewProps> = ({
+  onSelectResult,
+  onHoverItem,
+  onLeaveItem
+}) => {
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
+    [FLOWCHART_ROOT_ID]: true,
+    'node-graph-1': true,
+    'node-sorted-1': true
+  });
 
   const toggleNode = (nodeId: string) => {
-    setExpandedNodes((prev) => {
-      const next = new Set(prev);
-      if (next.has(nodeId)) next.delete(nodeId);
-      else next.add(nodeId);
-      return next;
-    });
+    setExpandedNodes(prev => ({
+      ...prev,
+      [nodeId]: !prev[nodeId]
+    }));
   };
 
-  const renderBranch = (nodeId: string, depth = 0): React.ReactNode => {
+  const renderNode = (nodeId: string, level = 0) => {
     const node = FLOWCHART_NODES[nodeId];
     if (!node) return null;
 
-    const isExpanded = expandedNodes.has(nodeId);
+    const isExpanded = expandedNodes[nodeId];
 
     return (
-      <div key={nodeId} style={{ marginLeft: `${depth * 20}px`, marginTop: '8px' }}>
-        {/* Node Bar */}
+      <div key={nodeId} style={{ marginLeft: `${level * 20}px`, marginTop: '8px' }}>
+        {/* Node Question Bar */}
         <div
           onClick={() => toggleNode(nodeId)}
           style={{
@@ -36,86 +43,67 @@ export const TreeListView: React.FC<TreeListViewProps> = ({ onOpenResultModal })
             alignItems: 'center',
             gap: '8px',
             padding: '10px 14px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'rgba(16, 28, 54, 0.75)',
-            border: '1px solid rgba(0, 245, 255, 0.2)',
+            backgroundColor: level === 0 ? 'rgba(0, 245, 255, 0.12)' : 'rgba(13, 21, 39, 0.7)',
+            border: `1px solid ${level === 0 ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.08)'}`,
+            borderRadius: 'var(--radius-md)',
             cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--neon-cyan)';
-            e.currentTarget.style.backgroundColor = 'rgba(0, 245, 255, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(0, 245, 255, 0.2)';
-            e.currentTarget.style.backgroundColor = 'rgba(16, 28, 54, 0.75)';
+            boxShadow: level === 0 ? '0 0 10px rgba(0, 245, 255, 0.2)' : 'none'
           }}
         >
-          {isExpanded ? (
-            <ChevronDown size={16} color="var(--neon-cyan)" />
-          ) : (
-            <ChevronRight size={16} color="var(--neon-cyan)" />
-          )}
-
-          <span className="cyber-badge badge-cyan" style={{ fontSize: '0.65rem' }}>
-            {node.category.toUpperCase()}
-          </span>
-
-          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff' }}>
-            {node.question}
-          </span>
+          {isExpanded ? <ChevronDown size={16} color="var(--neon-cyan)" /> : <ChevronRight size={16} color="var(--text-dim)" />}
+          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff' }}>{node.question}</span>
+          <span className="cyber-badge badge-cyan" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>{node.category}</span>
         </div>
 
-        {/* Children if expanded */}
+        {/* Options / Children */}
         {isExpanded && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px', borderLeft: '2px solid rgba(0, 245, 255, 0.15)', paddingLeft: '14px' }}>
-            {node.options.map((opt) => {
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px', marginLeft: '16px', borderLeft: '2px solid rgba(0, 245, 255, 0.2)', paddingLeft: '12px' }}>
+            {node.options.map(opt => {
+              const isTerminal = !!opt.algorithmResultId;
               const result = opt.algorithmResultId ? ALGORITHM_RESULTS[opt.algorithmResultId] : null;
 
-              if (result) {
+              if (isTerminal && result) {
                 return (
                   <div
                     key={opt.id}
-                    onClick={() => onOpenResultModal(result)}
+                    onClick={() => onSelectResult(result.id)}
+                    onMouseEnter={(e) => {
+                      if (onHoverItem) onHoverItem(result.visualizerType || result.name, e);
+                    }}
+                    onMouseLeave={() => {
+                      if (onLeaveItem) onLeaveItem();
+                    }}
                     style={{
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      backgroundColor: 'rgba(255, 0, 127, 0.08)',
+                      border: '1px solid rgba(255, 0, 127, 0.3)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '8px 12px',
-                      borderRadius: 'var(--radius-sm)',
-                      backgroundColor: 'rgba(57, 255, 20, 0.08)',
-                      border: '1px solid rgba(57, 255, 20, 0.3)',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(57, 255, 20, 0.15)';
-                      e.currentTarget.style.boxShadow = '0 0 10px rgba(57, 255, 20, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(57, 255, 20, 0.08)';
-                      e.currentTarget.style.boxShadow = 'none';
+                      transition: 'all 0.15s'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Sparkles size={14} color="#39ff14" />
-                      <span style={{ fontSize: '0.85rem', color: '#39ff14', fontWeight: 600 }}>
-                        {opt.label} → {result.name}
-                      </span>
+                      <Sparkles size={14} color="var(--neon-magenta)" />
+                      <span style={{ fontSize: '0.85rem', color: '#ffb7d2', fontWeight: 600 }}>{opt.label}</span>
                     </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="cyber-badge badge-cyan" style={{ fontSize: '0.65rem' }}>
-                        {result.timeComplexity}
-                      </span>
-                      <BookOpen size={13} color="var(--neon-green)" />
-                    </div>
+                    <span className="cyber-badge badge-magenta" style={{ fontSize: '0.68rem' }}>{result.name}</span>
                   </div>
                 );
               }
 
               if (opt.nextNodeId) {
-                return renderBranch(opt.nextNodeId, depth + 1);
+                return (
+                  <div key={opt.id}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 0', color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+                      <HelpCircle size={13} color="var(--neon-cyan)" />
+                      <span>{opt.label}</span>
+                    </div>
+                    {renderNode(opt.nextNodeId, level + 1)}
+                  </div>
+                );
               }
 
               return null;
@@ -127,24 +115,20 @@ export const TreeListView: React.FC<TreeListViewProps> = ({ onOpenResultModal })
   };
 
   return (
-    <div
-      className="cyber-card"
-      style={{
-        padding: '24px',
-        maxWidth: '900px',
-        margin: '0 auto'
-      }}
-    >
-      <div style={{ marginBottom: '16px', borderBottom: '1px solid rgba(0, 245, 255, 0.15)', paddingBottom: '12px' }}>
-        <h2 style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 800 }}>
-          Vista de Árbol Jerárquico Desplegable
-        </h2>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          Explora todas las ramas del árbol de decisión de AlgoMonster de manera compacta
-        </span>
+    <div style={{ maxWidth: '840px', margin: '30px auto', padding: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <FolderTree size={24} color="var(--neon-green)" />
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#fff' }}>Taxonomy & Decision Tree</h2>
+          <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            Complete hierarchical breakdown of all algorithmic pattern branches
+          </p>
+        </div>
       </div>
 
-      {renderBranch(FLOWCHART_ROOT_ID)}
+      <div style={{ backgroundColor: '#070c18', border: '1px solid rgba(0, 245, 255, 0.2)', borderRadius: 'var(--radius-lg)', padding: '20px' }}>
+        {renderNode(FLOWCHART_ROOT_ID, 0)}
+      </div>
     </div>
   );
 };

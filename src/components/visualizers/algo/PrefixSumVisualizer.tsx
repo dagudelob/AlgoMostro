@@ -8,11 +8,11 @@ export const PrefixSumVisualizer: React.FC = () => {
 
   const [queryL, setQueryL] = useState<number>(2);
   const [queryR, setQueryR] = useState<number>(5);
-  const [message, setMessage] = useState('Prefix Sum. Permite responder consultas de suma de rango sum(L..R) en tiempo O(1) usando P[R+1] - P[L].');
+  const [message, setMessage] = useState('Prefix Sum. Answers range sum queries sum(L..R) in O(1) time using P[R+1] - P[L].');
 
   const handleQuery = () => {
     if (queryL < 0 || queryR >= originalArray.length || queryL > queryR) {
-      setMessage('Rango inválido. Asegúrate de que 0 <= L <= R < N.');
+      setMessage('Invalid query range. Ensure 0 <= L <= R < N.');
       return;
     }
 
@@ -20,13 +20,13 @@ export const PrefixSumVisualizer: React.FC = () => {
     const pR = prefixArray[queryR + 1];
     const pL = prefixArray[queryL];
     const sum = pR - pL;
-    setMessage(`Consulta instantánea O(1): sum(arr[${queryL}..${queryR}]) = Prefix[${queryR + 1}] (${pR}) - Prefix[${queryL}] (${pL}) = ${sum}!`);
+    setMessage(`Instant query O(1): sum(arr[${queryL}..${queryR}]) = Prefix[${queryR + 1}] (${pR}) - Prefix[${queryL}] (${pL}) = ${sum}!`);
   };
 
   const handleReset = () => {
     setQueryL(2);
     setQueryR(5);
-    setMessage('Prefix Sum restablecido.');
+    setMessage('Prefix Sum reset.');
   };
 
   return (
@@ -47,7 +47,7 @@ export const PrefixSumVisualizer: React.FC = () => {
         {/* Original Array */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
-            Array Original nums[i]:
+            Original Array nums[i]:
           </span>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {originalArray.map((val, idx) => {
@@ -84,7 +84,7 @@ export const PrefixSumVisualizer: React.FC = () => {
         {/* Prefix Sum Array */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--neon-cyan)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
-            Array de Sumas de Prefijo Prefix[i] = Prefix[i-1] + nums[i-1]:
+            Prefix Sum Array Prefix[i] = Prefix[i-1] + nums[i-1]:
           </span>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {prefixArray.map((val, idx) => {
@@ -156,7 +156,7 @@ export const PrefixSumVisualizer: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Rango:</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Range:</span>
           <input
             type="number"
             value={queryL}
@@ -175,7 +175,7 @@ export const PrefixSumVisualizer: React.FC = () => {
               fontSize: '0.85rem'
             }}
           />
-          <span style={{ color: 'var(--text-dim)' }}>a</span>
+          <span style={{ color: 'var(--text-dim)' }}>to</span>
           <input
             type="number"
             value={queryR}
@@ -199,7 +199,7 @@ export const PrefixSumVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '7px 12px', fontSize: '0.8rem' }}
           >
-            <Search size={14} /> Consultar Suma O(1)
+            <Search size={14} /> Query Sum O(1)
           </button>
         </div>
 

@@ -1,130 +1,148 @@
 import React from 'react';
-import { HelpCircle, ChevronRight, Sparkles } from 'lucide-react';
-import type { FlowchartNode, FlowchartOption, AlgorithmResult } from '../../types/flowchart';
+import type { FlowchartNode } from '../../types/flowchart';
+import { ArrowRight, HelpCircle, Sparkles } from 'lucide-react';
 import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
 
 interface FlowNodeProps {
   node: FlowchartNode;
+  stepNumber: number;
   selectedOptionId?: string;
-  onSelectOption: (nodeId: string, option: FlowchartOption) => void;
-  onHoverResult?: (result: AlgorithmResult | null, e?: React.MouseEvent) => void;
-  onOpenResultModal: (result: AlgorithmResult) => void;
-  isLeaf?: boolean;
+  onSelectOption: (nodeId: string, optionId: string, nextNodeId?: string, algorithmResultId?: string) => void;
+  onHoverItem?: (term: string, event: React.MouseEvent) => void;
+  onLeaveItem?: () => void;
 }
 
 export const FlowNode: React.FC<FlowNodeProps> = ({
   node,
+  stepNumber,
   selectedOptionId,
   onSelectOption,
-  onHoverResult,
-  onOpenResultModal
+  onHoverItem,
+  onLeaveItem
 }) => {
   return (
     <div
-      className="cyber-card"
+      className="cyber-node-card"
       style={{
-        width: '320px',
-        padding: '16px',
-        backgroundColor: 'rgba(11, 18, 36, 0.9)',
-        border: '1px solid rgba(0, 245, 255, 0.3)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        width: '360px',
+        backgroundColor: '#090f20',
+        border: '1px solid rgba(0, 245, 255, 0.35)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '18px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 245, 255, 0.15)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '12px',
-        position: 'relative'
+        gap: '14px',
+        position: 'relative',
+        animation: 'scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
       }}
     >
       {/* Node Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span className="cyber-badge badge-cyan" style={{ fontSize: '0.65rem' }}>
-          {node.category.toUpperCase()}
-        </span>
-        <HelpCircle size={14} color="var(--neon-cyan)" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(0, 245, 255, 0.2)',
+              border: '1px solid var(--neon-cyan)',
+              color: 'var(--neon-cyan)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              fontFamily: 'var(--font-mono)'
+            }}
+          >
+            {stepNumber}
+          </span>
+          <span className="cyber-badge badge-cyan" style={{ fontSize: '0.68rem' }}>
+            {node.category.toUpperCase()}
+          </span>
+        </div>
+
+        {node.tags && node.tags.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {node.tags.map(t => (
+              <span key={t} style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                #{t}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Question */}
+      {/* Node Question */}
       <div>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', lineHeight: '1.4', marginBottom: '4px' }}>
+        <h3 style={{ margin: '0 0 6px 0', fontSize: '1rem', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
           {node.question}
         </h3>
         {node.subtitle && (
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.3' }}>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
             {node.subtitle}
           </p>
         )}
       </div>
 
-      {/* Interactive Options */}
+      {/* Options Buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {node.options.map((opt) => {
           const isSelected = selectedOptionId === opt.id;
+          const isTerminal = !!opt.algorithmResultId;
           const result = opt.algorithmResultId ? ALGORITHM_RESULTS[opt.algorithmResultId] : null;
 
           return (
-            <div
+            <button
               key={opt.id}
-              onClick={() => {
-                onSelectOption(node.id, opt);
-                if (result) onOpenResultModal(result);
-              }}
+              onClick={() => onSelectOption(node.id, opt.id, opt.nextNodeId, opt.algorithmResultId)}
               onMouseEnter={(e) => {
-                if (result && onHoverResult) onHoverResult(result, e);
+                if (result && onHoverItem) {
+                  onHoverItem(result.visualizerType || result.name, e);
+                }
               }}
               onMouseLeave={() => {
-                if (result && onHoverResult) onHoverResult(null);
+                if (onLeaveItem) onLeaveItem();
               }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '8px 12px',
-                borderRadius: 'var(--radius-sm)',
+                textAlign: 'left',
+                padding: '10px 14px',
+                borderRadius: 'var(--radius-md)',
                 backgroundColor: isSelected
-                  ? 'rgba(0, 245, 255, 0.2)'
-                  : result
-                  ? 'rgba(57, 255, 20, 0.08)'
-                  : 'rgba(16, 28, 54, 0.7)',
+                  ? 'rgba(0, 245, 255, 0.25)'
+                  : isTerminal
+                  ? 'rgba(255, 0, 127, 0.08)'
+                  : 'rgba(16, 28, 54, 0.6)',
                 border: `1px solid ${
                   isSelected
                     ? 'var(--neon-cyan)'
-                    : result
-                    ? 'rgba(57, 255, 20, 0.4)'
-                    : 'rgba(0, 245, 255, 0.15)'
+                    : isTerminal
+                    ? 'rgba(255, 0, 127, 0.4)'
+                    : 'rgba(255, 255, 255, 0.08)'
                 }`,
+                color: isSelected ? '#fff' : '#c9d8f0',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: isSelected ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                boxShadow: isSelected
+                  ? '0 0 15px rgba(0, 245, 255, 0.4)'
+                  : isTerminal
+                  ? '0 0 8px rgba(255, 0, 127, 0.15)'
+                  : 'none',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {result ? (
-                  <Sparkles size={14} color="#39ff14" />
-                ) : (
-                  <div
-                    style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      backgroundColor: isSelected ? 'var(--neon-cyan)' : 'var(--text-dim)'
-                    }}
-                  />
-                )}
-                <span
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: isSelected || result ? 600 : 400,
-                    color: result ? '#39ff14' : isSelected ? '#fff' : '#c9d8f0'
-                  }}
-                >
-                  {opt.label}
-                </span>
+                {isTerminal ? <Sparkles size={15} color="var(--neon-magenta)" /> : <HelpCircle size={15} color="var(--neon-cyan)" />}
+                <span>{opt.label}</span>
               </div>
-
-              <ChevronRight
-                size={14}
-                color={result ? '#39ff14' : isSelected ? 'var(--neon-cyan)' : 'var(--text-dim)'}
-              />
-            </div>
+              <ArrowRight size={14} color={isSelected ? 'var(--neon-cyan)' : 'var(--text-dim)'} />
+            </button>
           );
         })}
       </div>

@@ -5,9 +5,9 @@ export const TrieVisualizer: React.FC = () => {
   const words = ['app', 'apple', 'bat', 'ball'];
   const [searchWord, setSearchWord] = useState<string>('app');
   const [activeChars, setActiveChars] = useState<string[]>([]);
-  const [message, setMessage] = useState('Trie (Prefix Tree). Los nodos comparten prefijos comunes para búsquedas O(L).');
+  const [message, setMessage] = useState('Trie (Prefix Tree). Nodes share common prefixes for fast O(L) searches.');
 
-  // Hardcoded Trie Nodes for visual layout: root -> 'a' -> 'p' -> 'p'* -> 'l' -> 'e'* | root -> 'b' -> 'a' -> 't'* / 'l' -> 'l'*
+  // Trie Nodes layout
   const trieNodes = [
     { id: 'root', label: 'ROOT', x: 240, y: 35, isEnd: false },
     { id: 'a', label: 'a', x: 120, y: 85, isEnd: false, pId: 'root' },
@@ -26,7 +26,7 @@ export const TrieVisualizer: React.FC = () => {
   const handleSearch = async (isPrefix: boolean) => {
     if (!searchWord) return;
     const term = searchWord.toLowerCase();
-    setMessage(`Buscando ${isPrefix ? 'prefijo' : 'palabra'} "${term}" carácter a carácter O(L)...`);
+    setMessage(`Searching for ${isPrefix ? 'prefix' : 'word'} "${term}" character by character in O(L)...`);
 
     const path: string[] = ['root'];
     let prefixAcc = '';
@@ -40,28 +40,28 @@ export const TrieVisualizer: React.FC = () => {
       if (matchNode) {
         path.push(matchNode.id);
         setActiveChars([...path]);
-        setMessage(`Carácter '${term[i]}' encontrado en nivel ${i + 1}.`);
+        setMessage(`Character '${term[i]}' matched at level ${i + 1}.`);
       } else {
-        setMessage(`Carácter '${term[i]}' NO encontrado. La consulta falló en O(${i + 1}).`);
+        setMessage(`Character '${term[i]}' NOT found. Search terminated in O(${i + 1}).`);
         return;
       }
     }
 
     const lastNode = trieNodes.find((n) => n.id === term);
     if (isPrefix) {
-      setMessage(`¡Prefijo "${term}" existe en el Trie!`);
+      setMessage(`Prefix "${term}" exists in the Trie!`);
     } else {
       if (lastNode && lastNode.isEnd) {
-        setMessage(`¡Palabra completa "${term}" encontrada con éxito!`);
+        setMessage(`Full word "${term}" successfully found!`);
       } else {
-        setMessage(`"${term}" existe como prefijo, pero NO está marcada como palabra final.`);
+        setMessage(`"${term}" exists as a prefix, but is NOT marked as a complete terminal word.`);
       }
     }
   };
 
   const handleReset = () => {
     setActiveChars([]);
-    setMessage('Trie restablecido.');
+    setMessage('Trie reset.');
   };
 
   return (
@@ -80,7 +80,7 @@ export const TrieVisualizer: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-            Palabras en el Trie:
+            Words in Trie:
           </span>
           {words.map((w) => (
             <span key={w} className="cyber-badge badge-cyan">{w}</span>
@@ -175,7 +175,7 @@ export const TrieVisualizer: React.FC = () => {
             type="text"
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            placeholder="Buscar..."
+            placeholder="Search..."
             style={{
               width: '90px',
               padding: '6px 8px',
@@ -192,14 +192,14 @@ export const TrieVisualizer: React.FC = () => {
             className="cyber-btn"
             style={{ padding: '7px 12px', fontSize: '0.8rem' }}
           >
-            <Search size={14} /> Buscar Palabra O(L)
+            <Search size={14} /> Search Word O(L)
           </button>
           <button
             onClick={() => handleSearch(true)}
             className="cyber-btn"
             style={{ padding: '7px 12px', fontSize: '0.8rem' }}
           >
-            StartsWith (Prefijo)
+            StartsWith (Prefix)
           </button>
         </div>
 

@@ -1,103 +1,102 @@
 import React from 'react';
+import type { DSItem, AlgoItem } from '../../types/visualizer';
 import { MiniVisualizer } from '../visualizers/MiniVisualizer';
 import { ComplexityBadge } from './ComplexityBadge';
-import { ExternalLink, Sparkles } from 'lucide-react';
-import type { AlgorithmResult, VisualizerType } from '../../types/flowchart';
-import type { DSItem, AlgoItem } from '../../types/visualizer';
 
 interface HoverPreviewCardProps {
-  item?: DSItem | AlgoItem | AlgorithmResult;
-  onOpenModal?: () => void;
-  position?: { x: number; y: number };
+  item: DSItem | AlgoItem;
+  position: { x: number; y: number };
 }
 
-export const HoverPreviewCard: React.FC<HoverPreviewCardProps> = ({ item, onOpenModal }) => {
-  if (!item) return null;
-
-  const isAlgoResult = 'tagline' in item;
-  const isDS = 'timeComplexity' in item && typeof item.timeComplexity === 'object' && 'access' in item.timeComplexity;
-  const isAlgo = 'keySignals' in item;
-
-  let title = item.name;
-  let description = item.description;
-  let visualizerType: VisualizerType = 'array';
-  let timeStr = 'O(N)';
-  let spaceStr = 'O(1)';
-
-  if (isAlgoResult) {
-    const res = item as AlgorithmResult;
-    visualizerType = res.visualizerType || 'array';
-    timeStr = res.timeComplexity;
-    spaceStr = res.spaceComplexity;
-  } else if (isDS) {
-    const ds = item as DSItem;
-    visualizerType = ds.type;
-    timeStr = `Acceso: ${ds.timeComplexity.access}`;
-    spaceStr = ds.spaceComplexity;
-  } else if (isAlgo) {
-    const al = item as AlgoItem;
-    visualizerType = al.type;
-    timeStr = `Avg: ${al.timeComplexity.average}`;
-    spaceStr = al.spaceComplexity;
-  }
+export const HoverPreviewCard: React.FC<HoverPreviewCardProps> = ({ item, position }) => {
+  const isDS = item.category === 'data_structure';
+  const dsItem = isDS ? (item as DSItem) : null;
+  const algoItem = !isDS ? (item as AlgoItem) : null;
 
   return (
     <div
-      className="cyber-card"
       style={{
-        width: '280px',
-        padding: '14px',
-        backgroundColor: 'rgba(8, 14, 28, 0.95)',
+        position: 'fixed',
+        left: `${Math.min(position.x + 15, window.innerWidth - 320)}px`,
+        top: `${Math.min(position.y + 15, window.innerHeight - 380)}px`,
+        width: '300px',
+        backgroundColor: '#090f20',
         border: '1px solid var(--neon-cyan)',
-        boxShadow: '0 0 25px rgba(0, 245, 255, 0.25), 0 10px 20px rgba(0,0,0,0.8)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 8px 32px rgba(0, 245, 255, 0.25), 0 0 10px rgba(0, 0, 0, 0.9)',
+        padding: '14px',
         zIndex: 9999,
-        pointerEvents: 'auto',
-        animation: 'fadeIn 0.15s ease-out'
+        pointerEvents: 'none',
+        animation: 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        backdropFilter: 'blur(16px)'
       }}
     >
-      {/* Title & Glow icon */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Sparkles size={14} color="#00f5ff" />
-          <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff' }}>{title}</span>
-        </div>
-        <span className="cyber-badge badge-cyan" style={{ fontSize: '0.65rem' }}>PREVIEW</span>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+          {item.name}
+        </h4>
+        <span className={`cyber-badge ${isDS ? 'badge-magenta' : 'badge-green'}`}>
+          {isDS ? 'Data Structure' : 'Algorithm'}
+        </span>
       </div>
 
-      {/* Mini Animation Frame */}
+      {/* Mini Animation Loop */}
       <div
         style={{
-          background: '#040711',
+          height: '110px',
+          backgroundColor: '#050811',
+          borderRadius: 'var(--radius-sm)',
           border: '1px solid rgba(0, 245, 255, 0.2)',
-          borderRadius: '6px',
-          padding: '8px',
-          marginBottom: '10px'
+          marginBottom: '10px',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
-        <MiniVisualizer type={visualizerType} />
+        <MiniVisualizer type={item.type} />
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '10px' }}>
-        {description.length > 110 ? `${description.slice(0, 110)}...` : description}
+      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+        {item.description}
       </p>
 
       {/* Complexities */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
-        <ComplexityBadge type="time" value={timeStr} size="sm" />
-        <ComplexityBadge type="space" value={spaceStr} size="sm" />
-      </div>
+      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {dsItem && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-dim)' }}>Access / Search:</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <ComplexityBadge complexity={dsItem.timeComplexity.access} label="Access" />
+                <ComplexityBadge complexity={dsItem.timeComplexity.search} label="Search" />
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-dim)' }}>Insert / Delete:</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <ComplexityBadge complexity={dsItem.timeComplexity.insertion} label="Insert" />
+                <ComplexityBadge complexity={dsItem.timeComplexity.deletion} label="Delete" />
+              </div>
+            </div>
+          </>
+        )}
 
-      {/* Action button */}
-      {onOpenModal && (
-        <button
-          onClick={onOpenModal}
-          className="cyber-btn"
-          style={{ width: '100%', padding: '6px', fontSize: '0.75rem', gap: '6px' }}
-        >
-          <ExternalLink size={12} /> Abrir Simulador Completo
-        </button>
-      )}
+        {algoItem && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-dim)' }}>Average Runtime:</span>
+              <ComplexityBadge complexity={algoItem.timeComplexity.average} label="Time" />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-dim)' }}>Memory Space:</span>
+              <ComplexityBadge complexity={algoItem.spaceComplexity} label="Space" />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -7,8 +7,12 @@ interface CodeSnippetProps {
   title?: string;
 }
 
-export const CodeSnippet: React.FC<CodeSnippetProps> = ({ pythonCode, tsCode, title = 'Solution Implementation' }) => {
-  const [lang, setLang] = useState<'python' | 'ts'>('python');
+export const CodeSnippet: React.FC<CodeSnippetProps> = ({
+  pythonCode,
+  tsCode,
+  title = 'Solution Code'
+}) => {
+  const [lang, setLang] = useState<'python' | 'typescript'>('python');
   const [copied, setCopied] = useState(false);
 
   const activeCode = lang === 'python' ? pythonCode : tsCode;
@@ -18,106 +22,96 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({ pythonCode, tsCode, ti
       await navigator.clipboard.writeText(activeCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      console.error('Failed to copy', e);
+    } catch (err) {
+      console.error('Failed to copy code: ', err);
     }
   };
 
   return (
     <div
       style={{
+        backgroundColor: '#070a13',
+        border: '1px solid rgba(0, 245, 255, 0.25)',
         borderRadius: 'var(--radius-md)',
-        backgroundColor: '#070b14',
-        border: '1px solid rgba(0, 245, 255, 0.2)',
-        overflow: 'hidden',
-        marginTop: '12px',
-        marginBottom: '16px'
+        overflow: 'hidden'
       }}
     >
-      {/* Header with language selector and copy */}
+      {/* Code Header */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '8px 14px',
-          background: 'rgba(13, 21, 39, 0.9)',
+          alignItems: 'center',
+          padding: '8px 16px',
+          backgroundColor: '#0c1322',
           borderBottom: '1px solid rgba(0, 245, 255, 0.15)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Terminal size={15} color="#00f5ff" />
-          <span style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+          <Terminal size={15} color="var(--neon-cyan)" />
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#e0eaff', fontFamily: 'var(--font-mono)' }}>
             {title}
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Lang Tabs */}
-          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.5)', padding: '2px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        {/* Language Tabs & Copy */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', background: 'rgba(5, 8, 16, 0.8)', padding: '2px', borderRadius: '4px' }}>
             <button
               onClick={() => setLang('python')}
               style={{
-                background: lang === 'python' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-                color: lang === 'python' ? '#00f5ff' : 'var(--text-muted)',
+                background: lang === 'python' ? 'rgba(0, 245, 255, 0.25)' : 'transparent',
+                color: lang === 'python' ? 'var(--neon-cyan)' : 'var(--text-muted)',
                 border: 'none',
-                padding: '3px 10px',
+                padding: '3px 8px',
                 borderRadius: '3px',
-                fontSize: '0.75rem',
+                fontSize: '0.72rem',
                 fontFamily: 'var(--font-mono)',
-                cursor: 'pointer',
-                fontWeight: lang === 'python' ? 600 : 400
+                fontWeight: 600,
+                cursor: 'pointer'
               }}
             >
               Python
             </button>
             <button
-              onClick={() => setLang('ts')}
+              onClick={() => setLang('typescript')}
               style={{
-                background: lang === 'ts' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-                color: lang === 'ts' ? '#00f5ff' : 'var(--text-muted)',
+                background: lang === 'typescript' ? 'rgba(0, 245, 255, 0.25)' : 'transparent',
+                color: lang === 'typescript' ? 'var(--neon-cyan)' : 'var(--text-muted)',
                 border: 'none',
-                padding: '3px 10px',
+                padding: '3px 8px',
                 borderRadius: '3px',
-                fontSize: '0.75rem',
+                fontSize: '0.72rem',
                 fontFamily: 'var(--font-mono)',
-                cursor: 'pointer',
-                fontWeight: lang === 'ts' ? 600 : 400
+                fontWeight: 600,
+                cursor: 'pointer'
               }}
             >
               TypeScript
             </button>
           </div>
 
-          {/* Copy Button */}
           <button
             onClick={handleCopy}
             className="cyber-btn-secondary"
-            style={{
-              padding: '3px 8px',
-              fontSize: '0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
+            style={{ padding: '4px 8px', fontSize: '0.72rem', display: 'flex', gap: '4px' }}
           >
-            {copied ? <Check size={13} color="#39ff14" /> : <Copy size={13} />}
-            <span>{copied ? 'Copiado' : 'Copiar'}</span>
+            {copied ? <Check size={13} color="var(--neon-green)" /> : <Copy size={13} />}
+            <span>{copied ? 'Copied!' : 'Copy'}</span>
           </button>
         </div>
       </div>
 
-      {/* Code Area */}
+      {/* Code Display Body */}
       <pre
         style={{
           margin: 0,
           padding: '16px',
           overflowX: 'auto',
-          fontSize: '0.85rem',
-          lineHeight: '1.5',
-          color: '#d1e0ff',
+          fontSize: '0.82rem',
           fontFamily: 'var(--font-mono)',
-          backgroundColor: '#060a12'
+          lineHeight: 1.5,
+          color: '#c9e6ff'
         }}
       >
         <code>{activeCode}</code>

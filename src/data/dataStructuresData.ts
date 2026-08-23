@@ -6,7 +6,7 @@ export const DATA_STRUCTURES: DSItem[] = [
     name: 'Arrays',
     category: 'data_structure',
     type: 'array',
-    description: 'Bloque contiguo de memoria que almacena elementos del mismo tipo con acceso instantáneo por índice.',
+    description: 'A contiguous memory block storing elements of the same type with instantaneous index-based access.',
     iconName: 'LayoutGrid',
     timeComplexity: {
       access: 'O(1)',
@@ -16,30 +16,30 @@ export const DATA_STRUCTURES: DSItem[] = [
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Acceso por índice instantáneo O(1)',
-      'Excelente localidad de caché espacial',
-      'Uso eficiente de memoria sin punteros adicionales'
+      'Instantaneous O(1) random index access',
+      'Superior CPU cache locality and spatial locality',
+      'Minimal memory overhead with no extra pointers'
     ],
     cons: [
-      'Tamaño fijo en memoria contigua (en arrays estáticos)',
-      'Inserción y borrado costoso O(N) por desplazamiento'
+      'Fixed capacity in static arrays',
+      'Costly O(N) insertion and deletion due to element shifting'
     ],
     useCases: [
-      'Búsqueda binaria sobre elementos ordenados',
-      'Tablas de frecuencia y buckets',
-      'Buffers secuenciales de memoria'
+      'Binary search over sorted collections',
+      'Frequency tables and direct-address buckets',
+      'High-throughput sequential memory buffers'
     ],
-    snippet: `// Acceso O(1) e inserción O(N)
+    snippet: `// O(1) Access and O(N) Insertion
 const arr = [10, 20, 30, 40];
 const val = arr[2]; // 30 -> O(1)
-arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
+arr.splice(1, 0, 15); // Insert 15 at index 1 -> O(N)`
   },
   {
     id: 'ds-linked-list',
     name: 'Linked Lists',
     category: 'data_structure',
     type: 'linked_list',
-    description: 'Secuencia lineal de nodos donde cada nodo almacena un valor y una referencia (puntero) al siguiente nodo.',
+    description: 'A linear sequence of node elements where each node stores a value and a pointer/reference to the next node.',
     iconName: 'GitCommitHorizontal',
     timeComplexity: {
       access: 'O(N)',
@@ -49,17 +49,17 @@ arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Inserción/eliminación O(1) si ya se tiene el puntero al nodo',
-      'Tamaño dinámico sin necesidad de realocación de bloque continuo'
+      'O(1) insertion/deletion given a pointer to the target node',
+      'Dynamic size allocation without requiring contiguous memory reallocation'
     ],
     cons: [
-      'No permite acceso directo por índice (búsqueda O(N))',
-      'Overhead de memoria por almacenar punteros (next/prev)'
+      'No random index access (sequential O(N) traversal required)',
+      'Memory overhead from storing next/prev pointer addresses'
     ],
     useCases: [
-      'Implementación de colas y LRU Cache (Doubly Linked List)',
-      'Algoritmo de Floyd de detección de ciclos (Tortoise & Hare)',
-      'Inversión in-place de secuencias'
+      'Queue and LRU Cache implementations (Doubly Linked List)',
+      'Floyd cycle detection algorithm (Tortoise & Hare)',
+      'In-place list reversal and partition problems'
     ],
     snippet: `class ListNode {
   val: number;
@@ -72,7 +72,7 @@ arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
     name: 'Trees (BST / Binary Tree)',
     category: 'data_structure',
     type: 'tree',
-    description: 'Estructura jerárquica no lineal compuesta por una raíz y subárboles de nodos hijos.',
+    description: 'A hierarchical, non-linear data structure consisting of a root node connected to child subtrees.',
     iconName: 'Network',
     timeComplexity: {
       access: 'O(log N)',
@@ -82,18 +82,18 @@ arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Búsqueda, inserción y eliminación eficiente en O(log N) balanceado',
-      'Mantiene los elementos naturalmente ordenados (BST)',
-      'Estructura recursiva natural'
+      'Efficient O(log N) search, insertion, and deletion when balanced',
+      'Naturally keeps elements sorted (Binary Search Tree)',
+      'Clean recursive decomposition (Divide and Conquer)'
     ],
     cons: [
-      'Se puede degradar a O(N) si el árbol no está balanceado',
-      'Complejidad de rotaciones en árboles auto-balanceados (AVL / Red-Black)'
+      'Can degenerate into a skewed linked list O(N) if unbalanced',
+      'Complex rotation logic in self-balancing trees (AVL, Red-Black)'
     ],
     useCases: [
-      'Sistemas de archivos y jerarquías organizacionales',
-      'Árboles de sintaxis abstracta (AST) en compiladores',
-      'Índices de bases de datos relacionales (B-Trees / BST)'
+      'Hierarchical file systems and DOM trees',
+      'Abstract Syntax Trees (AST) in compilers',
+      'Database indexing (B-Trees / BSTs)'
     ],
     snippet: `class TreeNode {
   val: number;
@@ -107,7 +107,7 @@ arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
     name: 'Graphs',
     category: 'data_structure',
     type: 'graph',
-    description: 'Colección de vértices (nodos) conectados por aristas (edges), dirigidas o no dirigidas, con o sin peso.',
+    description: 'A collection of vertices (nodes) interconnected by edges, which can be directed or undirected, weighted or unweighted.',
     iconName: 'Share2',
     timeComplexity: {
       access: 'O(V + E)',
@@ -117,19 +117,19 @@ arr.splice(1, 0, 15); // Inserta 15 en index 1 -> O(N)`
     },
     spaceComplexity: 'O(V + E)',
     pros: [
-      'Modela cualquier tipo de relación en red del mundo real',
-      'Soporta algoritmos fundamentales de caminos mínimos y conectividad'
+      'Models arbitrary real-world network and relational topologies',
+      'Supports shortest-path and global connectivity algorithms'
     ],
     cons: [
-      'Consumo de memoria O(V^2) en representaciones de matriz densa',
-      'Detección de ciclos y estados visitados requiere memoria adicional'
+      'Dense matrix representation consumes O(V^2) memory',
+      'Cycle detection and visited state tracking require extra memory'
     ],
     useCases: [
-      'Redes sociales y grafos de conocimiento',
-      'Sistemas de navegación GPS y rutas (Dijkstra, A*)',
-      'Orden de compilación de dependencias (Topological Sort)'
+      'Social networks and knowledge graphs',
+      'GPS mapping and route optimization (Dijkstra, A*)',
+      'Package dependency resolution (Topological Sort)'
     ],
-    snippet: `// Lista de adyacencia
+    snippet: `// Adjacency List
 const adjList = new Map<number, number[]>();
 adjList.set(1, [2, 3]);
 adjList.set(2, [4]);`
@@ -139,7 +139,7 @@ adjList.set(2, [4]);`
     name: 'Heaps (Priority Queue)',
     category: 'data_structure',
     type: 'heap',
-    description: 'Árbol binario completo que satisface la propiedad de Heap (el nodo padre es siempre menor o igual, o mayor o igual que sus hijos).',
+    description: 'A complete binary tree satisfying the Heap property (the parent node is always smaller/greater than its children).',
     iconName: 'Layers',
     timeComplexity: {
       access: 'O(1) (peek)',
@@ -149,48 +149,48 @@ adjList.set(2, [4]);`
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Acceso instantáneo O(1) al elemento mínimo o máximo',
-      'Inserción y extracción logarítmica O(log N)',
-      'Se puede almacenar eficientemente en un array contiguo'
+      'Instantaneous O(1) peek access to the extreme element (min/max)',
+      'Logarithmic O(log N) push and pop operations',
+      'Stored compactly in a flat 1D array without pointers'
     ],
     cons: [
-      'Búsqueda de elementos arbitrarios es lenta O(N)',
-      'No mantiene orden total, solo orden de prioridad en la raíz'
+      'Arbitrary value search is slow O(N)',
+      'Provides partial priority ordering, not full sorting'
     ],
     useCases: [
-      'Encontrar el k-ésimo elemento más grande o pequeño (Top-K)',
-      'Algoritmo de Dijkstra y Prim',
-      'Merge de K listas ordenadas'
+      'Finding the K-th largest/smallest elements (Top-K)',
+      'Dijkstra and Prim graph pathfinding',
+      'Merging K sorted streams/lists'
     ],
-    snippet: `// Min-Heap: parent(i) = floor((i-1)/2)
+    snippet: `// Min-Heap indexing: parent(i) = floor((i-1)/2)
 // left(i) = 2i + 1, right(i) = 2i + 2
-const heap = [2, 5, 8, 12, 10]; // Raíz siempre en heap[0]`
+const minHeap = [2, 5, 8, 12, 10]; // Root is always minHeap[0]`
   },
   {
     id: 'ds-trie',
     name: 'Tries (Prefix Trees)',
     category: 'data_structure',
     type: 'trie',
-    description: 'Árbol de búsqueda donde cada nodo representa un carácter de una cadena, compartiendo prefijos comunes.',
+    description: 'A specialized search tree where each node represents a character, allowing strings with shared prefixes to share common paths.',
     iconName: 'FolderTree',
     timeComplexity: {
-      access: 'O(L) (longitud palabra)',
+      access: 'O(L) (key length)',
       search: 'O(L)',
       insertion: 'O(L)',
       deletion: 'O(L)',
     },
-    spaceComplexity: 'O(ALFABETO * L * N)',
+    spaceComplexity: 'O(ALPHABET * L * N)',
     pros: [
-      'Búsqueda y prefijo ultra rápido independiente del número de palabras (solo depende de la longitud L)',
-      'Compresión de prefijos idénticos'
+      'Prefix search speed depends only on word length L, not dataset size N',
+      'Eliminates duplicate storage for common prefixes'
     ],
     cons: [
-      'Gran consumo de punteros en memoria si el vocabulario es muy disperso'
+      'High pointer memory footprint if the dictionary has sparse prefixes'
     ],
     useCases: [
-      'Sistemas de autocompletado y sugerencia de búsqueda',
-      'Correctores ortográficos y diccionarios de palabras',
-      'Problemas de juegos de palabras (Boggle, Word Search II)'
+      'Search engine autocomplete and query suggestions',
+      'Spell checkers and IP routing tables',
+      'Word puzzle board games (Boggle, Word Search II)'
     ],
     snippet: `class TrieNode {
   children = new Map<string, TrieNode>();
@@ -202,7 +202,7 @@ const heap = [2, 5, 8, 12, 10]; // Raíz siempre en heap[0]`
     name: 'Stacks (LIFO)',
     category: 'data_structure',
     type: 'stack',
-    description: 'Estructura Last-In, First-Out donde el último elemento agregado es el primero en ser procesado.',
+    description: 'A Last-In, First-Out collection where the last element inserted is the first element removed.',
     iconName: 'Server',
     timeComplexity: {
       access: 'O(N)',
@@ -212,16 +212,16 @@ const heap = [2, 5, 8, 12, 10]; // Raíz siempre en heap[0]`
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Push y Pop súper rápidos en O(1)',
-      'Estructura ideal para tracking de estados y llamadas recursivas'
+      'Ultra-fast O(1) Push and Pop operations',
+      'Natural structure for state tracking, expression parsing, and recursion'
     ],
     cons: [
-      'Acceso limitado solo al tope del Stack'
+      'Access is strictly restricted to the TOP element'
     ],
     useCases: [
-      'Validación de paréntesis y etiquetas HTML',
-      'Monotonic Stack (siguiente elemento mayor/menor, Trapping Rain Water)',
-      'Deshacer/Rehacer (Undo/Redo) y Call Stack del motor de JS'
+      'Parentheses matching and syntax validation',
+      'Monotonic Stack (Next Greater Element, Trapping Rain Water)',
+      'Undo/Redo buffers and Call Stack execution'
     ],
     snippet: `const stack: number[] = [];
 stack.push(10); // O(1)
@@ -232,7 +232,7 @@ const top = stack.pop(); // 10 -> O(1)`
     name: 'Queues (FIFO & Deque)',
     category: 'data_structure',
     type: 'queue',
-    description: 'Estructura First-In, First-Out donde el primer elemento insertado es el primero en ser atendido.',
+    description: 'A First-In, First-Out structure where items are enqueued at the rear and dequeued from the front.',
     iconName: 'ArrowRightLeft',
     timeComplexity: {
       access: 'O(N)',
@@ -242,18 +242,18 @@ const top = stack.pop(); // 10 -> O(1)`
     },
     spaceComplexity: 'O(N)',
     pros: [
-      'Encolado y desencolado garantizado en O(1)',
-      'Mantiene el orden temporal estricto de llegada'
+      'Guaranteed O(1) enqueue and dequeue operations',
+      'Maintains strict temporal arrival order'
     ],
     cons: [
-      'En arrays normales de JS, shift() es O(N); se requiere Deque o puntero circular'
+      'Native JS Array.shift() is O(N); requires a circular buffer or Doubly Linked List for true O(1)'
     ],
     useCases: [
-      'Recorrido por niveles en BFS (Breadth-First Search)',
+      'Breadth-First Search (BFS) level-order traversal',
       'Monotonic Deque (Sliding Window Maximum)',
-      'Colas de tareas asíncronas y rate limiters'
+      'Asynchronous task scheduling and rate limiters'
     ],
-    snippet: `// Queue conceptual FIFO
+    snippet: `// Conceptual FIFO Queue
 const queue = [1, 2, 3];
 queue.push(4); // Enqueue
 const item = queue.shift(); // Dequeue -> 1`
