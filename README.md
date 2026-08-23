@@ -1,24 +1,35 @@
 # 🌌 AlgoMonster CyberFlow // Interactive DSA Decision Engine & Learning Wiki
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-39ff14.svg?style=for-the-badge&logo=github)](https://dagudelob.github.io/AlgoMostro/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00f5ff.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-ff007f.svg)](https://www.docker.com/)
 [![React 19](https://img.shields.io/badge/React-19.0-39ff14.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-ffd60a.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.2-00f5ff.svg)](https://vitejs.dev/)
 
+> 🚀 **Live Interactive Web App**: **[https://dagudelob.github.io/AlgoMostro/](https://dagudelob.github.io/AlgoMostro/)**
+
 An open-source, interactive visualizer, decision flowchart, and learning wiki designed for mastering **Data Structures & Algorithms (DSA)** for technical coding interviews.
 
 ---
 
 ## 📖 Table of Contents
-1. [Attribution & Educational Purpose](#-attribution--educational-purpose)
-2. [Key Features & Capabilities](#-key-features--capabilities)
-3. [Structured Progressive Learning Path](#-structured-progressive-learning-path)
-4. [Algorithm Decision Matrix ("When to Use What")](#-algorithm-decision-matrix-when-to-use-what)
-5. [Technology Stack](#-technology-stack)
-6. [Quick Start & Deployment (Docker & Local)](#-quick-start--deployment)
-7. [Repository Architecture](#-repository-architecture)
-8. [License](#-license)
+1. [Live Demonstration on GitHub Pages](#-live-demonstration)
+2. [Attribution & Educational Purpose](#-attribution--educational-purpose)
+3. [Key Features & Capabilities](#-key-features--capabilities)
+4. [Structured Progressive Learning Path](#-structured-progressive-learning-path)
+5. [Algorithm Decision Matrix ("When to Use What")](#-algorithm-decision-matrix-when-to-use-what)
+6. [Technology Stack](#-technology-stack)
+7. [Quick Start & Deployment (Docker, Local & GitHub Pages)](#-quick-start--deployment)
+8. [Repository Architecture](#-repository-architecture)
+9. [License](#-license)
+
+---
+
+## 🌐 Live Demonstration
+
+Access the deployed application instantly without any local setup:
+👉 **[https://dagudelob.github.io/AlgoMostro/](https://dagudelob.github.io/AlgoMostro/)**
 
 ---
 
@@ -116,12 +127,20 @@ The application is structured in progressive order of mastery:
 - **Styling**: Vanilla CSS3 Custom Cyberpunk Design System (Dark mode, glassmorphism, responsive grid, zero heavy UI dependencies)
 - **Icons & Effects**: [Lucide React](https://lucide.dev/) + [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
 - **Containerization**: [Docker](https://www.docker.com/) (Multi-stage build) + [Nginx Alpine](https://nginx.org/)
+- **CI/CD & Hosting**: [GitHub Pages](https://pages.github.com/) with automated [GitHub Actions](https://github.com/features/actions)
 
 ---
 
 ## 🚀 Quick Start & Deployment
 
-### Option A: Run with Docker Compose (Recommended)
+### Option A: Free Live Web App (GitHub Pages)
+
+Visit directly in any browser:  
+🔗 **[https://dagudelob.github.io/AlgoMostro/](https://dagudelob.github.io/AlgoMostro/)**
+
+---
+
+### Option B: Run with Docker Compose
 
 Ensure Docker is installed, then run:
 
@@ -135,7 +154,9 @@ docker compose up --build
 ```
 > The application will be accessible at: **`http://localhost:8081`**
 
-### Option B: Local Node.js Development
+---
+
+### Option C: Local Node.js Development
 
 ```bash
 # 1. Install dependencies
@@ -155,6 +176,8 @@ npm run build
 
 ```
 AlgoMostro/
+├── .github/workflows/
+│   └── deploy.yml              # Automated GitHub Pages CI/CD workflow
 ├── Dockerfile                  # Multi-stage production build (Node 22 + Nginx)
 ├── docker-compose.yml          # Container configuration (Port 8081:80)
 ├── nginx.conf                  # Production SPA routing & asset caching
@@ -198,4 +221,5 @@ AlgoMostro/
 Distributed under the **MIT License**. See [`LICENSE`](file:///home/dagudelo/code/Study/AlgoMostro/LICENSE) for more details.
 
 **Author**: David Agudelo ([@dagudelob](https://github.com/dagudelob))  
-**Repository**: [https://github.com/dagudelob/AlgoMostro](https://github.com/dagudelob/AlgoMostro)
+**Repository**: [https://github.com/dagudelob/AlgoMostro](https://github.com/dagudelob/AlgoMostro)  
+**Live Site**: [https://dagudelob.github.io/AlgoMostro/](https://dagudelob.github.io/AlgoMostro/)
