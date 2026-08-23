@@ -63,7 +63,7 @@ cd AlgoMostro
 # 2. Build and launch the container
 docker compose up --build
 ```
-The application will be accessible at: **`http://localhost:8080`**
+The application will be accessible at: **`http://localhost:8081`**
 
 ---
 
