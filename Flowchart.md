@@ -1,0 +1,105 @@
+# AlgoMonster Flowchart - Decision Tree
+
+- Is it a graph?
+  - Is it a tree?
+    - Count/generate many trees?
+      - Divide and Conquer / Tree DP
+    - Level-order or shortest-level answer?
+      - BFS
+    - Else
+      - DFS
+  - DAG-related?
+    - Topological Sort
+  - Shortest-path problem?
+    - Is the graph Weighted?
+      - Dijkstra's Algorithm
+    - Else
+      - BFS
+  - Connectivity problem?
+    - Disjoint Set Union
+  - Small constraints?
+    - DFS/backtracking
+    - BFS
+
+- Sorted input or monotonic answer?
+  - Dynamic range or order queries?
+    - Ordered Set / Fenwick / Segment Tree
+  - Else
+    - Binary Search
+- kth smallest/largest?
+  - Heap / Sortings
+
+- Linked list problem?
+  - Fast/slow or fixed-gap pointers?
+    - Two pointers
+  - Merge many sorted lists?
+    - Heap / Divide and Conquer
+  - Else
+    - Linked List Manipulation
+
+- Fast lookup, counting, or grouping?
+  - Hash Table / Counting
+- Merge, insert, or scan intervals?
+  - Sorting + Interval Scan
+- In-place array partitioning?
+  - Two pointers / Partitioning
+
+- Split/match string with dictionary?
+  - Trie / String Matching / Rolling Hash
+  - Trie / DP / Memoization
+- Prefix or pattern matching?
+  - Trie / String Matching / Rolling Hash
+
+- Subarray or substring problem?
+  - Sum/additive problem?
+    - Prefix Sums
+  - Maintain a valid window?
+    - Sliding Window
+  - Need nearest greater/smaller bounds?
+    - Monotonic Stack
+    - Dynamic Programming
+  - Compute a max/min?
+    - Sorted index or monotonic answer?
+      - Need nearest greater/smaller bounds?
+        - Monotonic Stack
+      - Split into subproblems?
+        - Greedy solution?
+          - Binary Search
+        - Dynamic Programming
+        - Greedy Algorithms
+
+- Count number of ways?
+  - Is brute force enough?
+    - Brute Force / Backtracking
+    - Dynamic Programming
+  - Multiple sequences?
+    - Monotonic condition?
+      - Split into subproblems?
+        - Two pointers
+        - Dynamic Programming
+  - Find/enumerate indices?
+    - Monotonic condition?
+      - Two pointers
+  - Need O(1) memory?
+    - Monotonic condition?
+      - Two pointers
+  - Need to parse symbols?
+    - Optimize/count valid spans?
+      - Dynamic Programming
+      - Stack
+
+- Subset state?
+  - Bitmask DP
+- Is brute force enough?
+  - Brute force / Backtracking
+  - Dynamic Programming
+
+- Object with operation guarantees?
+  - Design + Supporting Data Structures
+- Direct transformation or simulation?
+  - Simulation / Basic DSA
+- Math identities, powers, or bit tricks?
+  - Math / Bit Manipulation
+- Number properties?
+  - Number Theory
+- Specialized / Advanced Pattern
