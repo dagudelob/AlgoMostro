@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Navbar } from './components/common/Navbar';
+import { Navbar, type AppView } from './components/common/Navbar';
 import { FlowchartCanvas } from './components/flowchart/FlowchartCanvas';
 import { WizardMode } from './components/flowchart/WizardMode';
 import { TreeListView } from './components/flowchart/TreeListView';
 import { VisualizerHub } from './components/visualizers/VisualizerHub';
+import { WikiView } from './components/wiki/WikiView';
 import { HoverPreviewCard } from './components/common/HoverPreviewCard';
 import { ProblemDetailModal } from './components/details/ProblemDetailModal';
 import { ALGORITHM_RESULTS } from './data/problemCatalog';
@@ -13,7 +14,7 @@ import type { AlgorithmResult } from './types/flowchart';
 import type { DSItem, AlgoItem } from './types/visualizer';
 
 export const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<'canvas' | 'wizard' | 'tree' | 'visualizers'>('canvas');
+  const [activeView, setActiveView] = useState<AppView>('canvas');
   const [selectedVisualizerType, setSelectedVisualizerType] = useState<string>('array');
   const [activeModalResult, setActiveModalResult] = useState<AlgorithmResult | null>(null);
 
@@ -68,6 +69,10 @@ export const App: React.FC = () => {
             onHoverItem={handleHoverTerm}
             onLeaveItem={handleLeaveTerm}
           />
+        )}
+
+        {activeView === 'wiki' && (
+          <WikiView onOpenVisualizer={handleSelectVisualizerItem} />
         )}
 
         {activeView === 'wizard' && (
@@ -134,6 +139,7 @@ export const App: React.FC = () => {
               >
                 AlgoMonster Flowchart
               </a>
+              {' '}&bull; Collaborative Educational Project
             </span>
           </div>
 
@@ -142,7 +148,9 @@ export const App: React.FC = () => {
             <span>•</span>
             <span>8 ALGORITHMS</span>
             <span>•</span>
-            <span>16 INTERACTIVE SIMULATORS</span>
+            <span>16 SIMULATORS</span>
+            <span>•</span>
+            <span>BIG-O WIKI</span>
           </div>
         </div>
       </footer>
