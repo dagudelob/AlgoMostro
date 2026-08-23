@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DATA_STRUCTURES } from '../../data/dataStructuresData';
 import { ALGORITHMS } from '../../data/algorithmsData';
-import { CodeSnippet } from '../details/CodeSnippet';
+import { SyntaxHighlighter } from '../common/SyntaxHighlighter';
 import { ComplexityBadge } from '../common/ComplexityBadge';
 import { 
   Database, 
@@ -229,11 +229,11 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
             </ul>
           </div>
 
-          {/* Reference Snippet */}
-          <CodeSnippet
-            pythonCode={currentDS?.snippet || currentAlgo?.snippet || ''}
-            tsCode={currentDS?.snippet || currentAlgo?.snippet || ''}
-            title="Reference Implementation"
+          {/* Reference Implementation with Full IDE / Pylance Syntax Highlighting */}
+          <SyntaxHighlighter
+            pythonCode={currentDS?.pythonSnippet || currentAlgo?.pythonSnippet || ''}
+            tsCode={currentDS?.tsSnippet || currentAlgo?.tsSnippet || ''}
+            title={`${currentDS?.name || currentAlgo?.name} Implementation`}
           />
         </div>
       </div>

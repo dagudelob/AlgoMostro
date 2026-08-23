@@ -17,7 +17,9 @@ export interface DSItem {
   pros: string[];
   cons: string[];
   useCases: string[];
-  snippet: string;
+  pythonSnippet: string;
+  tsSnippet: string;
+  snippet?: string;
 }
 
 export interface AlgoItem {
@@ -35,7 +37,9 @@ export interface AlgoItem {
   spaceComplexity: string;
   patterns: string[];
   keySignals: string[];
-  snippet: string;
+  pythonSnippet: string;
+  tsSnippet: string;
+  snippet?: string;
 }
 
 export interface StepAnimationState {
