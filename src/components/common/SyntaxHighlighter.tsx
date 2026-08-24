@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Check, Maximize2, Minimize2, ZoomIn, ZoomOut, WrapText } from 'lucide-react';
 
 interface SyntaxHighlighterProps {
@@ -17,8 +17,23 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   const [lang, setLang] = useState<'python' | 'typescript'>('python');
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-  const [fontSize, setFontSize] = useState<number>(13.5); // px
+  const [fontSize, setFontSize] = useState<number>(13); // px
   const [wrapLines, setWrapLines] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 640;
+      setIsMobile(mobile);
+      if (mobile) {
+        setFontSize(12);
+        setWrapLines(true); // default to wrapped lines on mobile for readability
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const activeCode = lang === 'python' ? pythonCode.trim() : tsCode.trim();
 
@@ -114,10 +129,10 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         boxShadow: isExpanded ? '0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 245, 255, 0.2)' : '0 8px 30px rgba(0, 0, 0, 0.6)',
         display: 'flex',
         flexDirection: 'column',
-        height: isExpanded ? '85vh' : 'auto',
-        maxHeight: isExpanded ? '85vh' : '520px',
+        height: isExpanded ? (isMobile ? '92vh' : '85vh') : 'auto',
+        maxHeight: isExpanded ? (isMobile ? '92vh' : '85vh') : '560px',
         width: '100%',
-        transition: 'all 0.25s ease'
+        transition: 'all 0.2s ease'
       }}
     >
       {/* IDE Editor Tab Bar */}
@@ -126,7 +141,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '8px 16px',
+          padding: isMobile ? '6px 10px' : '8px 16px',
           backgroundColor: '#252526',
           borderBottom: '1px solid #333333',
           flexWrap: 'wrap',
@@ -134,19 +149,30 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         }}
       >
         {/* Left window indicators & title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ff5f56' }} />
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ffbd2e' }} />
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#27c93f' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ff5f56' }} />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ffbd2e' }} />
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#27c93f' }} />
           </div>
-          <span style={{ fontSize: '0.82rem', color: '#e0e0e0', fontFamily: 'var(--font-mono)', fontWeight: 600, marginLeft: '6px' }}>
-            {title} &bull; <span style={{ color: lang === 'python' ? '#4ec9b0' : '#569cd6' }}>{lang === 'python' ? 'solution.py' : 'solution.ts'}</span>
+          <span
+            style={{
+              fontSize: isMobile ? '0.74rem' : '0.82rem',
+              color: '#e0e0e0',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 600,
+              marginLeft: '4px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            {title}
           </span>
         </div>
 
         {/* Right tools: Language toggle, font size, wrap, maximize & copy */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
           {/* Language Switcher */}
           <div style={{ display: 'flex', backgroundColor: '#1e1e1e', padding: '2px', borderRadius: '4px', border: '1px solid #3c3c3c' }}>
             <button
@@ -155,16 +181,16 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
                 background: lang === 'python' ? '#37373d' : 'transparent',
                 color: lang === 'python' ? '#4ec9b0' : '#858585',
                 border: 'none',
-                padding: '4px 10px',
+                padding: isMobile ? '3px 6px' : '4px 9px',
                 borderRadius: '3px',
-                fontSize: '0.74rem',
+                fontSize: isMobile ? '0.68rem' : '0.74rem',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s'
               }}
             >
-              Python 3 (Pylance)
+              Python 3
             </button>
             <button
               onClick={() => setLang('typescript')}
@@ -172,9 +198,9 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
                 background: lang === 'typescript' ? '#37373d' : 'transparent',
                 color: lang === 'typescript' ? '#569cd6' : '#858585',
                 border: 'none',
-                padding: '4px 10px',
+                padding: isMobile ? '3px 6px' : '4px 9px',
                 borderRadius: '3px',
-                fontSize: '0.74rem',
+                fontSize: isMobile ? '0.68rem' : '0.74rem',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -185,26 +211,28 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
             </button>
           </div>
 
-          {/* Zoom controls */}
-          <div style={{ display: 'flex', backgroundColor: '#1e1e1e', borderRadius: '4px', border: '1px solid #3c3c3c' }}>
-            <button
-              onClick={() => setFontSize(f => Math.max(11, f - 1))}
-              title="Decrease Font Size"
-              style={{ background: 'transparent', border: 'none', color: '#858585', padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            >
-              <ZoomOut size={13} />
-            </button>
-            <span style={{ fontSize: '0.7rem', color: '#aaa', fontFamily: 'var(--font-mono)', alignSelf: 'center', padding: '0 4px' }}>
-              {fontSize}px
-            </span>
-            <button
-              onClick={() => setFontSize(f => Math.min(18, f + 1))}
-              title="Increase Font Size"
-              style={{ background: 'transparent', border: 'none', color: '#858585', padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            >
-              <ZoomIn size={13} />
-            </button>
-          </div>
+          {/* Zoom controls (hidden on small mobile to save space) */}
+          {!isMobile && (
+            <div style={{ display: 'flex', backgroundColor: '#1e1e1e', borderRadius: '4px', border: '1px solid #3c3c3c' }}>
+              <button
+                onClick={() => setFontSize(f => Math.max(10, f - 1))}
+                title="Decrease Font Size"
+                style={{ background: 'transparent', border: 'none', color: '#858585', padding: '3px 5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <ZoomOut size={12} />
+              </button>
+              <span style={{ fontSize: '0.68rem', color: '#aaa', fontFamily: 'var(--font-mono)', alignSelf: 'center', padding: '0 3px' }}>
+                {fontSize}px
+              </span>
+              <button
+                onClick={() => setFontSize(f => Math.min(18, f + 1))}
+                title="Increase Font Size"
+                style={{ background: 'transparent', border: 'none', color: '#858585', padding: '3px 5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <ZoomIn size={12} />
+              </button>
+            </div>
+          )}
 
           {/* Wrap lines toggle */}
           <button
@@ -217,11 +245,11 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
               color: wrapLines ? 'var(--neon-cyan)' : '#858585',
               border: '1px solid #3c3c3c',
               borderRadius: '4px',
-              padding: '4px 6px',
+              padding: '3px 5px',
               cursor: 'pointer'
             }}
           >
-            <WrapText size={13} />
+            <WrapText size={12} />
           </button>
 
           {/* Maximize / Expand Modal Toggle */}
@@ -231,20 +259,20 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '3px',
               backgroundColor: isExpanded ? 'rgba(0, 245, 255, 0.2)' : '#1e1e1e',
               color: isExpanded ? 'var(--neon-cyan)' : '#858585',
               border: `1px solid ${isExpanded ? 'var(--neon-cyan)' : '#3c3c3c'}`,
               borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '0.74rem',
+              padding: isMobile ? '3px 6px' : '3px 7px',
+              fontSize: isMobile ? '0.68rem' : '0.74rem',
               fontFamily: 'var(--font-mono)',
               cursor: 'pointer',
               fontWeight: 600
             }}
           >
-            {isExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-            <span>{isExpanded ? 'Exit' : 'Expand'}</span>
+            {isExpanded ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+            <span>{isExpanded ? 'Exit' : 'Full'}</span>
           </button>
 
           {/* Copy Button */}
@@ -253,33 +281,34 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '3px',
               backgroundColor: copied ? 'rgba(57, 255, 20, 0.15)' : '#333333',
               color: copied ? '#39ff14' : '#cccccc',
               border: '1px solid #444',
               borderRadius: '4px',
-              padding: '4px 10px',
-              fontSize: '0.74rem',
+              padding: isMobile ? '3px 6px' : '3px 8px',
+              fontSize: isMobile ? '0.68rem' : '0.74rem',
               fontFamily: 'var(--font-mono)',
               cursor: 'pointer'
             }}
           >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-            <span>{copied ? 'Copied!' : 'Copy'}</span>
+            {copied ? <Check size={11} /> : <Copy size={11} />}
+            <span>{copied ? '✓' : 'Copy'}</span>
           </button>
         </div>
       </div>
 
       {/* Editor Body with Line Numbers */}
       <div
+        className="responsive-code-container"
         style={{
           display: 'flex',
-          padding: '16px 0',
+          padding: isMobile ? '10px 0' : '14px 0',
           overflowX: wrapLines ? 'hidden' : 'auto',
           overflowY: 'auto',
           fontSize: `${fontSize}px`,
           fontFamily: 'var(--font-mono)',
-          lineHeight: '1.65',
+          lineHeight: '1.6',
           flex: 1
         }}
       >
@@ -287,12 +316,13 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         <div
           style={{
             userSelect: 'none',
-            padding: '0 16px 0 16px',
+            padding: isMobile ? '0 6px 0 8px' : '0 12px 0 14px',
             color: '#656565',
             textAlign: 'right',
             borderRight: '1px solid #333333',
-            marginRight: '16px',
-            minWidth: '40px'
+            marginRight: isMobile ? '8px' : '14px',
+            minWidth: isMobile ? '28px' : '38px',
+            fontSize: isMobile ? '0.74rem' : '0.82rem'
           }}
         >
           {lines.map((_, i) => (
@@ -301,9 +331,16 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         </div>
 
         {/* Code Lines */}
-        <div style={{ flex: 1, paddingRight: '24px', minWidth: 0 }}>
+        <div style={{ flex: 1, paddingRight: isMobile ? '10px' : '20px', minWidth: 0 }}>
           {lines.map((line, i) => (
-            <div key={i} style={{ whiteSpace: wrapLines ? 'pre-wrap' : 'pre', wordBreak: wrapLines ? 'break-word' : 'normal' }}>
+            <div
+              key={i}
+              style={{
+                whiteSpace: wrapLines ? 'pre-wrap' : 'pre',
+                wordBreak: wrapLines ? 'break-word' : 'normal',
+                overflowWrap: wrapLines ? 'break-word' : 'normal'
+              }}
+            >
               {renderHighlightedLine(line, i)}
             </div>
           ))}
@@ -322,13 +359,13 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.88)',
+            backdropFilter: 'blur(10px)',
             zIndex: 9998,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '24px'
+            padding: isMobile ? '8px' : '20px'
           }}
         >
           {/* Modal Container */}
@@ -336,7 +373,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: '1200px',
+              maxWidth: '1280px',
               zIndex: 9999
             }}
           >
@@ -345,8 +382,8 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
         </div>
 
         {/* Placeholder in document flow so layout does not jump */}
-        <div style={{ padding: '12px', border: '1px dashed #444', borderRadius: '8px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          Code Editor expanded to Fullscreen View. Click "Exit" or outside to restore inline view.
+        <div style={{ padding: '10px', border: '1px dashed #444', borderRadius: '8px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+          Code Editor expanded to Fullscreen. Click "Exit" or outside to restore.
         </div>
       </>
     );

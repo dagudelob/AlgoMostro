@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DATA_STRUCTURES } from '../../data/dataStructuresData';
 import { ALGORITHMS } from '../../data/algorithmsData';
 import { SyntaxHighlighter } from '../common/SyntaxHighlighter';
@@ -40,6 +40,20 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
   const [selectedType, setSelectedType] = useState<string>(initialType);
   const [tabCategory, setTabCategory] = useState<'ds' | 'algo'>('ds');
   const [layoutMode, setLayoutMode] = useState<HubLayout>('split');
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setLayoutMode('stacked'); // always stacked on mobile/tablet for full width
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const currentDS = DATA_STRUCTURES.find(d => d.type === selectedType);
   const currentAlgo = ALGORITHMS.find(a => a.type === selectedType);
@@ -69,11 +83,11 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
   };
 
   return (
-    <div style={{ maxWidth: '1480px', margin: '16px auto', padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ maxWidth: '1480px', margin: '12px auto', padding: isMobile ? '0 10px' : '0 24px', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
       {/* Top Header: Category Toggle & Layout Mode Selector */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         {/* Category Switcher Tabs */}
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'center' : 'flex-start' }}>
           <button
             onClick={() => {
               setTabCategory('ds');
@@ -81,21 +95,23 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
             }}
             className={`cyber-tab ${tabCategory === 'ds' ? 'active' : ''}`}
             style={{
-              padding: '8px 20px',
+              padding: isMobile ? '6px 14px' : '8px 20px',
               borderRadius: '8px',
-              fontSize: '0.9rem',
+              fontSize: isMobile ? '0.8rem' : '0.9rem',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               border: 'none',
               cursor: 'pointer',
+              flex: isMobile ? 1 : 'none',
+              justifyContent: 'center',
               backgroundColor: tabCategory === 'ds' ? 'rgba(0, 245, 255, 0.2)' : 'rgba(13, 21, 39, 0.6)',
               color: tabCategory === 'ds' ? 'var(--neon-cyan)' : 'var(--text-muted)',
               boxShadow: tabCategory === 'ds' ? '0 0 15px rgba(0, 245, 255, 0.3)' : 'none'
             }}
           >
-            <Database size={15} /> 8 Data Structures
+            <Database size={14} /> 8 Data Structures
           </button>
 
           <button
@@ -105,72 +121,83 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
             }}
             className={`cyber-tab ${tabCategory === 'algo' ? 'active' : ''}`}
             style={{
-              padding: '8px 20px',
+              padding: isMobile ? '6px 14px' : '8px 20px',
               borderRadius: '8px',
-              fontSize: '0.9rem',
+              fontSize: isMobile ? '0.8rem' : '0.9rem',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               border: 'none',
               cursor: 'pointer',
+              flex: isMobile ? 1 : 'none',
+              justifyContent: 'center',
               backgroundColor: tabCategory === 'algo' ? 'rgba(255, 0, 127, 0.2)' : 'rgba(13, 21, 39, 0.6)',
               color: tabCategory === 'algo' ? 'var(--neon-magenta)' : 'var(--text-muted)',
               boxShadow: tabCategory === 'algo' ? '0 0 15px rgba(255, 0, 127, 0.3)' : 'none'
             }}
           >
-            <Cpu size={15} /> 8 Essential Algorithms
+            <Cpu size={14} /> 8 Algorithms
           </button>
         </div>
 
-        {/* View Layout Mode Toggle: Side-by-Side vs Stacked Wide */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#090f20', padding: '3px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <button
-            onClick={() => setLayoutMode('split')}
-            title="Side-by-Side Split View"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '5px 12px',
-              borderRadius: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              backgroundColor: layoutMode === 'split' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
-              color: layoutMode === 'split' ? 'var(--neon-cyan)' : 'var(--text-muted)'
-            }}
-          >
-            <Columns2 size={13} />
-            <span>Split View</span>
-          </button>
+        {/* View Layout Mode Toggle (Desktop only) */}
+        {!isMobile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#090f20', padding: '3px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <button
+              onClick={() => setLayoutMode('split')}
+              title="Side-by-Side Split View"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '5px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                backgroundColor: layoutMode === 'split' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
+                color: layoutMode === 'split' ? 'var(--neon-cyan)' : 'var(--text-muted)'
+              }}
+            >
+              <Columns2 size={13} />
+              <span>Split View</span>
+            </button>
 
-          <button
-            onClick={() => setLayoutMode('stacked')}
-            title="Stacked Wide Code View"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '5px 12px',
-              borderRadius: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              backgroundColor: layoutMode === 'stacked' ? 'rgba(255, 0, 127, 0.2)' : 'transparent',
-              color: layoutMode === 'stacked' ? 'var(--neon-magenta)' : 'var(--text-muted)'
-            }}
-          >
-            <Rows3 size={13} />
-            <span>Wide Code View</span>
-          </button>
-        </div>
+            <button
+              onClick={() => setLayoutMode('stacked')}
+              title="Stacked Wide Code View"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '5px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                backgroundColor: layoutMode === 'stacked' ? 'rgba(255, 0, 127, 0.2)' : 'transparent',
+                color: layoutMode === 'stacked' ? 'var(--neon-magenta)' : 'var(--text-muted)'
+              }}
+            >
+              <Rows3 size={13} />
+              <span>Wide Code View</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Modules Selector Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+      {/* Modules Selector Grid (Mobile horizontal scroll chip bar or compact grid) */}
+      <div
+        className="horizontal-touch-scroll"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(100px, 1fr))' : 'repeat(auto-fit, minmax(130px, 1fr))',
+          gap: isMobile ? '6px' : '8px'
+        }}
+      >
         {tabCategory === 'ds' ? (
           DATA_STRUCTURES.map(ds => {
             const isSelected = selectedType === ds.type;
@@ -179,16 +206,19 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
                 key={ds.id}
                 onClick={() => setSelectedType(ds.type)}
                 style={{
-                  padding: '9px 12px',
+                  padding: isMobile ? '7px 8px' : '9px 12px',
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: isSelected ? 'rgba(0, 245, 255, 0.25)' : 'rgba(13, 21, 39, 0.7)',
                   border: `1px solid ${isSelected ? 'var(--neon-cyan)' : 'rgba(255, 255, 255, 0.08)'}`,
                   color: isSelected ? '#fff' : '#c9d8f0',
                   fontWeight: 600,
-                  fontSize: '0.82rem',
+                  fontSize: isMobile ? '0.74rem' : '0.82rem',
                   cursor: 'pointer',
                   boxShadow: isSelected ? '0 0 12px rgba(0, 245, 255, 0.4)' : 'none',
-                  transition: 'all 0.15s'
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 {ds.name}
@@ -203,16 +233,19 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
                 key={algo.id}
                 onClick={() => setSelectedType(algo.type)}
                 style={{
-                  padding: '9px 12px',
+                  padding: isMobile ? '7px 8px' : '9px 12px',
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: isSelected ? 'rgba(255, 0, 127, 0.25)' : 'rgba(13, 21, 39, 0.7)',
                   border: `1px solid ${isSelected ? 'var(--neon-magenta)' : 'rgba(255, 255, 255, 0.08)'}`,
                   color: isSelected ? '#fff' : '#c9d8f0',
                   fontWeight: 600,
-                  fontSize: '0.82rem',
+                  fontSize: isMobile ? '0.74rem' : '0.82rem',
                   cursor: 'pointer',
                   boxShadow: isSelected ? '0 0 12px rgba(255, 0, 127, 0.4)' : 'none',
-                  transition: 'all 0.15s'
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 {algo.name}
@@ -223,8 +256,8 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
       </div>
 
       {/* Main Visualizer Stage */}
-      {layoutMode === 'split' ? (
-        /* Split View: Balanced 1.1fr : 1fr grid with ample code width */
+      {layoutMode === 'split' && !isMobile ? (
+        /* Split View: Balanced 1.1fr : 1fr grid on wide screens */
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 1fr)', gap: '20px', alignItems: 'start' }}>
           {/* Left Interactive Canvas Container */}
           <div style={{ backgroundColor: '#090f20', border: '1px solid rgba(0, 245, 255, 0.25)', borderRadius: 'var(--radius-lg)', padding: '20px' }}>
@@ -279,24 +312,24 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
           </div>
         </div>
       ) : (
-        /* Stacked Wide Mode: Full Width Canvas + Full Width Code Editor */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        /* Stacked Wide Mode (Default on Mobile & Tablet): Full Width Canvas + Full Width Code Editor */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
           {/* Top Full Width Interactive Canvas */}
-          <div style={{ backgroundColor: '#090f20', border: '1px solid rgba(0, 245, 255, 0.25)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+          <div style={{ backgroundColor: '#090f20', border: '1px solid rgba(0, 245, 255, 0.25)', borderRadius: 'var(--radius-lg)', padding: isMobile ? '14px' : '22px', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', fontSize: '1.3rem', color: '#fff', fontWeight: 700 }}>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: isMobile ? '1.1rem' : '1.3rem', color: '#fff', fontWeight: 700 }}>
                   {currentDS?.name || currentAlgo?.name}
                 </h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <p style={{ margin: 0, fontSize: isMobile ? '0.78rem' : '0.85rem', color: 'var(--text-muted)' }}>
                   {currentDS?.description || currentAlgo?.description}
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {currentDS && (
                   <>
                     <ComplexityBadge complexity={currentDS.timeComplexity.access} label="Access" />
-                    <ComplexityBadge complexity={currentDS.timeComplexity.search} label="Search" />
                     <ComplexityBadge complexity={currentDS.spaceComplexity} label="Space" />
                   </>
                 )}
@@ -306,9 +339,6 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
                     <ComplexityBadge complexity={currentAlgo.spaceComplexity} label="Space" />
                   </>
                 )}
-                <span className={`cyber-badge ${tabCategory === 'ds' ? 'badge-cyan' : 'badge-magenta'}`} style={{ marginLeft: '8px' }}>
-                  {tabCategory === 'ds' ? 'DATA STRUCTURE' : 'ALGORITHMIC PATTERN'}
-                </span>
               </div>
             </div>
 
@@ -320,7 +350,7 @@ export const VisualizerHub: React.FC<VisualizerHubProps> = ({ initialType = 'arr
             <SyntaxHighlighter
               pythonCode={currentDS?.pythonSnippet || currentAlgo?.pythonSnippet || ''}
               tsCode={currentDS?.tsSnippet || currentAlgo?.tsSnippet || ''}
-              title={`${currentDS?.name || currentAlgo?.name} Implementation (Full Width)`}
+              title={`${currentDS?.name || currentAlgo?.name} Reference Code`}
             />
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -16,6 +16,17 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = '900px'
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 640);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -40,13 +51,13 @@ export const Modal: React.FC<ModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(4, 7, 14, 0.85)',
+        backgroundColor: 'rgba(4, 7, 14, 0.88)',
         backdropFilter: 'blur(8px)',
         zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: isMobile ? '6px' : '20px',
         animation: 'fadeIn 0.2s ease-out'
       }}
       onClick={onClose}
@@ -55,8 +66,8 @@ export const Modal: React.FC<ModalProps> = ({
         className="cyber-card"
         style={{
           width: '100%',
-          maxWidth,
-          maxHeight: '90vh',
+          maxWidth: isMobile ? '98vw' : maxWidth,
+          maxHeight: isMobile ? '95vh' : '90vh',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#0c1324',
@@ -72,12 +83,12 @@ export const Modal: React.FC<ModalProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '18px 24px',
+            padding: isMobile ? '12px 14px' : '18px 24px',
             borderBottom: '1px solid rgba(0, 245, 255, 0.15)',
             background: 'linear-gradient(90deg, rgba(0, 245, 255, 0.05), transparent)'
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: '1.2rem', color: '#00f5ff' }}>
+          <div style={{ fontWeight: 700, fontSize: isMobile ? '1rem' : '1.2rem', color: '#00f5ff' }}>
             {title}
           </div>
           <button
@@ -103,14 +114,14 @@ export const Modal: React.FC<ModalProps> = ({
               e.currentTarget.style.background = 'transparent';
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Body */}
         <div
           style={{
-            padding: '24px',
+            padding: isMobile ? '14px 12px' : '24px',
             overflowY: 'auto',
             flex: 1
           }}
