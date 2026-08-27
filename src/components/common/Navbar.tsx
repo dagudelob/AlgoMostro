@@ -7,13 +7,14 @@ import {
   Search, 
   X,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Layers
 } from 'lucide-react';
 import { DATA_STRUCTURES } from '../../data/dataStructuresData';
 import { ALGORITHMS } from '../../data/algorithmsData';
 import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
 
-export type AppView = 'canvas' | 'wiki' | 'wizard' | 'tree' | 'visualizers';
+export type AppView = 'canvas' | 'mermaid' | 'wiki' | 'wizard' | 'tree' | 'visualizers';
 
 interface NavbarProps {
   activeView: AppView;
@@ -312,7 +313,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             paddingBottom: isMobile ? '4px' : 0
           }}
         >
-          {/* 1. Flowchart */}
+          {/* 1. Step-by-Step Flowchart */}
           <button
             onClick={() => onViewChange('canvas')}
             style={{
@@ -333,10 +334,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <GitBranch size={14} />
-            <span>Flowchart</span>
+            <span>Interactive Flowchart</span>
           </button>
 
-          {/* 2. Wiki & Curriculum */}
+          {/* 2. Mermaid Full Architecture */}
+          <button
+            onClick={() => onViewChange('mermaid')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: isMobile ? '5px 10px' : '7px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: activeView === 'mermaid' ? 'rgba(0, 245, 255, 0.2)' : 'transparent',
+              color: activeView === 'mermaid' ? 'var(--neon-cyan)' : 'var(--text-muted)',
+              fontSize: isMobile ? '0.75rem' : '0.82rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: activeView === 'mermaid' ? '0 0 10px rgba(0, 245, 255, 0.3)' : 'none',
+              transition: 'all 0.15s'
+            }}
+          >
+            <Layers size={14} />
+            <span>Mermaid Architecture</span>
+          </button>
+
+          {/* 3. Wiki & Curriculum */}
           <button
             onClick={() => onViewChange('wiki')}
             style={{
@@ -360,7 +385,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Wiki & Big-O</span>
           </button>
 
-          {/* 3. Simulators */}
+          {/* 4. Simulators */}
           <button
             onClick={() => onViewChange('visualizers')}
             style={{
@@ -384,7 +409,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>16 Simulators</span>
           </button>
 
-          {/* 4. Wizard */}
+          {/* 5. Wizard */}
           <button
             onClick={() => onViewChange('wizard')}
             style={{
@@ -408,7 +433,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Wizard</span>
           </button>
 
-          {/* 5. Tree Directory */}
+          {/* 6. Tree Directory */}
           <button
             onClick={() => onViewChange('tree')}
             style={{

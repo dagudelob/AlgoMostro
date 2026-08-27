@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Navbar, type AppView } from './components/common/Navbar';
 import { FlowchartCanvas } from './components/flowchart/FlowchartCanvas';
+import { MermaidFlowchartView } from './components/mermaid/MermaidFlowchartView';
 import { WizardMode } from './components/flowchart/WizardMode';
 import { TreeListView } from './components/flowchart/TreeListView';
 import { VisualizerHub } from './components/visualizers/VisualizerHub';
@@ -68,6 +69,13 @@ export const App: React.FC = () => {
             onSelectResult={handleSelectResult}
             onHoverItem={handleHoverTerm}
             onLeaveItem={handleLeaveTerm}
+          />
+        )}
+
+        {activeView === 'mermaid' && (
+          <MermaidFlowchartView
+            onSelectResult={handleSelectResult}
+            onOpenVisualizer={handleSelectVisualizerItem}
           />
         )}
 
@@ -150,7 +158,7 @@ export const App: React.FC = () => {
             <span>•</span>
             <span>16 SIMULATORS</span>
             <span>•</span>
-            <span>BIG-O WIKI</span>
+            <span>MERMAID ARCHITECTURE</span>
           </div>
         </div>
       </footer>

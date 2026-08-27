@@ -1,0 +1,84 @@
+🗺️ Diagrama de Flujo para Selección de Algoritmos (AlgoMonster Flowchart)Este documento contiene la representación completa del Diagrama de Decisión de AlgoMonster formateado en Mermaid.js, junto con un resumen estructurado para resolver problemas de Estructuras de Datos y Algoritmos (DSA) en entrevistas técnicas.1. Diagrama General de Decisión (Mermaid)graph TD
+    %% Inicio / Nodo Raíz
+    START(["❓ ¿Qué tipo de problema estás resolviendo?"])
+
+    %% Categorías Principales
+    START --> ARRAY_BRANCH["🟩 Arreglos o Cadenas<br/>(Arrays / Strings)"]
+    START --> GRAPH_BRANCH["🟦 Grafos y Árboles<br/>(Graphs / Trees / Grids)"]
+    START --> OPT_BRANCH["🟧 Optimización y Combinatoria<br/>(DP / Backtracking)"]
+    START --> STRUCT_BRANCH["🟪 Estructuras Especializadas<br/>(Heaps / Intervalos)"]
+
+    %% --- RAMA 1: ARREGLOS Y CADENAS ---
+    ARRAY_BRANCH --> Q_SORTED{"¿El arreglo está ORDENADO<br/>o es Monótono?"}
+    Q_SORTED -- Sí --> ALGO_BS["🎯 Búsqueda Binaria<br/>(Binary Search)<br/><i>O(log N)</i>"]
+    Q_SORTED -- No --> Q_SUBARRAY{"¿Buscas Subarreglos Contiguos<br/>o Rangos?"}
+    
+    Q_SUBARRAY -- Ventana Fija/Variable --> ALGO_SW["🪟 Ventana Deslizante<br/>(Sliding Window)<br/><i>O(N)</i>"]
+    Q_SUBARRAY -- Suma/Producto en Rangos --> ALGO_PS["📊 Suma de Prefijos<br/>(Prefix Sum)<br/><i>O(N)</i>"]
+    Q_SUBARRAY -- Pares desde Extremos --> ALGO_TP["👉👈 Dos Punteros<br/>(Two Pointers)<br/><i>O(N)</i>"]
+    
+    ARRAY_BRANCH --> Q_STACK{"¿Buscas el siguiente<br/>elemento mayor/menor?"}
+    Q_STACK -- Sí --> ALGO_MS["📚 Pila Monótona<br/>(Monotonic Stack)<br/><i>O(N)</i>"]
+
+    %% --- RAMA 2: GRAFOS Y ÁRBOLES ---
+    GRAPH_BRANCH --> Q_SHORTEST{"¿Buscas el Camino Más Corto<br/>o Distancia Mínima?"}
+    Q_SHORTEST -- Sin Pesos / Grilla 2D --> ALGO_BFS["🌊 BFS (Búsqueda en Anchura)<br/><i>O(V + E)</i>"]
+    Q_SHORTEST -- Pesos Positivos --> ALGO_DIJKSTRA["⚖️ Algoritmo de Dijkstra<br/><i>O((V+E) log V)</i>"]
+    
+    GRAPH_BRANCH --> Q_CONNECTIVITY{"¿Estructura del Grafo / Relación?"}
+    Q_CONNECTIVITY -- Dependencias / Tareas --> ALGO_TOPO["📋 Ordenamiento Topológico<br/>(Kahn / DFS)<br/><i>O(V + E)</i>"]
+    Q_CONNECTIVITY -- Componentes Conexas / Grupos --> ALGO_UF["🪢 Union-Find (DSU)<br/><i>O(α(N))</i>"]
+    Q_CONNECTIVITY -- Prefijos de Cadenas --> ALGO_TRIE["🌲 Trie (Árbol de Prefijos)<br/><i>O(L)</i>"]
+
+    %% --- RAMA 3: OPTIMIZACIÓN Y COMBINATORIA ---
+    OPT_BRANCH --> Q_GOAL{"¿Calculas valor óptimo/conteo<br/>o TODAS las soluciones?"}
+    Q_GOAL -- Valor Óptimo / Min-Max / Subproblemas --> ALGO_DP["🧱 Programación Dinámica<br/>(DP)<br/><i>O(Estados × Transiciones)</i>"]
+    Q_GOAL -- Listar Permutaciones / Subconjuntos --> ALGO_BT["🔙 Backtracking (DFS)<br/><i>O(2^N) / O(N!)</i>"]
+
+    %% --- RAMA 4: ESTRUCTURAS ESPECIALIZADAS ---
+    STRUCT_BRANCH --> Q_SPEC{"¿Patrón de los Datos?"}
+    Q_SPEC -- Elementos Top K / Mínimo / Máximo --> ALGO_HEAP["👑 Heap / Priority Queue<br/><i>O(N log K)</i>"]
+    Q_SPEC -- Intervalos / Eventos de Tiempo --> ALGO_INT["📅 Intervalos / Sweep Line<br/><i>O(N log N)</i>"]
+
+    %% Estilos de Nodos
+    classDef root fill:#0f172a,stroke:#06b6d4,stroke-width:3px,color:#38bdf8;
+    classDef category fill:#1e293b,stroke:#64748b,stroke-width:2px,color:#f8fafc;
+    classDef decision fill:#334155,stroke:#94a3b8,stroke-width:1px,color:#f1f5f9;
+    classDef algoArray fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#a7f3d0;
+    classDef algoGraph fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#c7d2fe;
+    classDef algoDP fill:#451a03,stroke:#f59e0b,stroke-width:2px,color:#fde68a;
+    classDef algoSpec fill:#3b0764,stroke:#a855f7,stroke-width:2px,color:#e9d5ff;
+
+    class START root;
+    class ARRAY_BRANCH,GRAPH_BRANCH,OPT_BRANCH,STRUCT_BRANCH category;
+    class Q_SORTED,Q_SUBARRAY,Q_STACK,Q_SHORTEST,Q_CONNECTIVITY,Q_GOAL,Q_SPEC decision;
+    class ALGO_BS,ALGO_SW,ALGO_PS,ALGO_TP,ALGO_MS algoArray;
+    class ALGO_BFS,ALGO_DIJKSTRA,ALGO_TOPO,ALGO_UF,ALGO_TRIE algoGraph;
+    class ALGO_DP,ALGO_BT algoDP;
+    class ALGO_HEAP,ALGO_INT algoSpec;
+2. Diagramas Detallados por Categoría2.1 Arreglos y Cadenas (Arrays & Strings)graph TD
+    A["🟩 Arreglos y Cadenas"] --> B{"¿Entrada Ordenada?"}
+    B -- Sí --> C["Búsqueda Binaria"]
+    B -- No --> D{"¿Subarreglo / Subcadena?"}
+    
+    D -- Ventana Continua --> E["Sliding Window"]
+    D -- Suma de Subarreglo = K --> F["Prefix Sum + HashMap"]
+    D -- Pares (Paso desde Extremos) --> G["Two Pointers"]
+    D -- Siguiente Mayor / Menor --> H["Monotonic Stack"]
+2.2 Grafos y Árboles (Graphs & Trees)graph TD
+    A["🟦 Grafos / Árboles / Grillas 2D"] --> B{"¿Objetivo del Problema?"}
+    
+    B -- Camino Más Corto (Sin Pesos) --> C["BFS (Breadth-First Search)"]
+    B -- Camino Más Corto (Pesos Positivos) --> D["Dijkstra"]
+    B -- Prerrequisitos / Orden de Tareas --> E["Topological Sort (Kahn / DFS)"]
+    B -- Detección de Ciclos / Grupos Conexos --> F["Union-Find (DSU)"]
+    B -- Búsqueda de Prefijos de Cadenas --> G["Trie (Prefix Tree)"]
+2.3 Optimización y DP / Backtrackinggraph TD
+    A["🟧 Optimización y Combinatoria"] --> B{"¿Qué solicita el enunciado?"}
+    
+    B -- El valor Mínimo, Máximo o Conteo Total --> C["Programación Dinámica (DP)"]
+    B -- Listar TODAS las soluciones posibles --> D["Backtracking (DFS)"]
+    
+    C --> C1["Subproblemas Solapados + Subestructura Óptima"]
+    D --> D1["Permutaciones, Combinaciones, Subconjuntos"]
+3. Matriz Resumen de Algoritmos y ComplejidadesAlgoritmoCategoríaComplejidad TemporalComplejidad EspacialCasos de Uso ClaveBinary SearchArray / String$O(\log N)$$O(1)$Arreglos ordenados, funciones monótonasSliding WindowArray / String$O(N)$$O(1)$ a $O(K)$Subarreglos contiguos de tamaño fijo o condicionalPrefix SumArray / String$O(N)$$O(N)$Consultas de suma acumulada en rangosTwo PointersArray / String$O(N)$$O(1)$Pares convergentes, inversión in-placeMonotonic StackArray / String$O(N)$$O(N)$Siguiente elemento mayor o menor, histogramasBFSGrafos / Árboles$O(V + E)$$O(V)$Camino más corto sin pesos, recorrido por nivelesDijkstraGrafos / Árboles$O((V + E) \log V)$$O(V)$Camino más corto con pesos no negativosTopological SortGrafos / Árboles$O(V + E)$$O(V)$Orden de dependencias en DAGs (Course Schedule)Union-Find (DSU)Grafos / Árboles$O(\alpha(N)) \approx O(1)$$O(N)$Componentes conexas dinámicas, detección de ciclosTrieGrafos / Árboles$O(L)$ por palabra$O(N \cdot L)$Autocompletado, búsqueda de prefijos de textoDynamic ProgrammingOptimización$O(\text{Estados} \times \text{Transiciones})$$O(\text{Estados})$Valor óptimo, subproblemas solapados (Knapsack, LCS)BacktrackingCombinatoria$O(2^N)$ o $O(N!)$$O(N)$Generación de subconjuntos, permutaciones, N-QueensHeap / Priority QueueEstr. Especiales$O(N \log K)$$O(K)$Top K elementos más frecuentes, mediana en flujoIntervals / Sweep LineEstr. Especiales$O(N \log N)$$O(N)$Traslape de eventos, superposición de rangos4. Guía Rápida de Decisión durante una Entrevista¿El arreglo está ordenado?➡️ Piensa inmediatamente en Búsqueda Binaria o Dos Punteros.¿Piden subarreglo contiguo que maximice o minimice una condición?➡️ Piensa en Sliding Window.¿Piden el número total de formas o el valor óptimo sin necesidad de mostrar los caminos?➡️ Usar Programación Dinámica (DP).¿Piden mostrar TODAS las posibles combinaciones o permutaciones válidas?➡️ Usar Backtracking.¿El problema es sobre encontrar el camino más corto en un laberinto o matriz?➡️ Usar BFS si cada movimiento cuesta 1, o Dijkstra si los costos varían.
