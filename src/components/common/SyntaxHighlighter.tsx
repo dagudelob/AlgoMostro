@@ -4,17 +4,21 @@ import { Copy, Check, Maximize2, Minimize2, ZoomIn, ZoomOut, WrapText } from 'lu
 interface SyntaxHighlighterProps {
   pythonCode: string;
   tsCode: string;
+  jsCode?: string;
   title?: string;
   defaultExpanded?: boolean;
 }
 
+type SupportedLang = 'python' | 'typescript' | 'javascript';
+
 export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
   pythonCode,
   tsCode,
+  jsCode,
   title = 'Solution Code',
   defaultExpanded = false
 }) => {
-  const [lang, setLang] = useState<'python' | 'typescript'>('python');
+  const [lang, setLang] = useState<SupportedLang>('python');
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [fontSize, setFontSize] = useState<number>(13); // px
@@ -35,7 +39,24 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const activeCode = lang === 'python' ? pythonCode.trim() : tsCode.trim();
+  // Generate fallback JavaScript code from TypeScript if jsCode is not provided
+  const getActiveCode = (): string => {
+    if (lang === 'python') return pythonCode.trim();
+    if (lang === 'typescript') return tsCode.trim();
+    if (lang === 'javascript') {
+      if (jsCode) return jsCode.trim();
+      // Strip common TypeScript type annotations if needed
+      return tsCode
+        .replace(/:\s*(number|string|boolean|void|any|number\[\]|string\[\]|TreeNode|ListNode|Record<[^>]+>|Map<[^>]+>|Set<[^>]+>|Optional<[^>]+>|Tuple<[^>]+>|\[[^\]]+\])(?=[,\)\s=;])/g, '')
+        .replace(/:\s*[A-Z][a-zA-Z0-9_<>\[\]|]*(?=[,\)\s=;])/g, '')
+        .replace(/\b(private|public|protected|readonly)\s+/g, '')
+        .replace(/<[A-Z][a-zA-Z0-9_,\s]*>/g, '')
+        .trim();
+    }
+    return pythonCode.trim();
+  };
+
+  const activeCode = getActiveCode();
 
   const handleCopy = async () => {
     try {
@@ -60,7 +81,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
     }
 
     // Tokenize strings, keywords, types, numbers, functions, variables
-    const tokenRegex = /(["'][^"']*["']|\b(?:def|class|return|if|elif|else|while|for|in|import|from|const|let|var|function|type|interface|extends|implements|new|typeof|instanceof|async|await|break|continue|try|except|catch|finally|throw)\b|\b(?:int|float|str|bool|List|Dict|Set|Optional|Tuple|number|string|boolean|void|any|Record|Array|Map|TreeNode|ListNode)\b|\b(?:self|this|true|false|True|False|None|null|undefined|Infinity|NaN)\b|\b\d+\b|[a-zA-Z_]\w*(?=\()|[a-zA-Z_]\w*|[^\s\w])/g;
+    const tokenRegex = /(["'][^"']*["']|\b(?:def|class|return|if|elif|else|while|for|in|import|from|const|let|var|function|type|interface|extends|implements|new|typeof|instanceof|async|await|break|continue|try|except|catch|finally|throw|console|print)\b|\b(?:int|float|str|bool|List|Dict|Set|Optional|Tuple|number|string|boolean|void|any|Record|Array|Map|TreeNode|ListNode)\b|\b(?:self|this|true|false|True|False|None|null|undefined|Infinity|NaN)\b|\b\d+\b|[a-zA-Z_]\w*(?=\()|[a-zA-Z_]\w*|[^\s\w])/g;
 
     const parts = [];
     let lastIdx = 0;
@@ -171,7 +192,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
           </span>
         </div>
 
-        {/* Right tools: Language toggle, font size, wrap, maximize & copy */}
+        {/* Right tools: Language toggle (Python 3, TypeScript, JavaScript), font size, wrap, maximize & copy */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
           {/* Language Switcher */}
           <div style={{ display: 'flex', backgroundColor: '#1e1e1e', padding: '2px', borderRadius: '4px', border: '1px solid #3c3c3c' }}>
@@ -181,7 +202,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
                 background: lang === 'python' ? '#37373d' : 'transparent',
                 color: lang === 'python' ? '#4ec9b0' : '#858585',
                 border: 'none',
-                padding: isMobile ? '3px 6px' : '4px 9px',
+                padding: isMobile ? '3px 5px' : '4px 8px',
                 borderRadius: '3px',
                 fontSize: isMobile ? '0.68rem' : '0.74rem',
                 fontFamily: 'var(--font-mono)',
@@ -190,7 +211,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
                 transition: 'all 0.15s'
               }}
             >
-              Python 3
+              Python
             </button>
             <button
               onClick={() => setLang('typescript')}
@@ -198,7 +219,7 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
                 background: lang === 'typescript' ? '#37373d' : 'transparent',
                 color: lang === 'typescript' ? '#569cd6' : '#858585',
                 border: 'none',
-                padding: isMobile ? '3px 6px' : '4px 9px',
+                padding: isMobile ? '3px 5px' : '4px 8px',
                 borderRadius: '3px',
                 fontSize: isMobile ? '0.68rem' : '0.74rem',
                 fontFamily: 'var(--font-mono)',
@@ -208,6 +229,23 @@ export const SyntaxHighlighter: React.FC<SyntaxHighlighterProps> = ({
               }}
             >
               TypeScript
+            </button>
+            <button
+              onClick={() => setLang('javascript')}
+              style={{
+                background: lang === 'javascript' ? '#37373d' : 'transparent',
+                color: lang === 'javascript' ? '#ffd60a' : '#858585',
+                border: 'none',
+                padding: isMobile ? '3px 5px' : '4px 8px',
+                borderRadius: '3px',
+                fontSize: isMobile ? '0.68rem' : '0.74rem',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              JavaScript
             </button>
           </div>
 

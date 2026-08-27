@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Navbar, type AppView } from './components/common/Navbar';
 import { FlowchartCanvas } from './components/flowchart/FlowchartCanvas';
 import { MermaidFlowchartView } from './components/mermaid/MermaidFlowchartView';
@@ -14,7 +15,8 @@ import { ALGORITHMS } from './data/algorithmsData';
 import type { AlgorithmResult } from './types/flowchart';
 import type { DSItem, AlgoItem } from './types/visualizer';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { t } = useLanguage();
   const [activeView, setActiveView] = useState<AppView>('canvas');
   const [selectedVisualizerType, setSelectedVisualizerType] = useState<string>('array');
   const [activeModalResult, setActiveModalResult] = useState<AlgorithmResult | null>(null);
@@ -54,7 +56,7 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Sticky Top Navbar */}
+      {/* Sticky Top Navbar with Language Toggle */}
       <Navbar
         activeView={activeView}
         onViewChange={setActiveView}
@@ -138,7 +140,7 @@ export const App: React.FC = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Based on the algorithmic decision tree methodology by{' '}
+              {t('footer.based_on')}{' '}
               <a
                 href="https://algo.monster/flowchart"
                 target="_blank"
@@ -147,7 +149,7 @@ export const App: React.FC = () => {
               >
                 AlgoMonster Flowchart
               </a>
-              {' '}&bull; Collaborative Educational Project
+              {' '}&bull; {t('footer.collab')}
             </span>
           </div>
 
@@ -158,11 +160,19 @@ export const App: React.FC = () => {
             <span>•</span>
             <span>16 SIMULATORS</span>
             <span>•</span>
-            <span>MERMAID ARCHITECTURE</span>
+            <span>PYTHON / TS / JS</span>
           </div>
         </div>
       </footer>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

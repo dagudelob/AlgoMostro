@@ -61,6 +61,7 @@ export interface ClassicProblem {
   spaceComplexity: string;
   pythonCode: string;
   tsCode: string;
+  jsCode?: string;
   sampleInput: string;
   sampleOutput: string;
 }

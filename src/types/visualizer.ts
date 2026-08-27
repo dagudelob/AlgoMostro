@@ -19,6 +19,7 @@ export interface DSItem {
   useCases: string[];
   pythonSnippet: string;
   tsSnippet: string;
+  jsSnippet?: string;
   snippet?: string;
 }
 
@@ -39,6 +40,7 @@ export interface AlgoItem {
   keySignals: string[];
   pythonSnippet: string;
   tsSnippet: string;
+  jsSnippet?: string;
   snippet?: string;
 }
 

@@ -8,8 +8,10 @@ import {
   X,
   BookOpen,
   ArrowRight,
-  Layers
+  Layers,
+  Languages
 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import { DATA_STRUCTURES } from '../../data/dataStructuresData';
 import { ALGORITHMS } from '../../data/algorithmsData';
 import { ALGORITHM_RESULTS } from '../../data/problemCatalog';
@@ -29,6 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectResult,
   onSelectVisualizerItem
 }) => {
+  const { lang, toggleLang, t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -99,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           gap: isMobile ? '10px' : '16px'
         }}
       >
-        {/* Top Row on Mobile: Logo & Search */}
+        {/* Top Row on Mobile: Logo & Search & Language Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', width: isMobile ? '100%' : 'auto' }}>
           {/* Brand Logo */}
           <div
@@ -148,14 +151,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               {!isMobile && (
                 <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', letterSpacing: '1px', display: 'block', marginTop: '-2px' }}>
-                  INTERACTIVE DSA FLOWCHART & WIKI
+                  {t('nav.subtitle')}
                 </span>
               )}
             </div>
           </div>
 
           {/* Search Bar on Desktop / Mobile Input */}
-          <div ref={searchRef} style={{ position: 'relative', width: isMobile ? '160px' : '280px', display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
+          <div ref={searchRef} style={{ position: 'relative', width: isMobile ? '140px' : '260px', display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
             <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
               <Search
                 size={14}
@@ -174,10 +177,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setIsSearchOpen(true);
                 }}
                 onFocus={() => setIsSearchOpen(true)}
-                placeholder={isMobile ? "Search..." : "Search algorithms, DS..."}
+                placeholder={isMobile ? "Search..." : t('nav.search')}
                 style={{
                   width: '100%',
-                  padding: isMobile ? '6px 26px 6px 30px' : '8px 32px 8px 34px',
+                  padding: isMobile ? '6px 24px 6px 28px' : '8px 30px 8px 32px',
                   borderRadius: '20px',
                   backgroundColor: 'rgba(16, 28, 54, 0.7)',
                   border: '1px solid rgba(0, 245, 255, 0.3)',
@@ -236,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {filteredResults.length > 0 && (
                   <div style={{ marginBottom: '8px' }}>
                     <div style={{ fontSize: '0.68rem', color: 'var(--neon-magenta)', fontWeight: 700, padding: '4px 8px', fontFamily: 'var(--font-mono)' }}>
-                      ALGORITHMS ({filteredResults.length})
+                      {t('nav.algorithms')} ({filteredResults.length})
                     </div>
                     {filteredResults.map(res => (
                       <div
@@ -269,7 +272,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {filteredDS.length > 0 && (
                   <div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--neon-cyan)', fontWeight: 700, padding: '4px 8px', fontFamily: 'var(--font-mono)' }}>
-                      DATA STRUCTURES ({filteredDS.length})
+                      {t('nav.data_structures')} ({filteredDS.length})
                     </div>
                     {filteredDS.map(ds => (
                       <div
@@ -291,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         <span style={{ fontSize: '0.8rem', color: '#fff' }}>{ds.name}</span>
-                        <span className="cyber-badge badge-cyan" style={{ fontSize: '0.6rem' }}>Simulator</span>
+                        <span className="cyber-badge badge-cyan" style={{ fontSize: '0.6rem' }}>{t('nav.sim_badge')}</span>
                       </div>
                     ))}
                   </div>
@@ -299,6 +302,31 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
           </div>
+
+          {/* Language Toggle Button */}
+          <button
+            onClick={toggleLang}
+            title={lang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: isMobile ? '4px 8px' : '6px 12px',
+              borderRadius: '20px',
+              backgroundColor: 'rgba(0, 245, 255, 0.1)',
+              border: '1px solid var(--neon-cyan)',
+              color: 'var(--neon-cyan)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              fontFamily: 'var(--font-mono)',
+              cursor: 'pointer',
+              boxShadow: '0 0 10px rgba(0, 245, 255, 0.25)',
+              transition: 'all 0.15s'
+            }}
+          >
+            <Languages size={13} />
+            <span>{lang === 'en' ? 'EN | 🇪🇸 ES' : 'ES | 🇺🇸 EN'}</span>
+          </button>
         </div>
 
         {/* Navigation Views in Learning Order (Horizontally Scrollable on Mobile) */}
@@ -334,7 +362,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <GitBranch size={14} />
-            <span>Interactive Flowchart</span>
+            <span>{t('nav.flowchart')}</span>
           </button>
 
           {/* 2. Mermaid Full Architecture */}
@@ -358,7 +386,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <Layers size={14} />
-            <span>Mermaid Architecture</span>
+            <span>{t('nav.mermaid')}</span>
           </button>
 
           {/* 3. Wiki & Curriculum */}
@@ -382,7 +410,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <BookOpen size={14} />
-            <span>Wiki & Big-O</span>
+            <span>{t('nav.wiki')}</span>
           </button>
 
           {/* 4. Simulators */}
@@ -406,7 +434,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <PlayCircle size={14} />
-            <span>16 Simulators</span>
+            <span>{t('nav.simulators')}</span>
           </button>
 
           {/* 5. Wizard */}
@@ -430,7 +458,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <Sparkles size={14} />
-            <span>Wizard</span>
+            <span>{t('nav.wizard')}</span>
           </button>
 
           {/* 6. Tree Directory */}
@@ -454,7 +482,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <FolderTree size={14} />
-            <span>Directory</span>
+            <span>{t('nav.directory')}</span>
           </button>
         </nav>
       </div>
